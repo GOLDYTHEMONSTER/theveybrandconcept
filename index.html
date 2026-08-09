@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thevey Brand International — Fashion Preview</title>
+    <meta
+      name="description"
+      content="A premium fashion preview experience for Thevey Brand International."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="splash-screen" id="splashScreen">
+      <div class="splash-content">
+        <p class="eyebrow">THEVEY BRAND INTERNATIONAL</p>
+        <h1>SEE IT DIFFERENTLY.</h1>
+        <p class="splash-copy">
+          A premium fashion preview experience for couture-led discovery.
+        </p>
+        <button class="primary-btn" id="enterStoreBtn">Enter Preview</button>
+      </div>
+    </div>
+
+    <div class="app-shell" id="appShell">
+      <header class="topbar">
+        <div class="brand-block">
+          <div class="brand-mark">TB</div>
+          <div>
+            <p class="brand-name">THEVEY BRAND</p>
+            <p class="brand-subtitle">INTERNATIONAL</p>
+          </div>
+        </div>
+        <nav class="top-nav" id="siteNav">
+          <a href="index.html">Home</a>
+          <a href="shop.html">Shop</a>
+          <a href="about.html">About</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+        <button class="icon-btn" id="cartTrigger">Bag <span id="cartCount">0</span></button>
+      </header>
+
+      <main>
+        <section class="hero-card" id="home">
+          <div class="hero-visual">
+            <img
+              loading="eager"
+              decoding="async"
+              src="product1/fashn-export-1786297249232.webp"
+              alt="The Sienna Gown featured preview"
+            />
+            <div class="hero-badge">✦ AI / REAL FLOW</div>
+          </div>
+          <div class="hero-copy">
+            <p class="eyebrow">AI PREVIEW • VERIFIED REALITY</p>
+            <h2>Summer edit, reimagined in motion.</h2>
+            <p>
+              Discover sculptural silhouettes, evening glamour, and statement sets
+              with AI-guided previews before you verify the real piece.
+            </p>
+            <div class="hero-actions">
+              <a class="primary-btn" href="shop.html">Explore</a>
+              <a class="secondary-btn" href="product.html?id=1">Watch Real</a>
+            </div>
+            <div class="hero-carousel">
+              <p class="hero-carousel-label">Featured products</p>
+              <div class="hero-thumbs" id="heroThumbs"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="home-video-showcase">
+          <div class="video-shell panel">
+            <video
+              id="heroVideo"
+              class="responsive-video"
+              poster="product1/fashn-export-1786297249232.webp"
+              controls
+              muted
+              loop
+              playsinline
+              preload="metadata"
+            >
+              <source id="heroVideoSource" src="product1/fashn-export-1786297223826.mp4" type="video/mp4" />
+              Your browser does not support HTML video.
+            </video>
+          </div>
+          <div class="panel">
+            <p class="eyebrow">EDITORIAL VIDEO</p>
+            <h3>Let the garment move before the purchase.</h3>
+            <p>
+              Short motion-led previews bring the AI imagery to life and support the
+              premium fashion experience.
+            </p>
+            <a class="primary-btn" href="product.html?id=1">Explore Product</a>
+          </div>
+        </section>
+
+        <section class="onboarding-card">
+          <div class="section-heading">
+            <p class="eyebrow">THE EXPERIENCE</p>
+            <h3>Three steps from imagining to verifying.</h3>
+          </div>
+          <div class="onboarding-grid">
+            <article class="panel">
+              <h4>01. AI, meet fashion.</h4>
+              <p>Immerse in elevated visuals designed to feel editorial and cinematic.</p>
+            </article>
+            <article class="panel">
+              <h4>02. One piece. Every angle.</h4>
+              <p>Switch between front, side, and back views to inspect the silhouette.</p>
+            </article>
+            <article class="panel">
+              <h4>03. Imagine. Then verify.</h4>
+              <p>Move from AI preview into a real product confirmation experience.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section-block" id="explore">
+          <div class="section-heading">
+            <p class="eyebrow">NEW THIS WEEK</p>
+            <h3>Curated pieces for the season.</h3>
+          </div>
+          <div class="pill-row" id="filterRow"></div>
+          <div class="product-grid" id="productGrid"></div>
+        </section>
+
+        <section class="section-block product-showcase" id="story">
+          <div class="product-visual" id="productVisual"></div>
+          <div class="product-details">
+            <p class="eyebrow">✦ AI PREVIEW</p>
+            <h3 id="productTitle">The Sienna Gown</h3>
+            <p id="productDescription">
+              A fluid evening silhouette with sculpted drape and a cinematic finish.
+            </p>
+            <div class="meta-row">
+              <span id="productPrice">$480</span>
+              <span class="dot">•</span>
+              <span id="productCategory">Evening</span>
+            </div>
+
+            <div class="tabs" id="viewTabs">
+              <button class="tab active" data-view="front">Front</button>
+              <button class="tab" data-view="side">Side</button>
+              <button class="tab" data-view="back">Back</button>
+            </div>
+
+            <div class="detail-list">
+              <div>
+                <p class="small-label">Color</p>
+                <div class="swatches" id="swatches"></div>
+              </div>
+              <div>
+                <p class="small-label">Sizes</p>
+                <div class="sizes" id="sizes"></div>
+              </div>
+            </div>
+
+            <div class="action-row">
+              <button class="primary-btn" id="addToBagBtn">Add to Bag</button>
+              <button class="secondary-btn" id="verifyBtn">Verify it →</button>
+            </div>
+
+            <div class="verify-panel" id="verifyPanel">
+              <div class="verify-top">
+                <p class="eyebrow">✓ VERIFIED REAL PRODUCT</p>
+                <span class="verified-pill">Verified</span>
+              </div>
+              <div class="video-card">
+                <img
+                  src="product1/fashn-export-1786297249232.webp"
+                  alt="Editorial product verification imagery"
+                />
+                <div class="video-overlay">
+                  <p>Real garment confirmation video</p>
+                  <span>Portrait-ready, drape-tested, and ready for delivery.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <aside class="cart-drawer" id="cartDrawer">
+      <div class="drawer-header">
+        <h4>Your Bag</h4>
+        <button class="icon-btn" id="closeCartBtn">Close</button>
+      </div>
+      <div class="drawer-content" id="cartContent">
+        <p class="empty-state">Your selected pieces will appear here.</p>
+      </div>
+    </aside>
+
+    <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+      <a href="index.html" class="active">Home</a>
+      <a href="shop.html">Shop</a>
+      <a href="product.html?id=1">Product</a>
+    </nav>
+
+    <script src="script.js"></script>
+  </body>
+</html>

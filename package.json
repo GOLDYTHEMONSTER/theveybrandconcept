@@ -1,0 +1,10 @@
+{
+  "name": "theveybrandconcept",
+  "version": "1.0.0",
+  "description": "Static fashion storefront demo for Thevey Brand International.",
+  "private": true,
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "preview": "python -m http.server 8000"
+  }
+}
