@@ -47,26 +47,42 @@
       </header>
 
       <main>
-        <section class="hero-card" id="home">
-          <div class="hero-visual">
+        <section class="hero-card showroom-card" id="home">
+          <div class="hero-visual hero-showroom" id="showroomTrigger" role="button" tabindex="0" aria-label="View showroom product">
             <img
               loading="eager"
               decoding="async"
               src="product1/fashn-export-1786297249232.webp"
               alt="The Sienna Gown featured preview"
             />
-            <div class="hero-badge">✦ AI / REAL FLOW</div>
+            <video
+              id="showroomVideo"
+              class="showroom-video"
+              muted
+              autoplay
+              loop
+              playsinline
+              preload="metadata"
+            >
+              <source id="showroomVideoSource" src="product1/fashn-export-1786297223826.mp4" type="video/mp4" />
+              Your browser does not support HTML video.
+            </video>
+            <div class="showroom-caption" id="showroomCaption">
+              <span class="caption-tag">NOW IN MOTION</span>
+              <strong id="showroomCaptionTitle">The Sienna Gown</strong>
+              <p id="showroomCaptionText">Champagne satin silhouette for the evening edit.</p>
+            </div>
+            
           </div>
           <div class="hero-copy">
-            <p class="eyebrow">AI PREVIEW • VERIFIED REALITY</p>
-            <h2>Summer edit, reimagined in motion.</h2>
-            <p>
-              Discover sculptural silhouettes, evening glamour, and statement sets
-              with AI-guided previews before you verify the real piece.
+            <p class="eyebrow">SHOWROOM</p>
+            <h2>Showroom preview, sculpted for summer.</h2>
+            <p class="hero-summary">
+              Curated for a premium fashion moment, this showroom blends a large motion-driven display with a polished product image and concise storytelling.
             </p>
             <div class="hero-actions">
               <a class="primary-btn" href="shop.html">Explore</a>
-              <a class="secondary-btn" href="product.html?id=1">Watch Real</a>
+              <a class="secondary-btn" href="product.html?id=1">Shop the look</a>
             </div>
             <div class="hero-carousel">
               <p class="hero-carousel-label">Featured products</p>
@@ -75,50 +91,35 @@
           </div>
         </section>
 
-        <section class="home-video-showcase">
-          <div class="video-shell panel">
-            <video
-              id="heroVideo"
-              class="responsive-video"
-              poster="product1/fashn-export-1786297249232.webp"
-              muted
-              autoplay
-              loop
-              playsinline
-              preload="metadata"
-            >
-              <source id="heroVideoSource" src="product1/fashn-export-1786297223826.mp4" type="video/mp4" />
-              Your browser does not support HTML video.
-            </video>
-          </div>
-          <div class="panel">
-            <p class="eyebrow">EDITORIAL VIDEO</p>
-            <h3>Let the garment move before the purchase.</h3>
-            <p>
-              Short motion-led previews bring the AI imagery to life and support the
-              premium fashion experience.
-            </p>
-            <a class="primary-btn" href="product.html?id=1">Explore Product</a>
-          </div>
-        </section>
-
         <section class="onboarding-card">
           <div class="section-heading">
-            <p class="eyebrow">THE EXPERIENCE</p>
-            <h3>Three steps from imagining to verifying.</h3>
+            <p class="eyebrow">HOW TO BUY</p>
+            <h3>From preview to purchase in four steps.</h3>
           </div>
-          <div class="onboarding-grid">
-            <article class="panel">
-              <h4>01. AI, meet fashion.</h4>
-              <p>Immerse in elevated visuals designed to feel editorial and cinematic.</p>
+          <div class="onboarding-grid tutorial-grid">
+            <article class="panel tutorial-step">
+              <div class="step-icon">◎</div>
+              <span class="step-number">01</span>
+              <h4>Browse</h4>
+              <p>Explore the curated showroom and select the piece that fits your mood, moment, and edit.</p>
             </article>
-            <article class="panel">
-              <h4>02. One piece. Every angle.</h4>
-              <p>Switch between front, side, and back views to inspect the silhouette.</p>
+            <article class="panel tutorial-step">
+              <div class="step-icon">✦</div>
+              <span class="step-number">02</span>
+              <h4>Inspect</h4>
+              <p>View details, silhouettes, and finishing notes so you can compare sizing and styling before buying.</p>
             </article>
-            <article class="panel">
-              <h4>03. Imagine. Then verify.</h4>
-              <p>Move from AI preview into a real product confirmation experience.</p>
+            <article class="panel tutorial-step">
+              <div class="step-icon">✓</div>
+              <span class="step-number">03</span>
+              <h4>Verify</h4>
+              <p>Confirm the garment with the real product preview and trust the premium verification story.</p>
+            </article>
+            <article class="panel tutorial-step">
+              <div class="step-icon">▣</div>
+              <span class="step-number">04</span>
+              <h4>Checkout</h4>
+              <p>Place your order, choose a payment method, and complete your boutique-level purchase securely.</p>
             </article>
           </div>
         </section>
@@ -173,15 +174,9 @@
                 <p class="eyebrow">✓ VERIFIED REAL PRODUCT</p>
                 <span class="verified-pill">Verified</span>
               </div>
-              <div class="video-card">
-                <img
-                  src="product1/fashn-export-1786297249232.webp"
-                  alt="Editorial product verification imagery"
-                />
-                <div class="video-overlay">
-                  <p>Real garment confirmation video</p>
-                  <span>Portrait-ready, drape-tested, and ready for delivery.</span>
-                </div>
+              <div class="verify-note">
+                <p>Real garment confirmation video</p>
+                <span>Portrait-ready, drape-tested, and ready for delivery — see it in the preview above.</span>
               </div>
             </div>
           </div>
@@ -200,9 +195,10 @@
     </aside>
 
     <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
-      <a href="index.html" class="active">Home</a>
-      <a href="shop.html">Shop</a>
-      <a href="product.html?id=1">Product</a>
+      <a href="index.html" class="active"><span class="nav-icon">⌂</span><span>Home</span></a>
+      <a href="shop.html"><span class="nav-icon">◌</span><span>Shop</span></a>
+      <a href="product.html?id=1"><span class="nav-icon">◍</span><span>Product</span></a>
+      <a href="cart.html"><span class="nav-icon">👜</span><span>Bag</span></a>
     </nav>
 
     <script src="script.js"></script>

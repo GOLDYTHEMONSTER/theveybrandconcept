@@ -30,18 +30,29 @@
       </header>
 
       <main class="page-content cart-page">
-        <section class="section-block">
+        <section class="section-block checkout-shell">
           <div class="section-heading">
             <p class="eyebrow">YOUR BAG</p>
             <h3>Ready for checkout.</h3>
           </div>
           <div class="cart-layout">
             <div class="cart-list" id="cartList"></div>
-            <aside class="summary-card">
+            <aside class="summary-card checkout-card">
               <h4>Order Summary</h4>
               <div class="summary-row"><span>Subtotal</span><strong id="subtotal">$0</strong></div>
-              <p class="summary-note">Shipping and taxes calculated at checkout.</p>
-              <a class="primary-btn" href="contact.html">Reserve your order</a>
+              <div class="summary-row"><span>Shipping</span><strong>Calculated</strong></div>
+              <div class="summary-row"><span>Taxes</span><strong>Included</strong></div>
+              <p class="summary-note">Secure boutique delivery with trusted luxury fulfilment.</p>
+              <div class="payment-methods">
+                <p class="small-label">Accepted methods</p>
+                <div class="method-row">
+                  <span class="method-badge mastercard">MC</span>
+                  <span class="method-badge visa">VISA</span>
+                  <span class="method-badge paypal">PayPal</span>
+                  <span class="method-badge apple">Apple</span>
+                </div>
+              </div>
+              <a class="primary-btn" href="checkout.html">Continue to checkout</a>
             </aside>
           </div>
         </section>
@@ -49,9 +60,10 @@
     </div>
 
     <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
-      <a href="index.html">Home</a>
-      <a href="shop.html">Shop</a>
-      <a href="product.html?id=1">Product</a>
+      <a href="index.html"><span class="nav-icon">⌂</span><span>Home</span></a>
+      <a href="shop.html"><span class="nav-icon">◌</span><span>Shop</span></a>
+      <a href="product.html?id=1"><span class="nav-icon">◍</span><span>Product</span></a>
+      <a href="cart.html" class="active"><span class="nav-icon">👜</span><span>Bag</span></a>
     </nav>
 
     <script src="script.js"></script>
