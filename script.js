@@ -99,7 +99,6 @@ const productVideoSource = document.getElementById('productVideoSource');
 const swatches = document.getElementById('swatches');
 const sizesEl = document.getElementById('sizes');
 const verifyPanel = document.getElementById('verifyPanel');
-const heroVisualImage = document.querySelector('.hero-visual img');
 const showroomTrigger = document.getElementById('showroomTrigger');
 const showroomVideo = document.getElementById('showroomVideo');
 const showroomVideoSource = document.getElementById('showroomVideoSource');
@@ -265,13 +264,11 @@ function updateShowroomVideo(product) {
 }
 
 function startShowroomVideo(product) {
-  if (!product || !heroVisualImage || !showroomVideo || !showroomVideoSource) return;
+  if (!product || !showroomVideo || !showroomVideoSource) return;
   const scene = document.getElementById('showroomTrigger');
   if (scene) {
-    scene.style.setProperty('--hero-blur-image', `url("${product.image}")`);
     scene.classList.remove('is-image-mode');
   }
-  heroVisualImage.style.opacity = '0.3';
   showroomVideo.style.opacity = '1';
   showroomVideo.style.display = 'block';
   showroomVideo.style.filter = 'blur(0px) saturate(1.15)';
@@ -281,77 +278,34 @@ function startShowroomVideo(product) {
 
 function setShowroomImageMode(product) {
   if (!product || !showroomTrigger) return;
-  showroomTrigger.style.setProperty('--hero-blur-image', `url("${product.image}")`);
   showroomTrigger.classList.add('is-image-mode');
+  if (showroomVideo) {
+    showroomVideo.style.opacity = '1';
+    showroomVideo.style.filter = 'blur(0px) saturate(1.15)';
+  }
 }
 
 function randomizeShowroomMedia(productsToShow = getHeroProducts()) {
   if (!productsToShow.length) return;
   const next = productsToShow[Math.floor(Math.random() * productsToShow.length)];
   if (!next) return;
-
-  const useVideo = Math.random() > 0.5;
-  if (!heroVisualImage) return;
-
-  heroVisualImage.classList.add('fade-out');
-  if (showroomVideo) showroomVideo.classList.add('fade-out');
-
-  window.requestAnimationFrame(() => {
-    setTimeout(() => {
-      heroVisualImage.src = next.image;
-      heroVisualImage.alt = `${next.name} featured preview`;
-      heroVisualImage.style.opacity = useVideo ? '0.32' : '1';
-
-      if (showroomTrigger) {
-        showroomTrigger.style.setProperty('--hero-blur-image', `url("${next.image}")`);
-      }
-
-      if (useVideo) {
-        if (showroomTrigger) showroomTrigger.classList.remove('is-image-mode');
-        updateShowroomVideo(next);
-        if (showroomVideo) showroomVideo.style.opacity = '1';
-      } else {
-        if (showroomTrigger) setShowroomImageMode(next);
-        if (showroomVideo) {
-          showroomVideo.pause();
-          showroomVideo.style.opacity = '0';
-          showroomVideo.style.filter = 'blur(14px) saturate(1.1)';
-        }
-      }
-
-      setShowroomCaption(next, true);
-      heroVisualImage.classList.remove('fade-out');
-      if (showroomVideo) showroomVideo.classList.remove('fade-out');
-    }, 180);
-  });
+  updateShowroomVideo(next);
+  setShowroomCaption(next, true);
 }
 
 function updateHeroVisual(index, productsToShow = getHeroProducts()) {
   const product = productsToShow[index] || productsToShow[0];
-  if (!product || !heroVisualImage) return;
+  if (!product || !showroomVideo) return;
 
-  heroVisualImage.classList.add('fade-out');
-  if (showroomVideo) showroomVideo.classList.add('fade-out');
-
-  window.requestAnimationFrame(() => {
-    setTimeout(() => {
-      heroVisualImage.src = product.image;
-      heroVisualImage.alt = `${product.name} featured preview`;
-      heroVisualImage.style.opacity = '1';
-      if (showroomTrigger) {
-        showroomTrigger.style.setProperty('--hero-blur-image', `url("${product.image}")`);
-      }
-      if (showroomVideo) {
-        showroomVideo.pause();
-        showroomVideo.style.opacity = '0';
-        showroomVideo.style.filter = 'blur(14px) saturate(1.1)';
-      }
-      if (showroomTrigger) setShowroomImageMode(product);
-      setShowroomCaption(product, true);
-      heroVisualImage.classList.remove('fade-out');
-      if (showroomVideo) showroomVideo.classList.remove('fade-out');
-    }, 180);
-  });
+  if (showroomTrigger) {
+    showroomTrigger.classList.remove('is-image-mode');
+  }
+  if (showroomVideo) {
+    showroomVideo.style.opacity = '1';
+    showroomVideo.style.filter = 'blur(0px) saturate(1.15)';
+  }
+  updateShowroomVideo(product);
+  setShowroomCaption(product, true);
 }
 
 function moveHeroCarousel(index, productsToShow = getHeroProducts()) {
@@ -367,12 +321,11 @@ function startHeroCarousel(productsToShow = getHeroProducts()) {
 
   const scheduleNext = () => {
     heroInterval = setTimeout(() => {
-      const nextIndex = Math.floor(Math.random() * productsToShow.length);
-      heroActiveIndex = nextIndex;
+      heroActiveIndex = (heroActiveIndex + 1) % productsToShow.length;
       renderHeroCarousel(productsToShow);
-      randomizeShowroomMedia(productsToShow);
+      updateHeroVisual(heroActiveIndex, productsToShow);
       scheduleNext();
-    }, getHeroIntervalDelay());
+    }, 4200);
   };
 
   scheduleNext();
@@ -753,8 +706,6 @@ const initialHeroProducts = getHeroProducts();
 renderHeroCarousel(initialHeroProducts);
 const initialHeroProduct = initialHeroProducts[0];
 if (initialHeroProduct) {
-  heroVisualImage.src = initialHeroProduct.image;
-  heroVisualImage.alt = `${initialHeroProduct.name} featured preview`;
   startShowroomVideo(initialHeroProduct);
 }
 startHeroCarousel(initialHeroProducts);
