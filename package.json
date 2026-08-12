@@ -6,8 +6,5 @@
   "scripts": {
     "start": "python -m http.server 8000",
     "preview": "python -m http.server 8000"
-  },
-  "devDependencies": {
-    "vercel": "^58.9.0"
   }
 }

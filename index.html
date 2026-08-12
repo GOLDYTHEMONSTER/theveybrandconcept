@@ -43,7 +43,7 @@
           <a href="about.html">About</a>
           <a href="contact.html">Contact</a>
         </nav>
-        <button class="icon-btn" id="cartTrigger">Bag <span id="cartCount">0</span></button>
+        <button class="icon-btn" id="cartTrigger" type="button" data-cart-trigger>Bag <span id="cartCount">0</span></button>
       </header>
 
       <main>
@@ -129,7 +129,7 @@
         <section class="section-block product-showcase" id="story">
           <div class="product-visual" id="productVisual"></div>
           <div class="product-details">
-            <p class="eyebrow">✦ AI PREVIEW</p>
+            <p class="eyebrow">EDITOR'S PICK</p>
             <h3 id="productTitle">The Sienna Gown</h3>
             <p id="productDescription">
               A fluid evening silhouette with sculpted drape and a cinematic finish.
@@ -191,7 +191,7 @@
       <a href="index.html" class="active"><span class="nav-icon">⌂</span><span>Home</span></a>
       <a href="shop.html"><span class="nav-icon">◌</span><span>Shop</span></a>
       <a href="product.html?id=1"><span class="nav-icon">◍</span><span>Product</span></a>
-      <a href="cart.html"><span class="nav-icon">👜</span><span>Bag</span></a>
+      <a href="#cart" data-cart-trigger><span class="nav-icon">👜</span><span>Bag</span></a>
     </nav>
 
     <script src="script.js"></script>
