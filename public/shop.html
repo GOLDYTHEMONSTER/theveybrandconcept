@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shop — Thevey Brand International</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand-block">
+          <div class="brand-mark">TB</div>
+          <div>
+            <p class="brand-name">THEVEY BRAND</p>
+            <p class="brand-subtitle">INTERNATIONAL</p>
+          </div>
+        </div>
+        <nav class="top-nav" id="siteNav">
+          <a href="index.html">Home</a>
+          <a href="shop.html">Shop</a>
+          <a href="product.html?id=1">Product</a>
+          <a href="about.html">About</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+        <a class="icon-btn" href="cart.html">Bag <span id="cartCount">0</span></a>
+      </header>
+
+      <main class="page-content">
+        <section class="page-hero">
+          <div>
+            <p class="eyebrow">BOUTIQUE COLLECTION</p>
+            <h1>Shop the season’s signature pieces.</h1>
+            <p>Curated dresses, sets, and elevated essentials designed for evening plans and polished dressing.</p>
+          </div>
+          <div class="page-hero-card">
+            <p class="eyebrow">NEW THIS WEEK</p>
+            <h3>Limited editorial drops</h3>
+            <p>Premium silhouettes presented with editorial styling and verified real product storytelling.</p>
+          </div>
+        </section>
+
+        <section class="section-block">
+          <div class="pill-row" id="filterRow"></div>
+          <div class="product-grid" id="shopGrid"></div>
+        </section>
+      </main>
+    </div>
+
+    <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+      <a href="index.html"><span class="nav-icon">⌂</span><span>Home</span></a>
+      <a href="shop.html" class="active"><span class="nav-icon">◌</span><span>Shop</span></a>
+      <a href="product.html?id=1"><span class="nav-icon">◍</span><span>Product</span></a>
+      <a href="cart.html"><span class="nav-icon">👜</span><span>Bag</span></a>
+    </nav>
+
+    <script src="script.js"></script>
+  </body>
+</html>
