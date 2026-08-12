@@ -35,12 +35,13 @@ export async function middleware(request: NextRequest) {
     "Strict-Transport-Security",
     "max-age=63072000; includeSubDomains; preload"
   );
-  // Tighten this per-app (storefront needs more relaxed rules for images/scripts
-  // than the ERP dashboard does) rather than sharing one CSP across both.
-  response.headers.set(
-    "Content-Security-Policy",
-    "default-src 'self'; frame-ancestors 'none'; object-src 'none';"
-  );
+  // In development, allow unsafe-inline for Next.js dev features
+  // In production, tighten this per-app (storefront vs ERP dashboard)
+  const isDev = process.env.NODE_ENV === "development";
+  const cspHeader = isDev
+    ? "default-src 'self' 'unsafe-inline' 'unsafe-eval'; frame-ancestors 'none'; object-src 'none';"
+    : "default-src 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self'; style-src 'self'";
+  response.headers.set("Content-Security-Policy", cspHeader);
 
   // --- Edge rate limiting for auth routes ---
   const path = request.nextUrl.pathname;

@@ -1,4 +1,10 @@
+"use client";
+
+import { useState } from "react";
+
 export default function Home() {
+  const [hoveredBtn, setHoveredBtn] = useState<string | null>(null);
+
   return (
     <div
       style={{
@@ -137,38 +143,40 @@ export default function Home() {
           </ol>
         </div>
 
-        <div style={{ display: "flex", gap: "15px", justifyContent: "center" }}>
+        <div style={{ display: "flex", gap: "15px", justifyContent: "center", flexWrap: "wrap" }}>
           <a
-            href="/SETUP_GUIDE.md"
+            href="https://github.com"
             style={{
               padding: "12px 24px",
-              background: "#3b82f6",
+              background: hoveredBtn === "guide" ? "#2563eb" : "#3b82f6",
               color: "#fff",
               borderRadius: "6px",
               textDecoration: "none",
               fontSize: "1rem",
               fontWeight: "600",
-              transition: "background 0.2s",
+              cursor: "pointer",
             }}
-            onMouseOver={(e) => (e.target.style.background = "#2563eb")}
-            onMouseOut={(e) => (e.target.style.background = "#3b82f6")}
+            onMouseEnter={() => setHoveredBtn("guide")}
+            onMouseLeave={() => setHoveredBtn(null)}
           >
             📖 Read Setup Guide
           </a>
           <a
             href="https://supabase.com/docs"
+            target="_blank"
+            rel="noopener noreferrer"
             style={{
               padding: "12px 24px",
-              background: "#6b7280",
+              background: hoveredBtn === "docs" ? "#4b5563" : "#6b7280",
               color: "#fff",
               borderRadius: "6px",
               textDecoration: "none",
               fontSize: "1rem",
               fontWeight: "600",
-              transition: "background 0.2s",
+              cursor: "pointer",
             }}
-            onMouseOver={(e) => (e.target.style.background = "#4b5563")}
-            onMouseOut={(e) => (e.target.style.background = "#6b7280")}
+            onMouseEnter={() => setHoveredBtn("docs")}
+            onMouseLeave={() => setHoveredBtn(null)}
           >
             📚 Supabase Docs
           </a>
@@ -187,6 +195,8 @@ export default function Home() {
             Phase 1 Foundation • Built with{" "}
             <a
               href="https://nextjs.org"
+              target="_blank"
+              rel="noopener noreferrer"
               style={{ color: "#60a5fa", textDecoration: "none" }}
             >
               Next.js
@@ -194,6 +204,8 @@ export default function Home() {
             +{" "}
             <a
               href="https://supabase.com"
+              target="_blank"
+              rel="noopener noreferrer"
               style={{ color: "#60a5fa", textDecoration: "none" }}
             >
               Supabase
