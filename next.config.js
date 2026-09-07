@@ -3,7 +3,13 @@ const isDev = process.env.NODE_ENV === "development";
 
 const contentSecurityPolicy = isDev
   ? "default-src 'self' 'unsafe-inline' 'unsafe-eval'; frame-ancestors 'none'; object-src 'none';"
-  : "default-src 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self'; style-src 'self'";
+  : // Next.js App Router streams RSC payloads to the client via inline
+    // <script> tags, so script-src needs 'unsafe-inline' or hydration
+    // (and every click handler on the page) silently breaks. A
+    // nonce-based CSP would avoid this, but nonces require middleware
+    // to inject per-request, which Next 14.2's Edge Runtime can't run
+    // here (see middleware.ts removal notes).
+    "default-src 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'";
 
 const nextConfig = {
   reactStrictMode: true,
