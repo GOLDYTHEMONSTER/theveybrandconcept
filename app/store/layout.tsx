@@ -9,6 +9,15 @@ const playfair = Playfair_Display({ subsets: ["latin"], weight: ["500", "600"], 
 export const metadata: Metadata = {
   title: "The Vey Brand",
   description: "See it. Explore it. Verify it.",
+  appleWebApp: {
+    capable: true,
+    title: "The Vey Brand",
+    statusBarStyle: "black-translucent",
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 // viewport-fit=cover lets the dark canvas draw under the notch/status
