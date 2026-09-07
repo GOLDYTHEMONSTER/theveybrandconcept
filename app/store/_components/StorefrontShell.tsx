@@ -54,7 +54,7 @@ export default function StorefrontShell({ children }: { children: React.ReactNod
       </header>
 
       {/* Mobile top bar */}
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-hairline bg-canvas/80 px-5 py-4 backdrop-blur-xl md:hidden">
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-hairline bg-canvas/80 px-5 pb-4 backdrop-blur-xl md:hidden [padding-top:calc(env(safe-area-inset-top)+1rem)]">
         <Link href="/store" className="font-serif text-base italic tracking-wide">THE VEY BRAND</Link>
         <Link href="/store/favorites" className="relative flex h-8 w-8 items-center justify-center rounded-full border border-hairline" aria-label="Favorites">
           <Heart size={14} />
@@ -94,11 +94,11 @@ export default function StorefrontShell({ children }: { children: React.ReactNod
           </div>
         </aside>
 
-        <main className="min-w-0 flex-1 pb-24 md:pb-16">{children}</main>
+        <main className="min-w-0 flex-1 md:pb-16 [padding-bottom:calc(6rem+env(safe-area-inset-bottom))]">{children}</main>
       </div>
 
       {/* Mobile bottom nav */}
-      <nav className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-around border-t border-hairline bg-canvas/95 py-2.5 backdrop-blur-xl md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-around border-t border-hairline bg-canvas/95 pt-2.5 backdrop-blur-xl md:hidden [padding-bottom:calc(env(safe-area-inset-bottom)+0.625rem)]">
         <Link href="/store" className="flex flex-col items-center gap-1 px-3 py-1 text-[10px] text-muted"><Home size={18} /> Home</Link>
         <Link href="/store/shop" className="flex flex-col items-center gap-1 px-3 py-1 text-[10px] text-muted"><Sparkles size={18} /> Shop</Link>
         <Link href="/store/discover" aria-label="Gallery" className="flex items-center justify-center rounded-full bg-ink px-5 py-3 text-canvas"><LayoutGrid size={18} /></Link>

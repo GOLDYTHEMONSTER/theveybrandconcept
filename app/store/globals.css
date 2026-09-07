@@ -2,10 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * iOS Safari reveals the raw html/body background during rubber-band
+ * overscroll, so it has to match the storefront's dark canvas or the
+ * bounce flashes white above/below the content.
+ */
+html, body {
+  background: #0a0a0a;
+}
+
 .store-root {
   background: #0a0a0a;
   color: #f7f7f5;
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .store-root ::selection {

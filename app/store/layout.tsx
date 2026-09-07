@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import StorefrontShell from "./_components/StorefrontShell";
@@ -9,6 +9,16 @@ const playfair = Playfair_Display({ subsets: ["latin"], weight: ["500", "600"], 
 export const metadata: Metadata = {
   title: "The Vey Brand",
   description: "See it. Explore it. Verify it.",
+};
+
+// viewport-fit=cover lets the dark canvas draw under the notch/status
+// bar and the home-indicator area instead of leaving the browser's
+// default white margins above and below the content on iOS.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#0a0a0a",
 };
 
 export default function StoreLayout({ children }: { children: React.ReactNode }) {
