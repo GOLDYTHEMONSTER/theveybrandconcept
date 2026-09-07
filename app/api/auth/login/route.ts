@@ -9,6 +9,7 @@ import {
 import { parseLoginCredentials } from "../../../../modules/authentication/validation";
 import { getClientIp, getRequestUserAgent, InvalidRequestOriginError, requireSameOrigin } from "../../../../modules/security/request";
 import { recordSandboxSecurityEvent } from "../../../../modules/security/sandbox-events";
+import { RATE_LIMIT_RULES, RateLimitExceededError, requireRateLimit } from "../../../../lib/rate-limit/limiter";
 
 export const runtime = "nodejs";
 
@@ -18,6 +19,9 @@ export async function POST(request: NextRequest) {
   let attemptedEmail: string | undefined;
   try {
     requireSameOrigin(request);
+    // Brute-force protection now lives here rather than in edge
+    // middleware (removed — see middleware.ts's deletion notes).
+    await requireRateLimit(RATE_LIMIT_RULES.authLogin, ipAddress ?? "unknown");
     const body = await request.json();
     attemptedEmail = typeof body?.email === "string" ? body.email : undefined;
     const credentials = parseLoginCredentials(body);
@@ -36,6 +40,12 @@ export async function POST(request: NextRequest) {
     recordSandboxSecurityEvent({ type: "login.success", actorId: user.id, actorName: user.name, email: user.email, ipAddress, userAgent });
     return response;
   } catch (error) {
+    if (error instanceof RateLimitExceededError) {
+      return NextResponse.json(
+        { error: "Too many login attempts. Please try again later." },
+        { status: 429, headers: { "Retry-After": Math.max(1, Math.ceil((error.resetAt - Date.now()) / 1000)).toString() } }
+      );
+    }
     recordSandboxSecurityEvent({ type: "login.failure", email: attemptedEmail, ipAddress, userAgent });
     if (error instanceof InvalidLoginInputError || error instanceof InvalidRequestOriginError) {
       return NextResponse.json({ error: error.message }, { status: 400 });
