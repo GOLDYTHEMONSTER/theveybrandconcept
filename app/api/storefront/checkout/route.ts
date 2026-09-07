@@ -54,7 +54,7 @@ function parseCheckoutBody(input: unknown): CheckoutBody {
 }
 
 /**
- * Public checkout endpoint for the storefront (public/script.js). No ERP
+ * Public checkout endpoint for the storefront (app/store). No ERP
  * session exists here — a customer isn't a staff member — so this does
  * NOT use guardMutation(). It still runs the same-origin check, rate
  * limiting, and strict input validation every mutation needs; the
