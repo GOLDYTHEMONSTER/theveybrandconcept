@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit, RATE_LIMIT_RULES } from "./lib/rate-limit/limiter";
+import { applySecurityHeaders } from "./modules/security/headers";
 
 /**
  * Runs on every request. Two jobs:
@@ -26,22 +27,7 @@ const AUTH_ROUTE_RULES: Record<string, keyof typeof RATE_LIMIT_RULES> = {
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
-  // --- Baseline security headers ---
-  response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("X-Frame-Options", "DENY");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
-  response.headers.set(
-    "Strict-Transport-Security",
-    "max-age=63072000; includeSubDomains; preload"
-  );
-  // In development, allow unsafe-inline for Next.js dev features
-  // In production, tighten this per-app (storefront vs ERP dashboard)
-  const isDev = process.env.NODE_ENV === "development";
-  const cspHeader = isDev
-    ? "default-src 'self' 'unsafe-inline' 'unsafe-eval'; frame-ancestors 'none'; object-src 'none';"
-    : "default-src 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self'; style-src 'self'";
-  response.headers.set("Content-Security-Policy", cspHeader);
+  applySecurityHeaders(response);
 
   // --- Edge rate limiting for auth routes ---
   const path = request.nextUrl.pathname;
@@ -53,7 +39,7 @@ export async function middleware(request: NextRequest) {
     const result = await checkRateLimit(rule, ip);
 
     if (!result.allowed) {
-      return NextResponse.json(
+      const blockedResponse = NextResponse.json(
         { error: "Too many requests. Please try again later." },
         {
           status: 429,
@@ -62,6 +48,8 @@ export async function middleware(request: NextRequest) {
           },
         }
       );
+      applySecurityHeaders(blockedResponse);
+      return blockedResponse;
     }
   }
 

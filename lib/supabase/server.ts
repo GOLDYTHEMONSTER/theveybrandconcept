@@ -12,18 +12,27 @@ export function createServerSupabase() {
   const cookieStore = cookies();
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    requireEnvironmentVariable("NEXT_PUBLIC_SUPABASE_URL"),
+    requireEnvironmentVariable("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
     {
       cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
+        getAll() {
+          return cookieStore.getAll();
         },
-        set(name: string, value: string, options: CookieOptions) {
-          cookieStore.set({ name, value, ...options });
-        },
-        remove(name: string, options: CookieOptions) {
-          cookieStore.set({ name, value: "", ...options });
+        setAll(cookiesToSet: Array<{ name: string; value: string; options: CookieOptions }>) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, {
+                ...options,
+                httpOnly: true,
+                sameSite: "lax",
+                secure: process.env.NODE_ENV === "production",
+                path: "/",
+              });
+            });
+          } catch {
+            // Server Components cannot write cookies. Route handlers can.
+          }
         },
       },
     }
@@ -45,8 +54,14 @@ export function createServiceRoleSupabase() {
     throw new Error("createServiceRoleSupabase() must never run in the browser.");
   }
   return createRawClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    requireEnvironmentVariable("NEXT_PUBLIC_SUPABASE_URL"),
+    requireEnvironmentVariable("SUPABASE_SERVICE_ROLE_KEY"),
     { auth: { persistSession: false } }
   );
+}
+
+function requireEnvironmentVariable(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`Missing required environment variable: ${name}`);
+  return value;
 }

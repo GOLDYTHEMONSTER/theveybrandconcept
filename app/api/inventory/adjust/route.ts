@@ -1,135 +1,97 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionContext, UnauthenticatedError, NoOrganizationError } from "../../../../lib/auth/session";
-import { requirePermission, ForbiddenError } from "../../../../lib/rbac/require-permission";
-import { requireRateLimit, RateLimitExceededError, RATE_LIMIT_RULES } from "../../../../lib/rate-limit/limiter";
-import { writeAuditLog } from "../../../../lib/audit/log";
-import { createServerSupabase } from "../../../../lib/supabase/server";
+import { recordAudit } from "../../../../modules/audit/sandbox-log";
+import { requireVariant } from "../../../../modules/catalog/store";
+import { adjustStock, getReorderPoint, getStockByWarehouse } from "../../../../modules/inventory/store";
+import { guardMutation, handleApiError } from "../../../../modules/security/api-guard";
+import { createNotification } from "../../../../modules/notifications/store";
+import { ValidationError } from "../../../../modules/shared/errors";
+import { isWarehouse } from "../../../../modules/shared/warehouses";
 
 /**
  * POST /api/inventory/adjust
  *
- * This route is the reference implementation for every sensitive ERP
- * mutation. Every layer runs in order and every layer can independently
- * reject the request:
+ * Reference implementation for every sensitive ERP mutation. Every layer
+ * runs in order and every layer can independently reject the request:
  *
- *   1. Session   -> who is this, and in which organization?
- *   2. Rate limit -> is this identity/org within its quota for writes?
- *   3. Permission -> does this user actually hold inventory.adjust,
- *                    AND does the org's tier include the inventory module?
- *                    (has_permission() checks both — see migration 0001)
- *   4. Mutation   -> the actual write. Still protected by RLS underneath,
- *                    so even a bug in steps 1-3 can't leak cross-org data.
- *   5. Audit log  -> append-only record of what changed and why.
+ *   1. Session + rate limit + permission -> guardMutation()
+ *   2. Validation  -> reject malformed input before it touches the ledger
+ *   3. Mutation    -> event-sourced: appends a ledger entry, never a bare
+ *                     stock decrement (see modules/inventory/store.ts)
+ *   4. Audit log   -> append-only record of what changed and why
  *
  * Never skip a layer "because the UI already checked" — the UI's job is
  * only to decide what buttons to show.
  */
 
 interface AdjustBody {
-  productId: string;
-  organizationId: string;
+  variantId: string;
+  warehouse: string;
   quantityDelta: number;
   reason: string;
 }
 
 export async function POST(request: NextRequest) {
-  let body: AdjustBody;
   try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
-  }
+    const session = await guardMutation(request, "inventory.adjust");
 
-  if (!body.productId || !body.organizationId || typeof body.quantityDelta !== "number" || !body.reason) {
+    const body = (await request.json()) as Partial<AdjustBody>;
+    if (!body.variantId || !body.warehouse || typeof body.quantityDelta !== "number" || !Number.isInteger(body.quantityDelta) || body.quantityDelta === 0 || !body.reason?.trim()) {
+      throw new ValidationError("variantId, warehouse, a non-zero whole quantityDelta, and a reason are required");
+    }
+    if (!isWarehouse(body.warehouse)) {
+      throw new ValidationError("Select a valid warehouse");
+    }
+
+    const { product, variant } = requireVariant(body.variantId);
+    const before = getStockByWarehouse(variant.id).find((row) => row.warehouse === body.warehouse);
+
+    adjustStock({
+      variantId: variant.id,
+      warehouse: body.warehouse,
+      quantityDelta: body.quantityDelta,
+      reason: body.reason.trim(),
+      actorId: session.userId,
+    });
+
+    const after = getStockByWarehouse(variant.id).find((row) => row.warehouse === body.warehouse);
+
+    recordAudit({
+      action: "inventory.adjust",
+      entityType: "product_variant",
+      entityId: variant.id,
+      actorId: session.userId,
+      actorName: session.name,
+      beforeValue: { onHand: before?.onHand ?? 0 },
+      afterValue: { onHand: after?.onHand ?? 0 },
+      reason: body.reason.trim(),
+    });
+
+    const reorderPoint = getReorderPoint(variant.sku);
+    const beforeOnHand = before?.onHand ?? 0;
+    const afterOnHand = after?.onHand ?? 0;
+    if (afterOnHand <= 0 && beforeOnHand > 0) {
+      createNotification({
+        audienceRoles: ["executive", "warehouse_manager"],
+        type: "inventory.out_of_stock",
+        title: "Out of stock",
+        message: `${product.name} is now out of stock at ${body.warehouse}`,
+        href: "/inventory",
+      });
+    } else if (afterOnHand > 0 && afterOnHand <= reorderPoint && beforeOnHand > reorderPoint) {
+      createNotification({
+        audienceRoles: ["executive", "warehouse_manager"],
+        type: "inventory.low_stock",
+        title: "Low stock",
+        message: `${product.name} at ${body.warehouse} dropped to ${afterOnHand} units (reorder point: ${reorderPoint})`,
+        href: "/inventory",
+      });
+    }
+
     return NextResponse.json(
-      { error: "productId, organizationId, quantityDelta, and reason are required" },
-      { status: 400 }
+      { productName: product.name, sku: variant.sku, warehouse: body.warehouse, onHand: after?.onHand ?? 0 },
+      { status: 200 }
     );
+  } catch (error) {
+    return handleApiError(error);
   }
-
-  // 1. Session — organizationId in the body is only a *hint* for which
-  //    org to act in if the user belongs to multiple; membership itself
-  //    is re-verified against the database inside getSessionContext().
-  let session;
-  try {
-    session = await getSessionContext(body.organizationId);
-  } catch (err) {
-    if (err instanceof UnauthenticatedError) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-    if (err instanceof NoOrganizationError) {
-      return NextResponse.json({ error: "No active membership in this organization" }, { status: 403 });
-    }
-    throw err;
-  }
-
-  // 2. Rate limit — tenant-aware bucket so one org can't exhaust another's quota.
-  try {
-    await requireRateLimit(RATE_LIMIT_RULES.apiWrite, `${session.userId}:${session.organizationId}`);
-  } catch (err) {
-    if (err instanceof RateLimitExceededError) {
-      return NextResponse.json(
-        { error: "Too many requests, slow down." },
-        { status: 429, headers: { "Retry-After": Math.ceil((err.resetAt - Date.now()) / 1000).toString() } }
-      );
-    }
-    throw err;
-  }
-
-  // 3. Permission
-  try {
-    await requirePermission(session, "inventory.adjust");
-  } catch (err) {
-    if (err instanceof ForbiddenError) {
-      return NextResponse.json({ error: "You do not have permission to adjust inventory." }, { status: 403 });
-    }
-    throw err;
-  }
-
-  // 4. Mutation — event-sourced, not a bare stock decrement. Insert an
-  //    inventory_movements row; a DB trigger (not shown here) maintains
-  //    the running stock total from the movement log.
-  const supabase = createServerSupabase();
-
-  const { data: before, error: beforeError } = await supabase
-    .from("inventory")
-    .select("stock")
-    .eq("product_id", body.productId)
-    .eq("organization_id", session.organizationId)
-    .single();
-
-  if (beforeError || !before) {
-    return NextResponse.json({ error: "Product not found" }, { status: 404 });
-  }
-
-  const { error: movementError } = await supabase.from("inventory_movements").insert({
-    organization_id: session.organizationId,
-    product_id: body.productId,
-    type: "adjustment",
-    quantity: body.quantityDelta,
-    reference: null,
-    actor_id: session.userId,
-    reason: body.reason,
-  });
-
-  if (movementError) {
-    return NextResponse.json({ error: "Failed to record inventory movement" }, { status: 500 });
-  }
-
-  const newStock = before.stock + body.quantityDelta;
-
-  // 5. Audit log — always logged, even though inventory_movements already
-  //    captures the domain event; audit_logs is the single cross-module
-  //    place compliance/security review reads from.
-  await writeAuditLog(session, {
-    action: "inventory.adjust",
-    entityType: "product",
-    entityId: body.productId,
-    beforeValue: { stock: before.stock },
-    afterValue: { stock: newStock },
-    reason: body.reason,
-    ipAddress: request.headers.get("x-forwarded-for")?.split(",")[0]?.trim(),
-  });
-
-  return NextResponse.json({ productId: body.productId, newStock }, { status: 200 });
 }

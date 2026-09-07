@@ -1,27 +1,16 @@
 import type { Metadata } from "next";
-import ClientProviders from './components/ClientProviders';
+import ClientProviders from "./components/ClientProviders";
+import "./erp.css";
 
 export const metadata: Metadata = {
-  title: "ERP + E-commerce Platform",
-  description: "Phase 1 Foundation: Auth → Organizations → Roles → Permissions → RLS → Audit Logging",
+  title: "Veronica Young | Business Suite",
+  description: "Private operations workspace for Veronica Young Brand.",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </head>
-      <body style={{ margin: 0, padding: 0, fontFamily: "system-ui, -apple-system, sans-serif" }}>
-        <ClientProviders>
-          {children}
-        </ClientProviders>
-      </body>
+      <body><ClientProviders>{children}</ClientProviders></body>
     </html>
   );
 }

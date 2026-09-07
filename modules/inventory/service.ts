@@ -1,0 +1,95 @@
+import { listVariants } from "../catalog/store";
+import { getAssignedWarehouses, getReorderPoint, getStockByWarehouse } from "./store";
+
+export interface InventoryRow {
+  variantId: string;
+  product: string;
+  variant: string;
+  imageUrl: string | null;
+  sku: string;
+  warehouse: string;
+  onHand: number;
+  reserved: number;
+  available: number;
+  reorderPoint: number;
+  status: "in_stock" | "low_stock" | "out_of_stock";
+}
+
+export interface InventoryMetric {
+  label: string;
+  value: string;
+  change: string;
+  tone?: "positive" | "warning" | "neutral";
+}
+
+function statusFor(onHand: number, reorderPoint: number): InventoryRow["status"] {
+  if (onHand <= 0) return "out_of_stock";
+  if (onHand <= reorderPoint) return "low_stock";
+  return "in_stock";
+}
+
+const STATUS_LABEL: Record<InventoryRow["status"], string> = {
+  in_stock: "In stock",
+  low_stock: "Low stock",
+  out_of_stock: "Out of stock",
+};
+
+const STATUS_TONE: Record<InventoryRow["status"], string> = {
+  in_stock: "positive",
+  low_stock: "warning",
+  out_of_stock: "negative",
+};
+
+export function getInventoryRows(): InventoryRow[] {
+  const rows: InventoryRow[] = [];
+  for (const variant of listVariants()) {
+    const reorderPoint = getReorderPoint(variant.sku);
+    const variantLabel = [variant.size, variant.color].filter(Boolean).join(" · ") || "Standard";
+    const assignedWarehouses = new Set(getAssignedWarehouses(variant.id));
+    for (const stock of getStockByWarehouse(variant.id)) {
+      if (!assignedWarehouses.has(stock.warehouse)) continue;
+      rows.push({
+        variantId: variant.id,
+        product: variant.productName,
+        variant: variantLabel,
+        imageUrl: variant.imageUrl,
+        sku: variant.sku,
+        warehouse: stock.warehouse,
+        onHand: stock.onHand,
+        reserved: stock.reserved,
+        available: stock.available,
+        reorderPoint,
+        status: statusFor(stock.onHand, reorderPoint),
+      });
+    }
+  }
+  return rows.sort((a, b) => a.product.localeCompare(b.product));
+}
+
+export function getInventoryStatusLabel(status: InventoryRow["status"]): string {
+  return STATUS_LABEL[status];
+}
+
+export function getInventoryStatusTone(status: InventoryRow["status"]): string {
+  return STATUS_TONE[status];
+}
+
+export function getInventoryValue(): number {
+  const priceBySku = new Map(listVariants().map((variant) => [variant.sku, variant.price]));
+  return getInventoryRows().reduce((sum, row) => sum + row.onHand * (priceBySku.get(row.sku) ?? 0), 0);
+}
+
+export function getInventoryMetrics(): InventoryMetric[] {
+  const rows = getInventoryRows();
+  const lowStock = rows.filter((row) => row.status === "low_stock").length;
+  const outOfStock = rows.filter((row) => row.status === "out_of_stock").length;
+  const unitsAvailable = rows.reduce((sum, row) => sum + Math.max(0, row.available), 0);
+  const warehouses = new Set(rows.map((row) => row.warehouse)).size;
+
+  return [
+    { label: "Units available", value: unitsAvailable.toLocaleString(), change: `Across ${warehouses} locations`, tone: "neutral" },
+    { label: "Low stock lines", value: String(lowStock), change: "Reorder suggested", tone: lowStock ? "warning" : "positive" },
+    { label: "Out of stock", value: String(outOfStock), change: outOfStock ? "Needs attention" : "All lines covered", tone: outOfStock ? "warning" : "positive" },
+    { label: "SKUs tracked", value: String(listVariants().length), change: "Live inventory ledger", tone: "neutral" },
+  ];
+}

@@ -26,7 +26,8 @@
           <a href="about.html">About</a>
           <a href="contact.html">Contact</a>
         </nav>
-        <button class="icon-btn" type="button" data-cart-trigger>Bag <span id="cartCount">0</span></button>
+        <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="siteNav">☰</button>
+        <a class="icon-btn" href="cart.html">Cart <span id="cartCount">0</span></a>
       </header>
 
       <main class="page-content product-page">
@@ -62,6 +63,7 @@
               <span class="dot">•</span>
               <span id="productCategory">Evening</span>
             </div>
+            <p id="productStockNote" class="stock-note" style="display:none;"></p>
 
             <div class="tabs" id="viewTabs">
               <button class="tab active" data-view="front">Front</button>
@@ -126,7 +128,7 @@
             </details>
 
             <div class="action-row">
-              <button class="primary-btn" id="addToBagBtn">Add to Bag</button>
+              <button class="primary-btn" id="addToBagBtn">Add to Cart</button>
               <button class="secondary-btn" id="verifyBtn">Verify it →</button>
             </div>
 
@@ -152,7 +154,6 @@
       <a href="index.html"><span class="nav-icon">⌂</span><span>Home</span></a>
       <a href="shop.html"><span class="nav-icon">◌</span><span>Shop</span></a>
       <a href="product.html?id=1" class="active"><span class="nav-icon">◍</span><span>Product</span></a>
-      <a href="#cart" data-cart-trigger><span class="nav-icon">👜</span><span>Bag</span></a>
     </nav>
 
     <script src="script.js"></script>

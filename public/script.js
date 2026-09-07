@@ -1,9 +1,10 @@
 const products = [
   {
     id: 1,
+    sku: 'VY-SIENNA-GOWN',
     name: 'The Sienna Gown',
     category: 'Dresses',
-    price: 480,
+    price: 145000,
     description: 'A fluid evening silhouette with sculpted drape and a cinematic finish.',
     longDescription: `
       <p>The Sienna Gown is an editorial evening piece designed for modern red-carpet and private dinner events. Its sculptural construction is balanced by a soft drape that elegantly moves with every step, while a subtle sheen creates a tactile, couture feel.</p>
@@ -28,9 +29,10 @@ const products = [
   },
   {
     id: 2,
+    sku: 'VY-ATELIER-SET',
     name: 'The Atelier Set',
     category: 'Sets',
-    price: 360,
+    price: 98000,
     description: 'Soft tailoring with a premium lounge finish designed for evening plans.',
     color: 'Ivory',
     colors: ['#f2ebde', '#b18f60', '#202020'],
@@ -45,9 +47,10 @@ const products = [
   },
   {
     id: 3,
+    sku: 'VY-NOIR-MINI',
     name: 'The Noir Mini',
     category: 'Dresses',
-    price: 290,
+    price: 62000,
     description: 'A sculpted cocktail dress that balances elegance and edge.',
     longDescription: `
       <p>The Noir Mini is built for after-dark confidence, combining a precise waistline with a fluid, body-skimming silhouette that moves cleanly from lounge to late-evening events. The dress is cut to feel elevated and relaxed at once, with calm structure that makes a polished statement without excess.</p>
@@ -72,9 +75,10 @@ const products = [
   },
   {
     id: 4,
+    sku: 'VY-VELVET-SHIFT',
     name: 'The Velvet Shift',
     category: 'Tops',
-    price: 240,
+    price: 54000,
     description: 'A polished shift with a rich velvet finish and quiet luxury simplicity.',
     longDescription: `
       <p>The Velvet Shift is a refined statement top designed around texture, proportion, and ease. Its rich velvet finish catches the light softly, offering a luxe feel without sacrificing the clean, architectural line that defines modern tailoring.</p>
@@ -98,6 +102,60 @@ const products = [
     video: 'product4/omega_video_0.mp4',
   },
 ];
+
+function formatPrice(amount) {
+  return `₦${Number(amount || 0).toLocaleString('en-NG')}`;
+}
+
+/**
+ * Pulls the live catalog (price + real stock) from the ERP backend and
+ * merges it into the local `products` list by SKU. Products the backend
+ * knows about but this file has no curated photography/copy for yet
+ * (e.g. a brand-new piece just added in Inventory) are appended as
+ * plain cards rather than skipped, so "create product" in the ERP
+ * shows up here without a code change.
+ */
+async function syncCatalogFromBackend() {
+  try {
+    const response = await fetch('/api/storefront/products');
+    if (!response.ok) return;
+    const { products: remoteProducts } = await response.json();
+
+    remoteProducts.forEach((remote) => {
+      const local = products.find((product) => product.sku && product.sku === remote.sku);
+      if (local) {
+        local.price = remote.price;
+        local.compareAtPrice = remote.compareAtPrice;
+        local.available = remote.available;
+        return;
+      }
+
+      products.push({
+        id: remote.id,
+        sku: remote.sku,
+        name: remote.name,
+        category: remote.category,
+        price: remote.price,
+        compareAtPrice: remote.compareAtPrice,
+        available: remote.available,
+        description: remote.description || 'New arrival from the workshop.',
+        color: '',
+        colors: [],
+        sizes: [],
+        image: remote.imageUrl || 'images/logo_orange_vibrant.png',
+        aiViews: {
+          front: remote.imageUrl || 'images/logo_orange_vibrant.png',
+          side: remote.imageUrl || 'images/logo_orange_vibrant.png',
+          back: remote.imageUrl || 'images/logo_orange_vibrant.png',
+        },
+        video: null,
+      });
+    });
+  } catch (error) {
+    // Static content still renders fine offline/without the backend.
+    console.warn('Storefront could not sync live catalog data', error);
+  }
+}
 
 const categories = ['All', 'Dresses', 'Tops', 'Sets', 'New'];
 const stateKey = 'tbState';
@@ -127,6 +185,7 @@ const showroomCaptionTitle = document.getElementById('showroomCaptionTitle');
 const showroomCaptionText = document.getElementById('showroomCaptionText');
 const cartContent = document.getElementById('cartContent');
 const cartDrawer = document.getElementById('cartDrawer');
+const cartDrawerBackdrop = document.getElementById('cartDrawerBackdrop');
 const splashScreen = document.getElementById('splashScreen');
 const cartList = document.getElementById('cartList');
 const subtotalEl = document.getElementById('subtotal');
@@ -134,7 +193,6 @@ const viewTabs = document.getElementById('viewTabs');
 const verifyBtn = document.getElementById('verifyBtn');
 const verifyHeroBtn = document.getElementById('verifyHeroBtn');
 const addToBagBtn = document.getElementById('addToBagBtn');
-const cartTrigger = document.getElementById('cartTrigger');
 const closeCartBtn = document.getElementById('closeCartBtn');
 const enterStoreBtn = document.getElementById('enterStoreBtn');
 const heroThumbs = document.getElementById('heroThumbs');
@@ -217,7 +275,7 @@ function renderProductsSkeletons() {
   if (!productGrid) return;
   productGrid.innerHTML = Array.from({ length: 6 }, (_, index) => `
     <article class="product-card skeleton-card" aria-hidden="true" data-index="${index}">
-      <div class="skeleton-media"></div>
+      <div class="skeleton-media" style="--card-ratio: ${MASONRY_RATIOS[index % MASONRY_RATIOS.length]};"></div>
       <div class="skeleton-row short"></div>
       <div class="skeleton-row"></div>
       <div class="skeleton-row tiny"></div>
@@ -235,27 +293,43 @@ function renderHeroSkeletons() {
   `).join('');
 }
 
+// Cycled per card so the grid reads as an organic Pinterest-style
+// collage rather than a uniform 3-up grid — paired with CSS columns
+// (see .product-grid) which lets each column flow independently.
+const MASONRY_RATIOS = ['4 / 5', '1 / 1', '3 / 4', '5 / 7', '4 / 6', '5 / 6'];
+
 function renderProducts() {
   if (!productGrid) return;
   const visibleProducts = getVisibleProducts();
 
   productGrid.innerHTML = visibleProducts
-    .map(
-      (product) => `
-        <article class="product-card" data-id="${product.id}">
-          <img src="${product.image}" alt="${product.name}" />
-          <div class="meta-row">
-            <strong>${product.name}</strong>
-            <span>$${product.price}</span>
+    .map((product, index) => {
+      const soldOut = product.available === 0;
+      const lowStock = !soldOut && typeof product.available === 'number' && product.available <= 5;
+      const stockBadge = soldOut
+        ? '<span class="product-card-stock out">Sold out</span>'
+        : lowStock
+          ? '<span class="product-card-stock low">Low stock</span>'
+          : '';
+      const ratio = MASONRY_RATIOS[index % MASONRY_RATIOS.length];
+
+      return `
+        <article class="product-card${soldOut ? ' is-sold-out' : ''}" data-id="${product.id}">
+          <div class="product-card-media" style="--card-ratio: ${ratio};">
+            ${stockBadge}
+            <img src="${product.image}" alt="${product.name}" />
           </div>
-          <p>${product.category}</p>
-          <div class="meta-row">
-            <span>New edit</span>
-            <span>✓ Verified</span>
+          <div class="product-card-body">
+            <p class="product-card-category">${product.category}</p>
+            <h3 class="product-card-name">${product.name}</h3>
+            <div class="product-card-price-row">
+              <span class="product-card-price">${formatPrice(product.price)}</span>
+              ${product.compareAtPrice ? `<span class="product-card-compare">${formatPrice(product.compareAtPrice)}</span>` : ''}
+            </div>
           </div>
         </article>
-      `,
-    )
+      `;
+    })
     .join('');
 }
 
@@ -468,25 +542,19 @@ function renderAiPromptStream(container, htmlString) {
     </details>
   `;
 
+  // Text renders immediately (nobody wants to wait for a paragraph to
+  // "type out"); only the reveal — a quick staggered fade + rise — is
+  // animated, so the copy is readable the instant each line appears.
   const streamLines = Array.from(container.querySelectorAll('.ai-stream-text'));
   streamLines.forEach((line, index) => {
     const text = blocks[index] || 'Generating visual context...';
-    let charIndex = 0;
+    line.textContent = text;
+    line.classList.add('complete');
 
-    const tick = () => {
-      line.textContent = text.slice(0, charIndex);
-      charIndex += 1;
-
-      if (charIndex <= text.length) {
-        const timer = setTimeout(tick, 18 + (Math.random() * 28));
-        aiPromptTimers.push(timer);
-      } else {
-        line.classList.add('complete');
-      }
-    };
-
-    const startTimer = setTimeout(tick, 180 + (index * 160));
-    aiPromptTimers.push(startTimer);
+    const revealTimer = setTimeout(() => {
+      line.closest('.ai-stream-line')?.classList.add('revealed');
+    }, 70 + index * 70);
+    aiPromptTimers.push(revealTimer);
   });
 }
 
@@ -497,27 +565,45 @@ function renderProductDetail(product) {
   if (productVisual) {
     productVisual.innerHTML = `<img src="${product.aiViews[activeView]}" alt="${product.name} ${activeView} view" />`;
   }
+  const hasMultipleViews = product.aiViews.front !== product.aiViews.side || product.aiViews.front !== product.aiViews.back;
   const gallery = document.getElementById('productGallery');
   if (gallery) {
-    const galleryImages = [
-      { view: 'front', src: product.aiViews.front },
-      { view: 'side', src: product.aiViews.side },
-      { view: 'back', src: product.aiViews.back },
-    ];
-    gallery.innerHTML = galleryImages
-      .map(
-        (item) => `
-          <div class="gallery-thumb ${activeView === item.view ? 'active' : ''}" data-view="${item.view}">
-            <img src="${item.src}" alt="${product.name} ${item.view} view" />
-          </div>
-        `,
-      )
-      .join('');
+    if (!hasMultipleViews) {
+      gallery.innerHTML = '';
+    } else {
+      const galleryImages = [
+        { view: 'front', src: product.aiViews.front },
+        { view: 'side', src: product.aiViews.side },
+        { view: 'back', src: product.aiViews.back },
+      ];
+      gallery.innerHTML = galleryImages
+        .map(
+          (item) => `
+            <div class="gallery-thumb ${activeView === item.view ? 'active' : ''}" data-view="${item.view}">
+              <img src="${item.src}" alt="${product.name} ${item.view} view" />
+            </div>
+          `,
+        )
+        .join('');
+    }
   }
+  if (viewTabs) viewTabs.style.display = hasMultipleViews ? '' : 'none';
   if (productTitle) productTitle.textContent = product.name;
   if (productDescription) productDescription.textContent = product.description;
-  if (productPrice) productPrice.textContent = `$${product.price}`;
+  if (productPrice) productPrice.textContent = formatPrice(product.price);
   if (productCategory) productCategory.textContent = product.category;
+
+  const soldOut = product.available === 0;
+  const lowStock = !soldOut && typeof product.available === 'number' && product.available <= 5;
+  if (addToBagBtn) {
+    addToBagBtn.disabled = soldOut;
+    addToBagBtn.textContent = soldOut ? 'Sold out' : 'Add to cart';
+  }
+  const stockNote = document.getElementById('productStockNote');
+  if (stockNote) {
+    stockNote.textContent = soldOut ? 'Currently sold out' : lowStock ? `Only ${product.available} left` : '';
+    stockNote.style.display = soldOut || lowStock ? 'block' : 'none';
+  }
   if (productLongDescription) {
     renderAiPromptStream(productLongDescription, product.longDescription || '');
   }
@@ -577,7 +663,7 @@ function renderCartDrawer() {
           <div>
             <strong>${item.name}</strong>
             <p>${item.category}</p>
-            <p>$${item.price}</p>
+            <p>${formatPrice(item.price)}</p>
           </div>
         </div>
       `,
@@ -589,7 +675,7 @@ function renderCartDrawer() {
     <div class="drawer-summary">
       <div class="summary-row">
         <span>Subtotal</span>
-        <strong>$${subtotal}</strong>
+        <strong>${formatPrice(subtotal)}</strong>
       </div>
       <div class="summary-row">
         <span>Shipping</span>
@@ -633,13 +719,13 @@ function renderCartPage() {
           <div>
             <strong>${item.name}</strong>
             <p>${item.category}</p>
-            <p>$${item.price}</p>
+            <p>${formatPrice(item.price)}</p>
           </div>
         </div>
       `,
     )
     .join('');
-  subtotalEl.textContent = `$${subtotal}`;
+  subtotalEl.textContent = `${formatPrice(subtotal)}`;
 }
 
 function renderCart() {
@@ -712,13 +798,12 @@ function prepareMediaSkeletons() {
 }
 
 function addToCart(product) {
+  if (!product || product.available === 0) return;
   cartItems.push(product);
   saveCart();
   saveState();
   renderCart();
-  if (cartDrawer) {
-    cartDrawer.classList.add('open');
-  }
+  setCartDrawerOpen(true);
 }
 
 function toggleMobileNav() {
@@ -755,10 +840,13 @@ function hidePageLoader() {
   if (overlay) overlay.classList.remove('active');
 }
 
+function setCartDrawerOpen(isOpen) {
+  if (cartDrawer) cartDrawer.classList.toggle('open', isOpen);
+  if (cartDrawerBackdrop) cartDrawerBackdrop.classList.toggle('open', isOpen);
+}
+
 function openCartDrawer() {
-  if (cartDrawer) {
-    cartDrawer.classList.add('open');
-  }
+  setCartDrawerOpen(true);
 }
 
 function handleLinkNavigation(event) {
@@ -883,27 +971,105 @@ if (addToBagBtn) {
   addToBagBtn.addEventListener('click', () => addToCart(activeProduct));
 }
 
-if (cartTrigger) {
-  cartTrigger.addEventListener('click', () => {
-    if (cartDrawer) {
-      cartDrawer.classList.toggle('open');
+const placeOrderBtn = document.getElementById('placeOrderBtn');
+const checkoutItemsEl = document.getElementById('checkoutItems');
+const checkoutSubtotalEl = document.getElementById('checkoutSubtotal');
+const checkoutTotalEl = document.getElementById('checkoutTotal');
+const checkoutErrorEl = document.getElementById('checkoutError');
+
+function showCheckoutError(message) {
+  if (!checkoutErrorEl) return;
+  checkoutErrorEl.textContent = message;
+  checkoutErrorEl.style.display = 'block';
+}
+
+function renderCheckoutSummary() {
+  if (!checkoutItemsEl) return;
+  checkoutItemsEl.innerHTML = cartItems.length
+    ? cartItems.map((item) => `<div class="summary-row"><span>${item.name}</span><strong>${formatPrice(item.price)}</strong></div>`).join('')
+    : '<p class="empty-state">Your cart is empty.</p>';
+  const subtotal = cartItems.reduce((sum, item) => sum + item.price, 0);
+  if (checkoutSubtotalEl) checkoutSubtotalEl.textContent = formatPrice(subtotal);
+  if (checkoutTotalEl) checkoutTotalEl.textContent = formatPrice(subtotal);
+}
+
+if (placeOrderBtn) {
+  renderCheckoutSummary();
+  placeOrderBtn.addEventListener('click', async () => {
+    if (checkoutErrorEl) checkoutErrorEl.style.display = 'none';
+
+    const name = document.getElementById('checkoutName')?.value.trim() || '';
+    const email = document.getElementById('checkoutEmail')?.value.trim() || '';
+    if (!cartItems.length) return showCheckoutError('Your cart is empty — add something before checking out.');
+    if (!name) return showCheckoutError('Full name is required.');
+    if (!email) return showCheckoutError('Email is required.');
+
+    placeOrderBtn.disabled = true;
+    placeOrderBtn.textContent = 'Placing order…';
+    try {
+      const response = await fetch('/api/storefront/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer: {
+            name,
+            email,
+            address: document.getElementById('checkoutAddress')?.value.trim(),
+            city: document.getElementById('checkoutCity')?.value.trim(),
+            postcode: document.getElementById('checkoutPostcode')?.value.trim(),
+          },
+          items: cartItems.map((item) => ({ sku: item.sku, quantity: 1 })),
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        showCheckoutError(data.error || 'Could not place your order. Please try again.');
+        return;
+      }
+      cartItems = [];
+      saveCart();
+      saveState();
+      window.location.href = `index.html?order=${encodeURIComponent(data.orderNumber)}`;
+    } catch (error) {
+      showCheckoutError('Could not reach the server. Please try again.');
+    } finally {
+      placeOrderBtn.disabled = false;
+      placeOrderBtn.textContent = 'Place order';
     }
   });
 }
 
+function showOrderConfirmationIfPresent() {
+  const orderNumber = new URLSearchParams(window.location.search).get('order');
+  if (!orderNumber) return;
+  const toast = document.createElement('div');
+  toast.className = 'order-confirmation-toast';
+  toast.innerHTML = `<strong>Order placed — #${orderNumber}</strong><span>We'll email you as it moves through fulfilment.</span>`;
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add('visible'));
+  setTimeout(() => {
+    toast.classList.remove('visible');
+    setTimeout(() => toast.remove(), 400);
+  }, 6000);
+
+  const cleanUrl = window.location.pathname;
+  window.history.replaceState({}, '', cleanUrl);
+}
+showOrderConfirmationIfPresent();
+
 document.querySelectorAll('[data-cart-trigger]').forEach((trigger) => {
   trigger.addEventListener('click', (event) => {
     event.preventDefault();
-    openCartDrawer();
+    setCartDrawerOpen(!cartDrawer?.classList.contains('open'));
   });
 });
 
 if (closeCartBtn) {
-  closeCartBtn.addEventListener('click', () => {
-    if (cartDrawer) {
-      cartDrawer.classList.remove('open');
-    }
-  });
+  closeCartBtn.addEventListener('click', () => setCartDrawerOpen(false));
+}
+
+if (cartDrawerBackdrop) {
+  cartDrawerBackdrop.addEventListener('click', () => setCartDrawerOpen(false));
 }
 
 if (enterStoreBtn && splashScreen) {
@@ -932,9 +1098,11 @@ prepareMediaSkeletons();
 renderFilters();
 renderProductsSkeletons();
 renderHeroSkeletons();
-const initialHeroProducts = getHeroProducts();
 
-setTimeout(() => {
+const minSkeletonDelay = new Promise((resolve) => setTimeout(resolve, 550));
+
+Promise.all([syncCatalogFromBackend(), minSkeletonDelay]).then(() => {
+  const initialHeroProducts = getHeroProducts();
   renderProducts();
   renderHeroCarousel(initialHeroProducts);
   const initialHeroProduct = initialHeroProducts[0];
@@ -947,7 +1115,8 @@ setTimeout(() => {
   } else if (productVisual && productTitle) {
     renderProductDetail(activeProduct || products[0]);
   }
-}, 550);
+  prepareMediaSkeletons();
+});
 
 // Warm cache for the AI preview and video asset when product detail is loaded
 if (window.location.pathname.includes('product.html')) {

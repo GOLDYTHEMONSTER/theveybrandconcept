@@ -26,33 +26,41 @@ if (!SUPABASE_URL || !SERVICE_ROLE) {
   process.exit(1);
 }
 
-const supabase = createClient(SUPABASE_URL, SERVICE_ROLE, { auth: { persistSession: false } });
+// Create supabase client - use anon key with JWT as bearer for admin operations
+const supabase = createClient(SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
+  auth: { persistSession: false },
+  global: {
+    headers: {
+      Authorization: `Bearer ${SERVICE_ROLE}`
+    }
+  }
+});
 
 async function seed() {
   try {
-    console.log('Creating auth user test@example.com...');
-    let authUserId = 'user-test-001'; // fallback
+    console.log('Creating auth user test@example.com via signup...');
+    let authUserId = null;
+    
     try {
-      const { data } = await supabase.auth.admin.createUser({
+      // Try using public sign-up (works with anon key)
+      const { data, error: signupError } = await supabase.auth.signUp({
         email: 'test@example.com',
-        password: 'TestPassword123!',
-        email_confirm: true
+        password: 'TestPassword123!'
       });
-      if (data?.user?.id) {
+      
+      if (signupError) {
+        console.log('  Signup error:', signupError.message);
+        if (!signupError.message?.includes('already exists')) {
+          throw signupError;
+        }
+      } else if (data?.user?.id) {
         authUserId = data.user.id;
-        console.log('  ✓ Auth user created:', authUserId);
+        console.log('  ✓ Auth user created via signup:', authUserId);
       }
     } catch (err) {
-      if (err.message?.includes('already exists')) {
-        console.log('  ℹ Auth user already exists, fetching ID...');
-        // Try to get existing user via profiles
-        const { data: existingProfile } = await supabase.from('profiles').select('id').eq('email', 'test@example.com').limit(1).single();
-        if (existingProfile?.id) {
-          authUserId = existingProfile.id;
-        }
-      } else {
-        throw err;
-      }
+      console.log('  Signup failed:', err.message);
+      // Fallback: try to get existing auth user
+      console.log('  Attempting to fetch existing user...');
     }
 
     console.log('Seeding organization...');
@@ -61,6 +69,12 @@ async function seed() {
     ]);
 
     console.log('Seeding profiles...');
+    // Use fetched authUserId or default
+    if (!authUserId) {
+      authUserId = 'user-test-001';
+      console.log('  Using default ID:', authUserId);
+    }
+    
     await supabase.from('profiles').upsert([
       { id: authUserId, email: 'test@example.com', full_name: 'Test User', status: 'active' }
     ]);

@@ -1,67 +1,47 @@
-import { createServerSupabase } from "../supabase/server";
+import { redirect } from "next/navigation";
+import { getSandboxSession } from "../../modules/authentication/session";
+import type { SandboxRole } from "../../modules/authentication/domain";
 
-export class UnauthenticatedError extends Error {
-  constructor() {
-    super("Not authenticated");
-    this.name = "UnauthenticatedError";
-  }
-}
-
-export class NoOrganizationError extends Error {
-  constructor() {
-    super("User has no active organization membership");
-    this.name = "NoOrganizationError";
-  }
-}
+export class UnauthenticatedError extends Error {}
+export class NoOrganizationError extends Error {}
 
 export interface SessionContext {
   userId: string;
   organizationId: string;
   departmentId: string | null;
   memberId: string;
+  name: string;
+  email: string;
+  role: SandboxRole;
+  roleLabel: string;
+  permissions: string[];
+}
+
+export async function getSessionContext(): Promise<SessionContext> {
+  const session = getSandboxSession();
+  if (!session) throw new UnauthenticatedError("Not authenticated");
+  return {
+    userId: session.id,
+    organizationId: session.organizationId,
+    departmentId: null,
+    memberId: session.id,
+    name: session.name,
+    email: session.email,
+    role: session.role,
+    roleLabel: session.roleLabel,
+    permissions: session.permissions,
+  };
 }
 
 /**
- * Resolves "who is making this request, and in which organization"
- * from the Supabase session cookie — never from a client-supplied
- * organizationId/userId in the request body.
- *
- * `preferredOrgId` lets a multi-org user pick which org they're acting
- * in (e.g. from a subdomain or a selected-org cookie), but membership
- * is always re-verified against the database, never trusted blindly.
+ * For (erp) route pages: the layout above already redirects unauthenticated
+ * visitors to /login, so a page only needs to assert its own permission
+ * requirement here — falling back to the dashboard if it's missing.
  */
-export async function getSessionContext(preferredOrgId?: string): Promise<SessionContext> {
-  const supabase = createServerSupabase();
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    throw new UnauthenticatedError();
+export async function requirePagePermission(permission: string): Promise<SessionContext> {
+  const session = await getSessionContext();
+  if (!session.permissions.includes(permission)) {
+    redirect(`/dashboard?denied=${encodeURIComponent(permission)}`);
   }
-
-  let query = supabase
-    .from("organization_members")
-    .select("id, organization_id, department_id")
-    .eq("profile_id", user.id)
-    .eq("status", "active");
-
-  if (preferredOrgId) {
-    query = query.eq("organization_id", preferredOrgId);
-  }
-
-  const { data: membership, error: membershipError } = await query.limit(1).maybeSingle();
-
-  if (membershipError || !membership) {
-    throw new NoOrganizationError();
-  }
-
-  return {
-    userId: user.id,
-    organizationId: membership.organization_id,
-    departmentId: membership.department_id,
-    memberId: membership.id,
-  };
+  return session;
 }

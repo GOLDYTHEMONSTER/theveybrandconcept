@@ -1,57 +1,49 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
+import { InvalidCredentialsError, InvalidLoginInputError } from "../../../../modules/authentication/domain";
+import { authenticateWithPassword } from "../../../../modules/authentication/service";
+import {
+  createSandboxSessionToken,
+  SANDBOX_SESSION_COOKIE,
+  SANDBOX_SESSION_MAX_AGE,
+} from "../../../../modules/authentication/session";
+import { parseLoginCredentials } from "../../../../modules/authentication/validation";
+import { getClientIp, getRequestUserAgent, InvalidRequestOriginError, requireSameOrigin } from "../../../../modules/security/request";
+import { recordSandboxSecurityEvent } from "../../../../modules/security/sandbox-events";
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+export const runtime = "nodejs";
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
+  const ipAddress = getClientIp(request);
+  const userAgent = getRequestUserAgent(request);
+  let attemptedEmail: string | undefined;
   try {
-    const body = await req.json();
-    const { email, password } = body;
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password required' }, { status: 400 });
-    }
-
-    const tokenUrl = `${SUPABASE_URL}/auth/v1/token`;
-    const params = new URLSearchParams();
-    params.append('grant_type', 'password');
-    params.append('email', email);
-    params.append('password', password);
-
-    const resp = await fetch(tokenUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        apikey: SUPABASE_ANON_KEY || ''
-      },
-      body: params.toString()
-    });
-
-    const data = await resp.json();
-
-    if (!resp.ok) {
-      return NextResponse.json({ error: data?.error_description || data?.error || 'Authentication failed' }, { status: 401 });
-    }
-
-    const accessToken = data.access_token;
-    const refreshToken = data.refresh_token;
-    const expiresIn = data.expires_in || 3600;
-
-    const res = NextResponse.json({ success: true, user: data.user || null });
-
-    // Set HTTP-only cookies
-    const cookieOptions = {
+    requireSameOrigin(request);
+    const body = await request.json();
+    attemptedEmail = typeof body?.email === "string" ? body.email : undefined;
+    const credentials = parseLoginCredentials(body);
+    const user = await authenticateWithPassword(credentials);
+    const response = NextResponse.json(
+      { success: true, user },
+      { headers: { "Cache-Control": "no-store" } }
+    );
+    response.cookies.set(SANDBOX_SESSION_COOKIE, createSandboxSessionToken(user), {
       httpOnly: true,
-      path: '/',
-      sameSite: 'lax' as const,
-      secure: process.env.NODE_ENV === 'production'
-    };
-
-    res.cookies.set('sb-access-token', accessToken, { ...cookieOptions, maxAge: expiresIn });
-    if (refreshToken) res.cookies.set('sb-refresh-token', refreshToken, { ...cookieOptions, maxAge: 60 * 60 * 24 * 7 * 7 });
-
-    return res;
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: SANDBOX_SESSION_MAX_AGE,
+    });
+    recordSandboxSecurityEvent({ type: "login.success", actorId: user.id, actorName: user.name, email: user.email, ipAddress, userAgent });
+    return response;
   } catch (error) {
-    console.error('POST /api/auth/login error', error);
-    return NextResponse.json({ error: 'Login failed' }, { status: 500 });
+    recordSandboxSecurityEvent({ type: "login.failure", email: attemptedEmail, ipAddress, userAgent });
+    if (error instanceof InvalidLoginInputError || error instanceof InvalidRequestOriginError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    if (error instanceof InvalidCredentialsError) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    }
+    console.error("POST /api/auth/login failed", error);
+    return NextResponse.json({ error: "Login service unavailable" }, { status: 500 });
   }
 }

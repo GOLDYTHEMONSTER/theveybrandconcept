@@ -12,3 +12,10 @@ yarn-debug.log*
 yarn-error.log*
 gh-cli/
 .vercel
+
+# Build artifacts and secrets — should never be versioned
+.next/
+.env
+.env.local
+.env*.local
+*.tsbuildinfo

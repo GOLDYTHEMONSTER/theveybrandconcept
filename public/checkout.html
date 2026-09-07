@@ -23,11 +23,12 @@
           <a href="index.html">Home</a>
           <a href="shop.html">Shop</a>
           <a href="product.html?id=1">Product</a>
-          <a href="cart.html">Bag</a>
+          <a href="cart.html">Cart</a>
           <a href="about.html">About</a>
           <a href="contact.html">Contact</a>
         </nav>
-        <a class="icon-btn" href="cart.html">Bag <span id="cartCount">0</span></a>
+        <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="siteNav">☰</button>
+        <a class="icon-btn" href="cart.html">Cart <span id="cartCount">0</span></a>
       </header>
 
       <main class="page-content cart-page">
@@ -45,23 +46,23 @@
                 <div class="info-grid">
                   <div>
                     <label class="form-label">Full name</label>
-                    <input type="text" class="field" value="Ari Collins" />
+                    <input type="text" class="field" id="checkoutName" placeholder="Full name" required />
                   </div>
                   <div>
                     <label class="form-label">Email</label>
-                    <input type="email" class="field" value="ari@theveybrand.com" />
+                    <input type="email" class="field" id="checkoutEmail" placeholder="you@email.com" required />
                   </div>
                   <div style="grid-column: 1 / -1;">
                     <label class="form-label">Address</label>
-                    <input type="text" class="field" value="18 Mercer Street, New York, NY" />
+                    <input type="text" class="field" id="checkoutAddress" placeholder="Street address" />
                   </div>
                   <div>
                     <label class="form-label">City</label>
-                    <input type="text" class="field" value="New York" />
+                    <input type="text" class="field" id="checkoutCity" placeholder="City" />
                   </div>
                   <div>
                     <label class="form-label">Postcode</label>
-                    <input type="text" class="field" value="10013" />
+                    <input type="text" class="field" id="checkoutPostcode" placeholder="Postcode" />
                   </div>
                 </div>
               </div>
@@ -78,28 +79,30 @@
                 <div class="info-grid">
                   <div style="grid-column: 1 / -1;">
                     <label class="form-label">Card number</label>
-                    <input type="text" class="field" value="4242 4242 4242 4242" />
+                    <input type="text" class="field" placeholder="4242 4242 4242 4242" />
                   </div>
                   <div>
                     <label class="form-label">Expiry</label>
-                    <input type="text" class="field" value="09/28" />
+                    <input type="text" class="field" placeholder="MM/YY" />
                   </div>
                   <div>
                     <label class="form-label">Security code</label>
-                    <input type="text" class="field" value="248" />
+                    <input type="text" class="field" placeholder="CVC" />
                   </div>
                 </div>
+                <p class="summary-note">Preview environment — payment fields are not processed or stored.</p>
               </div>
             </div>
 
             <aside class="summary-card checkout-card">
               <h4>Order Summary</h4>
-              <div class="summary-row"><span>Subtotal</span><strong>$480</strong></div>
-              <div class="summary-row"><span>Shipping</span><strong>$18</strong></div>
-              <div class="summary-row"><span>Taxes</span><strong>$34</strong></div>
-              <div class="summary-row"><span>Total</span><strong>$532</strong></div>
+              <div id="checkoutItems"></div>
+              <div class="summary-row"><span>Subtotal</span><strong id="checkoutSubtotal">₦0</strong></div>
+              <div class="summary-row"><span>Shipping</span><strong>Calculated at fulfilment</strong></div>
+              <div class="summary-row"><span>Total</span><strong id="checkoutTotal">₦0</strong></div>
+              <p id="checkoutError" class="summary-note" style="display:none; color: #e8a2a2;"></p>
               <p class="summary-note">Your boutique order is protected by secure checkout and insured delivery.</p>
-              <a class="primary-btn" href="index.html">Place order</a>
+              <button type="button" class="primary-btn" id="placeOrderBtn">Place order</button>
             </aside>
           </div>
         </section>
@@ -110,7 +113,6 @@
       <a href="index.html"><span class="nav-icon">⌂</span><span>Home</span></a>
       <a href="shop.html"><span class="nav-icon">◌</span><span>Shop</span></a>
       <a href="product.html?id=1"><span class="nav-icon">◍</span><span>Product</span></a>
-      <a href="cart.html"><span class="nav-icon">👜</span><span>Bag</span></a>
     </nav>
 
     <script src="script.js"></script>
