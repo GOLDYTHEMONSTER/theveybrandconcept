@@ -17,12 +17,13 @@ import {
   Users,
   Wallet,
   X,
+  type LucideIcon,
 } from "lucide-react";
 import { NAV_ITEMS, type NavItem } from "./nav-items";
 import LogoutButton from "./LogoutButton";
 import NotificationBell from "./NotificationBell";
 
-const NAV_ICONS: Record<NavItem["icon"], React.ComponentType<{ size?: number; strokeWidth?: number }>> = {
+const NAV_ICONS: Record<NavItem["icon"], LucideIcon> = {
   home: Home,
   orders: ShoppingBag,
   customers: Users,
