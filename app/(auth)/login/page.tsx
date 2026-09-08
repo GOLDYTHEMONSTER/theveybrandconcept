@@ -1,21 +1,42 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-const DEMO_ACCOUNTS = [
-  { initials: "VY", name: "Veronica Young", role: "Executive", email: "executive@theveybrand.com" },
-  { initials: "AO", name: "Amara Okafor", role: "Sales Manager", email: "sales@theveybrand.com" },
-  { initials: "DC", name: "David Chen", role: "Warehouse Manager", email: "warehouse@theveybrand.com" },
-  { initials: "IB", name: "Ife Bello", role: "Customer Support", email: "support@theveybrand.com" },
-];
+interface DemoAccount {
+  name: string;
+  role: string;
+  roleLabel: string;
+  email: string;
+}
+
+function initialsFor(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  return ((parts[0]?.[0] ?? "") + (parts[parts.length - 1]?.[0] ?? "")).toUpperCase();
+}
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState(DEMO_ACCOUNTS[0].email);
+  const [accounts, setAccounts] = useState<DemoAccount[]>([]);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("Demo123!");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/auth/demo-accounts")
+      .then((response) => response.json())
+      .then((data: { accounts: DemoAccount[] }) => {
+        if (cancelled) return;
+        setAccounts(data.accounts ?? []);
+        setEmail((current) => current || data.accounts?.[0]?.email || "");
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -62,9 +83,9 @@ export default function LoginPage() {
           <h2>Welcome back</h2>
           <p className="login-intro">Choose a demo role to preview its workspace, or enter the sandbox credentials.</p>
           <div className="account-picker">
-            {DEMO_ACCOUNTS.map((account) => (
+            {accounts.map((account) => (
               <button type="button" className={email === account.email ? "selected" : ""} onClick={() => chooseAccount(account.email)} key={account.email}>
-                <span>{account.initials}</span><div><strong>{account.role}</strong><small>{account.name}</small></div>
+                <span>{initialsFor(account.name)}</span><div><strong>{account.roleLabel}</strong><small>{account.name}</small></div>
               </button>
             ))}
           </div>

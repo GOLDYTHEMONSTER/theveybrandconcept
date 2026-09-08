@@ -38,10 +38,10 @@ export async function getSessionContext(): Promise<SessionContext> {
  * visitors to /login, so a page only needs to assert its own permission
  * requirement here — falling back to the dashboard if it's missing.
  */
-export async function requirePagePermission(permission: string): Promise<SessionContext> {
+export async function requirePagePermission(...anyOf: [string, ...string[]]): Promise<SessionContext> {
   const session = await getSessionContext();
-  if (!session.permissions.includes(permission)) {
-    redirect(`/dashboard?denied=${encodeURIComponent(permission)}`);
+  if (!anyOf.some((permission) => session.permissions.includes(permission))) {
+    redirect(`/dashboard?denied=${encodeURIComponent(anyOf[0])}`);
   }
   return session;
 }

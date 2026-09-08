@@ -18,6 +18,7 @@ export const ROLE_DEFINITIONS: Record<SandboxRole, RoleDefinition> = {
       "crm.view",
       "finance.view",
       "team.view",
+      "team.manage",
       "products.create",
       "orders.cancel",
       "audit.view",
@@ -28,7 +29,7 @@ export const ROLE_DEFINITIONS: Record<SandboxRole, RoleDefinition> = {
     description: "Pipeline, customers, orders and team performance",
     permissions: [
       "dashboard.sales",
-      "analytics.sales.view",
+      "analytics.view",
       "crm.view",
       "crm.manage",
       "orders.view",
@@ -69,4 +70,62 @@ export function hasPermission(
   permission: string
 ): boolean {
   return user.permissions.includes(permission);
+}
+
+export interface PermissionDefinition {
+  key: string;
+  label: string;
+  group: string;
+}
+
+/**
+ * Every permission string an ERP route actually checks (requirePagePermission
+ * / guardMutation / an inline session.permissions.includes). This is the
+ * catalog the Team > Permissions page renders — kept separate from each
+ * role's own list so an account's *effective* grants can differ from its
+ * role's defaults (see getEffectivePermissions).
+ */
+export const PERMISSION_CATALOG: PermissionDefinition[] = [
+  { key: "dashboard.executive", label: "View executive dashboard", group: "Dashboard" },
+  { key: "dashboard.sales", label: "View sales dashboard", group: "Dashboard" },
+  { key: "dashboard.warehouse", label: "View warehouse dashboard", group: "Dashboard" },
+  { key: "dashboard.support", label: "View support dashboard", group: "Dashboard" },
+  { key: "analytics.view", label: "View analytics", group: "Analytics" },
+  { key: "orders.view", label: "View orders", group: "Orders" },
+  { key: "orders.create", label: "Create orders", group: "Orders" },
+  { key: "orders.cancel", label: "Cancel orders", group: "Orders" },
+  { key: "orders.fulfil", label: "Process, ship & deliver orders", group: "Orders" },
+  { key: "crm.view", label: "View customers", group: "Customers" },
+  { key: "crm.manage", label: "Manage customer records", group: "Customers" },
+  { key: "inventory.view", label: "View inventory", group: "Inventory" },
+  { key: "inventory.adjust", label: "Adjust stock levels", group: "Inventory" },
+  { key: "inventory.transfer", label: "Transfer stock between warehouses", group: "Inventory" },
+  { key: "products.create", label: "Create products", group: "Inventory" },
+  { key: "procurement.view", label: "View procurement", group: "Inventory" },
+  { key: "finance.view", label: "View finance", group: "Finance" },
+  { key: "support.view", label: "View support tickets", group: "Support" },
+  { key: "support.respond", label: "Respond to support tickets", group: "Support" },
+  { key: "team.view", label: "View the full team roster", group: "Team" },
+  { key: "team.sales.view", label: "View the sales team roster", group: "Team" },
+  { key: "team.manage", label: "Invite teammates & manage permissions", group: "Team" },
+  { key: "audit.view", label: "View the audit log", group: "Security" },
+];
+
+export const ALL_PERMISSIONS = PERMISSION_CATALOG.map((permission) => permission.key);
+
+export interface PermissionOverrides {
+  granted: string[];
+  revoked: string[];
+}
+
+/**
+ * An account's real permission set: its role's defaults, plus anything
+ * granted to it specifically, minus anything revoked from it specifically.
+ * Order matters -- an explicit revoke always wins over the role default.
+ */
+export function getEffectivePermissions(role: SandboxRole, overrides?: PermissionOverrides): string[] {
+  const effective = new Set(ROLE_DEFINITIONS[role].permissions);
+  overrides?.granted.forEach((permission) => effective.add(permission));
+  overrides?.revoked.forEach((permission) => effective.delete(permission));
+  return Array.from(effective);
 }

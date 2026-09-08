@@ -2,7 +2,7 @@ export interface NavItem {
   label: string;
   icon: "home" | "orders" | "customers" | "inventory" | "support" | "finance" | "analytics" | "team" | "audit" | "settings";
   href: string;
-  permission: string | null;
+  permission: string | string[] | null;
 }
 
 export const NAV_ITEMS: NavItem[] = [
@@ -13,7 +13,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Support", icon: "support", href: "/support", permission: "support.view" },
   { label: "Finance", icon: "finance", href: "/finance", permission: "finance.view" },
   { label: "Analytics", icon: "analytics", href: "/analytics", permission: "analytics.view" },
-  { label: "Team", icon: "team", href: "/team", permission: "team.view" },
+  { label: "Team", icon: "team", href: "/team", permission: ["team.view", "team.sales.view"] },
   { label: "Audit & Security", icon: "audit", href: "/audit", permission: "audit.view" },
   { label: "Settings", icon: "settings", href: "/settings", permission: null },
 ];

@@ -1,9 +1,16 @@
+import { ROLE_DEFINITIONS } from "../authentication/roles";
+import { effectivePermissionsFor, listTeamMembers, type TeamMember } from "./store";
+
 export interface TeamMemberRow {
   id: string;
   name: string;
+  email: string;
+  role: TeamMember["role"];
   roleLabel: string;
   department: string;
-  status: "active" | "on_leave";
+  status: TeamMember["status"];
+  permissionCount: number;
+  hasOverrides: boolean;
 }
 
 export interface TeamMetric {
@@ -13,24 +20,32 @@ export interface TeamMetric {
   tone?: "positive" | "warning" | "neutral";
 }
 
-const ROWS: TeamMemberRow[] = [
-  { id: "team-01", name: "Veronica Young", roleLabel: "Executive", department: "Executive", status: "active" },
-  { id: "team-02", name: "Amara Okafor", roleLabel: "Sales Manager", department: "Sales", status: "active" },
-  { id: "team-03", name: "David Chen", roleLabel: "Warehouse Manager", department: "Operations", status: "active" },
-  { id: "team-04", name: "Ife Bello", roleLabel: "Customer Support", department: "Customer Service", status: "active" },
-  { id: "team-05", name: "Tunde Ajayi", roleLabel: "Sales Representative", department: "Sales", status: "on_leave" },
-];
-
 export function getTeamRows(): TeamMemberRow[] {
-  return ROWS;
+  return listTeamMembers().map((member) => ({
+    id: member.id,
+    name: member.name,
+    email: member.email,
+    role: member.role,
+    roleLabel: ROLE_DEFINITIONS[member.role].label,
+    department: member.department,
+    status: member.status,
+    permissionCount: effectivePermissionsFor(member).length,
+    hasOverrides: member.overrides.granted.length > 0 || member.overrides.revoked.length > 0,
+  }));
 }
 
 export function getTeamMetrics(): TeamMetric[] {
-  const onLeave = ROWS.filter((row) => row.status === "on_leave").length;
+  const rows = listTeamMembers();
+  const suspended = rows.filter((row) => row.status === "suspended").length;
+  const departments = new Set(rows.map((row) => row.department)).size;
+  const overridden = rows.filter(
+    (row) => row.overrides.granted.length > 0 || row.overrides.revoked.length > 0
+  ).length;
+
   return [
-    { label: "Team members", value: String(ROWS.length), change: "Across 4 departments", tone: "neutral" },
-    { label: "Active today", value: String(ROWS.length - onLeave), change: "Clocked in", tone: "positive" },
-    { label: "On leave", value: String(onLeave), change: onLeave ? "Approved leave" : "None scheduled", tone: onLeave ? "warning" : "positive" },
-    { label: "Open roles", value: "1", change: "Warehouse assistant", tone: "neutral" },
+    { label: "Team members", value: String(rows.length), change: `Across ${departments} department${departments === 1 ? "" : "s"}`, tone: "neutral" },
+    { label: "Active", value: String(rows.length - suspended), change: "Can sign in today", tone: "positive" },
+    { label: "Suspended", value: String(suspended), change: suspended ? "Access revoked" : "None", tone: suspended ? "warning" : "positive" },
+    { label: "Custom permissions", value: String(overridden), change: overridden ? "Accounts with overrides" : "All on role defaults", tone: "neutral" },
   ];
 }

@@ -47,9 +47,11 @@ interface ErpShellProps {
 export default function ErpShell({ roleLabel, name, permissions, badges = {}, children }: ErpShellProps) {
   const pathname = usePathname();
   const [navOpen, setNavOpen] = useState(false);
-  const visibleNavigation = NAV_ITEMS.filter(
-    (item) => !item.permission || permissions.includes(item.permission)
-  );
+  const visibleNavigation = NAV_ITEMS.filter((item) => {
+    if (!item.permission) return true;
+    const required = Array.isArray(item.permission) ? item.permission : [item.permission];
+    return required.some((permission) => permissions.includes(permission));
+  });
 
   // Close the mobile drawer whenever the route changes.
   useEffect(() => {
