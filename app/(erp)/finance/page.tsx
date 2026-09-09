@@ -1,5 +1,8 @@
+import Link from "next/link";
 import { requirePagePermission } from "../../../lib/auth/session";
 import { getFinanceMetrics, getInvoiceRows, getInvoiceStatusLabel, getInvoiceStatusTone } from "../../../modules/finance/service";
+import ExportCsvButton from "../_components/ExportCsvButton";
+import MetricGrid from "../_components/MetricGrid";
 
 export const dynamic = "force-dynamic";
 
@@ -19,17 +22,15 @@ export default async function FinancePage() {
           <h1>Cash position, at a glance.</h1>
           <p>Every non-cancelled order stands in as its own invoice — paid on delivery, outstanding until then.</p>
         </div>
+        <div className="erp-hero-actions">
+          <ExportCsvButton
+            filename="invoices.csv"
+            rows={rows.map((row) => ({ invoiceNumber: row.invoiceNumber, customer: row.customer, amount: row.amount, status: row.status, orderStatus: row.reference }))}
+          />
+        </div>
       </section>
 
-      <section className="metric-grid" aria-label="Finance metrics">
-        {metrics.map((metric) => (
-          <article className="metric-card" key={metric.label}>
-            <div className="metric-label"><span>{metric.label}</span><button>•••</button></div>
-            <strong>{metric.value}</strong>
-            <small className={`metric-change ${metric.tone ?? "neutral"}`}>{metric.change}</small>
-          </article>
-        ))}
-      </section>
+      <MetricGrid metrics={metrics} label="Finance metrics" />
 
       <div className="erp-table-wrap">
         <table className="erp-table">
@@ -40,11 +41,12 @@ export default async function FinancePage() {
               <th className="numeric">Amount</th>
               <th>Status</th>
               <th>Order status</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 && (
-              <tr><td colSpan={5} style={{ textAlign: "center", color: "var(--muted)", padding: "32px 0" }}>No invoices yet.</td></tr>
+              <tr><td colSpan={6} style={{ textAlign: "center", color: "var(--muted)", padding: "32px 0" }}>No invoices yet.</td></tr>
             )}
             {rows.map((row) => (
               <tr key={row.id}>
@@ -53,6 +55,11 @@ export default async function FinancePage() {
                 <td className="numeric">{currency.format(row.amount)}</td>
                 <td><span className={`status-pill ${getInvoiceStatusTone(row.status)}`}>{getInvoiceStatusLabel(row.status)}</span></td>
                 <td style={{ textTransform: "capitalize" }}>{row.reference}</td>
+                <td className="numeric">
+                  <Link className="erp-button secondary" style={{ height: 30, padding: "0 12px", fontSize: 10 }} href={`/orders/${row.id}`}>
+                    {row.status === "overdue" ? "Follow up" : "View order"}
+                  </Link>
+                </td>
               </tr>
             ))}
           </tbody>

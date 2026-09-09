@@ -1,5 +1,6 @@
 import { listVariants } from "../catalog/store";
-import { getAssignedWarehouses, getReorderPoint, getStockByWarehouse } from "./store";
+import { computeTrend, splitByRecency, WEEK_MS, type Trend } from "../shared/trend";
+import { getAssignedWarehouses, getReorderPoint, getStockByWarehouse, listLedgerEntries } from "./store";
 
 export interface InventoryRow {
   variantId: string;
@@ -22,6 +23,7 @@ export interface InventoryMetric {
   value: string;
   change: string;
   tone?: "positive" | "warning" | "neutral";
+  trend?: Trend;
 }
 
 function statusFor(onHand: number, reorderPoint: number): InventoryRow["status"] {
@@ -90,8 +92,24 @@ export function getInventoryMetrics(): InventoryMetric[] {
   const unitsAvailable = rows.reduce((sum, row) => sum + Math.max(0, row.available), 0);
   const warehouses = new Set(rows.map((row) => row.warehouse)).size;
 
+  // Stock levels are a point-in-time snapshot with no stored history, so
+  // "units available" can't be compared to "units available last week"
+  // directly -- but the ledger records every movement with a timestamp,
+  // so net on-hand movement (restocks minus adjustments/sales) this week
+  // vs last week is a real, honest proxy for whether stock is trending up.
+  const onHandEntries = listLedgerEntries().filter((entry) => entry.bucket === "on_hand");
+  const { current, previous } = splitByRecency(onHandEntries, (entry) => entry.occurredAt, WEEK_MS);
+  const netThisWeek = current.reduce((sum, entry) => sum + entry.quantity, 0);
+  const netLastWeek = previous.reduce((sum, entry) => sum + entry.quantity, 0);
+
   return [
-    { label: "Units available", value: unitsAvailable.toLocaleString(), change: `Across ${warehouses} locations`, tone: "neutral" },
+    {
+      label: "Units available",
+      value: unitsAvailable.toLocaleString(),
+      change: `Across ${warehouses} locations`,
+      tone: "neutral",
+      trend: computeTrend(netThisWeek, netLastWeek, "up"),
+    },
     { label: "Low stock lines", value: String(lowStock), change: "Reorder suggested", tone: lowStock ? "warning" : "positive" },
     { label: "Out of stock", value: String(outOfStock), change: outOfStock ? "Needs attention" : "All lines covered", tone: outOfStock ? "warning" : "positive" },
     { label: "SKUs tracked", value: String(listVariants().length), change: "Live inventory ledger", tone: "neutral" },

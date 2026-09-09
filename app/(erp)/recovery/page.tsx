@@ -1,6 +1,8 @@
 import { getSessionContext, requirePagePermission } from "../../../lib/auth/session";
 import { getAbandonedCheckouts } from "../../../modules/orders/store";
 import { getRecoveryMetrics } from "../../../modules/recovery/service";
+import ExportCsvButton from "../_components/ExportCsvButton";
+import MetricGrid from "../_components/MetricGrid";
 import RecoveryTable from "../_components/RecoveryTable";
 
 export const dynamic = "force-dynamic";
@@ -20,17 +22,15 @@ export default async function RecoveryPage() {
           <h1>Abandoned checkouts.</h1>
           <p>A customer reached payment and never finished it — their stock is still reserved until you send a recovery link or release it back to inventory.</p>
         </div>
+        <div className="erp-hero-actions">
+          <ExportCsvButton
+            filename="abandoned-checkouts.csv"
+            rows={rows.map((row) => ({ orderNumber: row.orderNumber, customer: row.customer, email: row.customerEmail ?? "", total: row.total, createdAt: row.createdAt }))}
+          />
+        </div>
       </section>
 
-      <section className="metric-grid" aria-label="Recovery metrics">
-        {metrics.map((metric) => (
-          <article className="metric-card" key={metric.label}>
-            <div className="metric-label"><span>{metric.label}</span><button>•••</button></div>
-            <strong>{metric.value}</strong>
-            <small className={`metric-change ${metric.tone ?? "neutral"}`}>{metric.change}</small>
-          </article>
-        ))}
-      </section>
+      <MetricGrid metrics={metrics} label="Recovery metrics" />
 
       <RecoveryTable rows={rows} canRelease={session.permissions.includes("orders.cancel")} />
     </>

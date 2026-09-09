@@ -1,6 +1,8 @@
 import { requirePagePermission } from "../../../lib/auth/session";
 import { getCrmMetrics, getCustomerRows } from "../../../modules/crm/service";
 import CustomersTable from "../_components/CustomersTable";
+import ExportCsvButton from "../_components/ExportCsvButton";
+import MetricGrid from "../_components/MetricGrid";
 
 export const dynamic = "force-dynamic";
 
@@ -21,17 +23,22 @@ export default async function CustomersPage() {
           <h1>Every relationship, in context.</h1>
           <p>Derived live from real orders — every customer here has actually placed at least one order.</p>
         </div>
+        <div className="erp-hero-actions">
+          <ExportCsvButton
+            filename="customers.csv"
+            rows={rows.map((row) => ({
+              name: row.name,
+              segment: SEGMENT_LABEL[row.segment],
+              orders: row.orderCount,
+              lifetimeValue: row.lifetimeValue,
+              lastOrderAt: row.lastOrderAt,
+              channels: row.channels.join("; "),
+            }))}
+          />
+        </div>
       </section>
 
-      <section className="metric-grid" aria-label="Customer metrics">
-        {metrics.map((metric) => (
-          <article className="metric-card" key={metric.label}>
-            <div className="metric-label"><span>{metric.label}</span><button>•••</button></div>
-            <strong>{metric.value}</strong>
-            <small className={`metric-change ${metric.tone ?? "neutral"}`}>{metric.change}</small>
-          </article>
-        ))}
-      </section>
+      <MetricGrid metrics={metrics} label="Customer metrics" />
 
       <CustomersTable rows={rows} segmentLabel={SEGMENT_LABEL} segmentTone={SEGMENT_TONE} />
     </>

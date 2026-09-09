@@ -4,7 +4,9 @@ import {
   getInventoryMetrics,
   getInventoryRows,
 } from "../../../modules/inventory/service";
+import ExportCsvButton from "../_components/ExportCsvButton";
 import InventoryTable from "../_components/InventoryTable";
+import MetricGrid from "../_components/MetricGrid";
 
 const STATUS_LABEL = { in_stock: "In stock", low_stock: "Low stock", out_of_stock: "Out of stock" } as const;
 const STATUS_TONE = { in_stock: "positive", low_stock: "warning", out_of_stock: "negative" } as const;
@@ -26,22 +28,25 @@ export default async function InventoryPage() {
           <h1>Stock across every location.</h1>
           <p>Live counts from the inventory ledger — every adjustment, transfer and sale is recorded as a movement, never a silent overwrite.</p>
         </div>
-        {canCreateProduct && (
-          <div className="erp-hero-actions">
-            <Link className="erp-button primary" href="/inventory/new">Create product <span>＋</span></Link>
-          </div>
-        )}
+        <div className="erp-hero-actions">
+          <ExportCsvButton
+            filename="inventory.csv"
+            rows={rows.map((row) => ({
+              product: row.product,
+              variant: row.variant,
+              sku: row.sku,
+              warehouse: row.warehouse,
+              onHand: row.onHand,
+              reserved: row.reserved,
+              available: row.available,
+              status: row.status,
+            }))}
+          />
+          {canCreateProduct && <Link className="erp-button primary" href="/inventory/new">Create product <span>＋</span></Link>}
+        </div>
       </section>
 
-      <section className="metric-grid" aria-label="Inventory metrics">
-        {metrics.map((metric) => (
-          <article className="metric-card" key={metric.label}>
-            <div className="metric-label"><span>{metric.label}</span><button>•••</button></div>
-            <strong>{metric.value}</strong>
-            <small className={`metric-change ${metric.tone ?? "neutral"}`}>{metric.change}</small>
-          </article>
-        ))}
-      </section>
+      <MetricGrid metrics={metrics} label="Inventory metrics" />
 
       <InventoryTable rows={rows} statusLabel={STATUS_LABEL} statusTone={STATUS_TONE} canAdjust={canAdjust} canManageFeatured={canCreateProduct} />
     </>

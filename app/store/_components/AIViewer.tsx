@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const VIEW_LABELS = ["Front", "Side", "Back", "Detail"];
 
@@ -27,10 +27,6 @@ export default function AIViewer({ images, name }: { images: string[]; name: str
         onTouchStart={(event) => setTouchStartX(event.touches[0].clientX)}
         onTouchEnd={(event) => handleTouchEnd(event.changedTouches[0].clientX)}
       >
-        <span className="absolute left-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 backdrop-blur-md">
-          <Sparkles size={13} />
-        </span>
-
         {images.map((image, i) => (
           <img
             key={image}

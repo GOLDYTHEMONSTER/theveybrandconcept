@@ -10,7 +10,6 @@ import {
   MailQuestion,
   Menu,
   Package,
-  Search,
   Settings,
   ShieldCheck,
   ShoppingBag,
@@ -99,8 +98,9 @@ export default function ErpShell({ roleLabel, name, permissions, badges = {}, ch
             <span className="erp-location">Lagos showroom · Live overview</span>
           </div>
           <div className="erp-top-actions">
-            <a className="erp-view-site" href="/store" target="_blank" rel="noopener noreferrer">View site <ExternalLink size={13} /></a>
-            <button aria-label="Search"><Search size={16} /></button>
+            <a className="erp-view-site" href="/store" target="_blank" rel="noopener noreferrer" aria-label="View site">
+              <span className="erp-view-site-label">View site</span> <ExternalLink size={13} />
+            </a>
             <NotificationBell />
             <div className="role-pill"><span>{roleLabel}</span>{name}</div>
           </div>

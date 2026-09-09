@@ -2,6 +2,8 @@ import { requirePagePermission } from "../../../lib/auth/session";
 import { listRecentAudit } from "../../../modules/audit/sandbox-log";
 import { listRecentSecurityEvents } from "../../../modules/security/sandbox-events";
 import AuditTable from "../_components/AuditTable";
+import ExportCsvButton from "../_components/ExportCsvButton";
+import MetricGrid from "../_components/MetricGrid";
 import SecurityEventsTable from "../_components/SecurityEventsTable";
 
 export const dynamic = "force-dynamic";
@@ -31,17 +33,15 @@ export default async function AuditPage() {
           <h1>Every sensitive action, on the record.</h1>
           <p>Product changes, stock adjustments, order lifecycle events and login activity — append-only, and visible only to accounts with audit access.</p>
         </div>
+        <div className="erp-hero-actions">
+          <ExportCsvButton
+            filename="audit-trail.csv"
+            rows={auditEntries.map((entry) => ({ action: entry.action, actor: entry.actorName, entityType: entry.entityType ?? "", entityId: entry.entityId ?? "", reason: entry.reason ?? "", occurredAt: entry.occurredAt }))}
+          />
+        </div>
       </section>
 
-      <section className="metric-grid" aria-label="Audit metrics">
-        {metrics.map((metric) => (
-          <article className="metric-card" key={metric.label}>
-            <div className="metric-label"><span>{metric.label}</span><button>•••</button></div>
-            <strong>{metric.value}</strong>
-            <small className={`metric-change ${metric.tone}`}>{metric.change}</small>
-          </article>
-        ))}
-      </section>
+      <MetricGrid metrics={metrics} label="Audit metrics" />
 
       <section style={{ marginBottom: 12 }}>
         <p className="erp-eyebrow">Account activity</p>

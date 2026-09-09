@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { requirePagePermission } from "../../../lib/auth/session";
 import { getTeamMetrics, getTeamRows } from "../../../modules/team/service";
+import ExportCsvButton from "../_components/ExportCsvButton";
+import MetricGrid from "../_components/MetricGrid";
 import TeamRoleSelect from "../_components/TeamRoleSelect";
 import TeamStatusButton from "../_components/TeamStatusButton";
 
@@ -28,22 +30,16 @@ export default async function TeamPage() {
           </p>
         </div>
         <div className="erp-hero-actions">
+          <ExportCsvButton
+            filename="team.csv"
+            rows={rows.map((row) => ({ name: row.name, email: row.email, role: row.roleLabel, department: row.department, status: row.status, permissions: row.permissionCount }))}
+          />
           {canManage && <Link href="/team/permissions" className="erp-button secondary">Manage permissions</Link>}
           {canManage && <Link href="/team/invite" className="erp-button primary">Invite teammate <span>＋</span></Link>}
         </div>
       </section>
 
-      {!isDepartmentScoped && (
-        <section className="metric-grid" aria-label="Team metrics">
-          {metrics.map((metric) => (
-            <article className="metric-card" key={metric.label}>
-              <div className="metric-label"><span>{metric.label}</span><button>•••</button></div>
-              <strong>{metric.value}</strong>
-              <small className={`metric-change ${metric.tone ?? "neutral"}`}>{metric.change}</small>
-            </article>
-          ))}
-        </section>
-      )}
+      {!isDepartmentScoped && <MetricGrid metrics={metrics} label="Team metrics" />}
 
       <div className="erp-table-wrap">
         <table className="erp-table">

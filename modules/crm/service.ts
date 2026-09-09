@@ -1,5 +1,6 @@
 import type { Order } from "../orders/domain";
 import { listOrders } from "../orders/store";
+import { computeTrend, type Trend } from "../shared/trend";
 import { customerKeyFor, getCustomerRecord } from "./store";
 
 export type CustomerSegment = "vip" | "returning" | "new";
@@ -26,6 +27,7 @@ export interface CrmMetric {
   value: string;
   change: string;
   tone?: "positive" | "warning" | "neutral";
+  trend?: Trend;
 }
 
 const SEGMENT_LABEL: Record<CustomerSegment, string> = {
@@ -105,16 +107,42 @@ export function getCustomerSegmentTone(segment: CustomerSegment): string {
   return SEGMENT_TONE[segment];
 }
 
+function firstOrderDates(): Map<string, string> {
+  const first = new Map<string, string>();
+  for (const order of listOrders()) {
+    if (order.status === "cancelled") continue;
+    const key = customerKeyFor(order.customer);
+    const existing = first.get(key);
+    if (!existing || order.createdAt < existing) first.set(key, order.createdAt);
+  }
+  return first;
+}
+
 export function getCrmMetrics(): CrmMetric[] {
   const rows = getCustomerRows();
   const vip = rows.filter((row) => row.segment === "vip").length;
   const newCustomers = rows.filter((row) => row.segment === "new").length;
   const avgLifetimeValue = rows.length ? rows.reduce((sum, row) => sum + row.lifetimeValue, 0) / rows.length : 0;
 
+  const firstOrders = [...firstOrderDates().values()];
+  const now = Date.now();
+  const WEEK_MS = 7 * 24 * 3_600_000;
+  const firstThisWeek = firstOrders.filter((d) => now - new Date(d).getTime() < WEEK_MS).length;
+  const firstLastWeek = firstOrders.filter((d) => {
+    const age = now - new Date(d).getTime();
+    return age >= WEEK_MS && age < WEEK_MS * 2;
+  }).length;
+
   return [
     { label: "Active customers", value: String(rows.length), change: "Derived from orders", tone: "neutral" },
     { label: "VIP accounts", value: String(vip), change: "2+ orders, high value", tone: "positive" },
-    { label: "New customers", value: String(newCustomers), change: "First order placed", tone: "positive" },
+    {
+      label: "New customers",
+      value: String(newCustomers),
+      change: "First order placed",
+      tone: "positive",
+      trend: computeTrend(firstThisWeek, firstLastWeek, "up"),
+    },
     { label: "Avg. lifetime value", value: `₦${Math.round(avgLifetimeValue).toLocaleString("en-NG")}`, change: "Across active customers", tone: "neutral" },
   ];
 }

@@ -1,5 +1,6 @@
 import { requirePagePermission } from "../../../lib/auth/session";
 import { getSupportMetrics, getTicketRows, getTicketStatusLabel, getTicketStatusTone } from "../../../modules/support/service";
+import MetricGrid from "../_components/MetricGrid";
 
 export default async function SupportPage() {
   await requirePagePermission("support.view");
@@ -15,20 +16,13 @@ export default async function SupportPage() {
           <h1>Every conversation, in one place.</h1>
           <p>Customer tickets stay linked to their order and account history, so replies never lose context.</p>
         </div>
-        <div className="erp-hero-actions">
-          <button className="erp-button primary">New ticket <span>＋</span></button>
-        </div>
       </section>
 
-      <section className="metric-grid" aria-label="Support metrics">
-        {metrics.map((metric) => (
-          <article className="metric-card" key={metric.label}>
-            <div className="metric-label"><span>{metric.label}</span><button>•••</button></div>
-            <strong>{metric.value}</strong>
-            <small className={`metric-change ${metric.tone ?? "neutral"}`}>{metric.change}</small>
-          </article>
-        ))}
-      </section>
+      <p className="sandbox-note">
+        <span>●</span> Illustrative only — there's no real ticketing backend yet, so these numbers and tickets aren't live data.
+      </p>
+
+      <MetricGrid metrics={metrics} label="Support metrics" />
 
       <div className="erp-table-wrap">
         <table className="erp-table">

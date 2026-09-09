@@ -1,4 +1,5 @@
 import { listOrders } from "../orders/store";
+import { computeTrend, splitByRecency, WEEK_MS, type Trend } from "../shared/trend";
 
 export type InvoiceStatus = "paid" | "outstanding" | "overdue";
 
@@ -16,6 +17,7 @@ export interface FinanceMetric {
   value: string;
   change: string;
   tone?: "positive" | "warning" | "neutral";
+  trend?: Trend;
 }
 
 const STATUS_LABEL: Record<InvoiceStatus, string> = {
@@ -70,10 +72,30 @@ export function getFinanceMetrics(): FinanceMetric[] {
   const outstanding = rows.filter((row) => row.status !== "paid");
   const overdue = rows.filter((row) => row.status === "overdue").length;
 
+  const deliveredOrders = listOrders().filter((order) => order.status === "delivered");
+  const { current: deliveredThisWeek, previous: deliveredLastWeek } = splitByRecency(deliveredOrders, (o) => o.createdAt, WEEK_MS);
+  const revenueThisWeek = deliveredThisWeek.reduce((sum, o) => sum + o.total, 0);
+  const revenueLastWeek = deliveredLastWeek.reduce((sum, o) => sum + o.total, 0);
+
+  const overdueOrders = listOrders().filter((order) => order.status !== "cancelled" && order.status !== "delivered");
+  const { current: pendingThisWeek, previous: pendingLastWeek } = splitByRecency(overdueOrders, (o) => o.createdAt, WEEK_MS);
+
   return [
-    { label: "Revenue collected", value: `₦${(paidRevenue / 1_000_000).toFixed(1)}M`, change: `${rows.filter((r) => r.status === "paid").length} delivered orders`, tone: "positive" },
+    {
+      label: "Revenue collected",
+      value: `₦${(paidRevenue / 1_000_000).toFixed(1)}M`,
+      change: `${rows.filter((r) => r.status === "paid").length} delivered orders`,
+      tone: "positive",
+      trend: computeTrend(revenueThisWeek, revenueLastWeek, "up"),
+    },
     { label: "Outstanding", value: String(outstanding.length), change: `₦${(outstanding.reduce((s, r) => s + r.amount, 0) / 1_000_000).toFixed(1)}M pending`, tone: outstanding.length ? "warning" : "positive" },
-    { label: "Overdue", value: String(overdue), change: overdue ? "Unconfirmed 72h+" : "None overdue", tone: overdue ? "warning" : "positive" },
+    {
+      label: "Overdue",
+      value: String(overdue),
+      change: overdue ? "Unconfirmed 72h+" : "None overdue",
+      tone: overdue ? "warning" : "positive",
+      trend: computeTrend(pendingThisWeek.length, pendingLastWeek.length, "down"),
+    },
     { label: "Total invoices", value: String(rows.length), change: "Excludes cancelled orders", tone: "neutral" },
   ];
 }

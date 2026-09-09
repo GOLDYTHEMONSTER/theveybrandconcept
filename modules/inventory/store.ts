@@ -78,6 +78,10 @@ function append(entry: Omit<LedgerEntry, "id" | "occurredAt">): LedgerEntry {
   return full;
 }
 
+export function listLedgerEntries(): LedgerEntry[] {
+  return ledger();
+}
+
 export function getReorderPoint(sku: string): number {
   return REORDER_POINTS[sku] ?? DEFAULT_REORDER_POINT;
 }

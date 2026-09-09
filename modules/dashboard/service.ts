@@ -2,12 +2,14 @@ import type { SandboxRole } from "../authentication/domain";
 import { listOrders } from "../orders/store";
 import { getInventoryMetrics, getInventoryValue } from "../inventory/service";
 import { listRecentAudit, type SandboxAuditEntry } from "../audit/sandbox-log";
+import { computeTrend, splitByRecency, WEEK_MS, type Trend } from "../shared/trend";
 
 export interface DashboardMetric {
   label: string;
   value: string;
   change: string;
   tone?: "positive" | "warning" | "neutral";
+  trend?: Trend;
 }
 
 export interface DashboardView {
@@ -74,13 +76,18 @@ export function getDashboardForRole(role: SandboxRole): DashboardView {
   const unitsAvailableLine = inventoryMetrics.find((metric) => metric.label === "Units available");
   const activities = buildActivities(6);
 
+  const { current: completedThisWeek, previous: completedLastWeek } = splitByRecency(completedOrders, (o) => o.createdAt, WEEK_MS);
+  const revenueThisWeek = completedThisWeek.reduce((sum, o) => sum + o.total, 0);
+  const revenueLastWeek = completedLastWeek.reduce((sum, o) => sum + o.total, 0);
+  const revenueTrend = computeTrend(revenueThisWeek, revenueLastWeek, "up");
+
   if (role === "executive") {
     return {
       eyebrow: "Executive overview",
       title: "Here's where the business stands.",
       summary: `${orders.length} orders on record, ₦${(revenue / 1_000_000).toFixed(1)}M in booked revenue, and ${lowStockLine?.value ?? 0} lines running low.`,
       metrics: [
-        { label: "Net revenue", value: `₦${(revenue / 1_000_000).toFixed(1)}M`, change: `${completedOrders.length} completed orders`, tone: "positive" },
+        { label: "Net revenue", value: `₦${(revenue / 1_000_000).toFixed(1)}M`, change: `${completedOrders.length} completed orders`, tone: "positive", trend: revenueTrend },
         { label: "Orders", value: String(orders.length), change: `${pending} awaiting confirmation`, tone: pending ? "warning" : "positive" },
         { label: "Inventory value", value: `₦${(getInventoryValue() / 1_000_000).toFixed(1)}M`, change: unitsAvailableLine?.change ?? "", tone: "neutral" },
         { label: "Cancelled orders", value: String(cancelled), change: cancelled ? "Review for patterns" : "None this period", tone: cancelled ? "warning" : "positive" },
@@ -103,7 +110,7 @@ export function getDashboardForRole(role: SandboxRole): DashboardView {
       title: "Orders, at a glance.",
       summary: `${pending} order${pending === 1 ? "" : "s"} need confirmation and ${processing} are moving through fulfilment.`,
       metrics: [
-        { label: "Revenue booked", value: `₦${(revenue / 1_000_000).toFixed(1)}M`, change: `${completedOrders.length} orders`, tone: "positive" },
+        { label: "Revenue booked", value: `₦${(revenue / 1_000_000).toFixed(1)}M`, change: `${completedOrders.length} orders`, tone: "positive", trend: revenueTrend },
         { label: "Awaiting confirmation", value: String(pending), change: pending ? "Needs action" : "All caught up", tone: pending ? "warning" : "positive" },
         { label: "In fulfilment", value: String(processing), change: `${shipped} already shipped`, tone: "neutral" },
         { label: "Avg. order value", value: `₦${Math.round(avgOrderValue).toLocaleString("en-NG")}`, change: "Across completed orders", tone: "neutral" },
@@ -125,7 +132,7 @@ export function getDashboardForRole(role: SandboxRole): DashboardView {
       title: "Fulfilment queue.",
       summary: `${processing} order${processing === 1 ? "" : "s"} ready to pack, ${lowStockLine?.value ?? 0} line${lowStockLine?.value === "1" ? "" : "s"} running low.`,
       metrics: [
-        { label: "Ready to pack", value: String(processing), change: `${pending} awaiting confirmation`, tone: processing ? "warning" : "positive" },
+        { label: "Ready to pack", value: String(processing), change: `${pending} awaiting confirmation`, tone: processing ? "warning" : "positive", trend: computeTrend(completedThisWeek.length, completedLastWeek.length, "up") },
         { label: "In transit", value: String(shipped), change: "All carriers active", tone: "positive" },
         { label: "Low stock", value: String(lowStockLine?.value ?? "0"), change: "Reorder suggested", tone: Number(lowStockLine?.value ?? 0) ? "warning" : "positive" },
         { label: "Units available", value: String(unitsAvailableLine?.value ?? "0"), change: unitsAvailableLine?.change ?? "", tone: "neutral" },

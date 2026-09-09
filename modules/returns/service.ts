@@ -1,11 +1,13 @@
 import { listReturns } from "./store";
 import type { ReturnReason, ReturnStatus } from "./domain";
+import { computeTrend, splitByRecency, WEEK_MS, type Trend } from "../shared/trend";
 
 export interface ReturnMetric {
   label: string;
   value: string;
   change: string;
   tone?: "positive" | "warning" | "neutral";
+  trend?: Trend;
 }
 
 export const RETURN_STATUS_LABEL: Record<ReturnStatus, string> = {
@@ -39,8 +41,16 @@ export function getReturnMetrics(): ReturnMetric[] {
   const refunded = rows.filter((r) => r.status === "refunded");
   const refundedTotal = refunded.reduce((sum, r) => sum + r.refundAmount, 0);
 
+  const { current: requestsThisWeek, previous: requestsLastWeek } = splitByRecency(rows, (r) => r.createdAt, WEEK_MS);
+
   return [
-    { label: "Awaiting review", value: String(pending), change: pending ? "Needs a decision" : "All caught up", tone: pending ? "warning" : "positive" },
+    {
+      label: "Awaiting review",
+      value: String(pending),
+      change: pending ? "Needs a decision" : "All caught up",
+      tone: pending ? "warning" : "positive",
+      trend: computeTrend(requestsThisWeek.length, requestsLastWeek.length, "down"),
+    },
     { label: "Approved, awaiting return", value: String(inProgress), change: "Waiting on the package", tone: "neutral" },
     { label: "Refunded", value: String(refunded.length), change: `₦${(refundedTotal / 1000).toFixed(0)}k returned`, tone: "neutral" },
     { label: "Total requests", value: String(rows.length), change: "All time", tone: "neutral" },
