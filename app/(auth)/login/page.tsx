@@ -68,7 +68,7 @@ export default function LoginPage() {
   return (
     <main className="login-canvas">
       <section className="login-editorial">
-        <div className="login-brand"><span className="login-monogram">VY</span><div><strong>VERONICA YOUNG</strong><small>BUSINESS SUITE</small></div></div>
+        <div className="login-brand"><img src="/brand/logo-mark-white.png" alt="" className="login-monogram" /><div><strong>VERONICA YOUNG</strong><small>BUSINESS SUITE</small></div></div>
         <div className="editorial-copy">
           <p className="erp-eyebrow">Private business workspace</p>
           <h1>Run the brand.<br /><em>Beautifully.</em></h1>

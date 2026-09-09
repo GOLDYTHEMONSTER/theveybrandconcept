@@ -18,7 +18,7 @@ button,a { -webkit-tap-highlight-color:transparent; }
 .login-editorial { min-height:100vh; padding:48px clamp(32px,6vw,90px); color:#fff; background:linear-gradient(145deg,rgba(18,16,12,.82),rgba(18,16,12,.96)),url('/product4/fashn-export-1786447226697.webp') center/cover; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden; }
 .login-editorial:after { content:""; position:absolute; width:520px; height:720px; border:1px solid rgba(255,255,255,.17); border-radius:50%; right:-260px; top:12%; transform:rotate(-14deg); }
 .login-brand,.erp-brand { display:flex; align-items:center; gap:14px; text-decoration:none; color:inherit; position:relative; z-index:1; }
-.login-monogram,.erp-monogram { width:58px; height:42px; display:grid; place-items:center; border:1px solid currentColor; border-radius:50%; font-family:"Playfair Display",serif; font-style:italic; font-size:17px; }
+.login-monogram,.erp-monogram { height:44px; width:auto; object-fit:contain; display:block; flex-shrink:0; }
 .login-brand strong,.erp-brand strong { display:block; font-size:12px; letter-spacing:.18em; }
 .login-brand small,.erp-brand small { display:block; margin-top:4px; font-size:8px; letter-spacing:.32em; opacity:.68; }
 .editorial-copy { position:relative; z-index:1; max-width:600px; }
@@ -53,7 +53,7 @@ button,a { -webkit-tap-highlight-color:transparent; }
 .erp-sidebar-close{display:none}
 .erp-menu-toggle{display:none;width:38px;height:38px;flex-shrink:0;border:1px solid var(--line);border-radius:50%;background:transparent;place-items:center;cursor:pointer;font-size:15px;color:var(--ink)}
 .erp-backdrop{display:none}
-.erp-brand { margin:0 8px 54px; }.erp-monogram { width:48px;height:36px;font-size:14px;color:#d7c5a4; }
+.erp-brand { margin:0 8px 54px; }.erp-monogram { height:32px; }
 .erp-nav p { margin:0 12px 13px; color:#777166; font-size:9px; letter-spacing:.2em; text-transform:uppercase; }
 .erp-nav a { color:#aba59a; text-decoration:none; display:flex; align-items:center; gap:13px; border-radius:8px; padding:12px 13px; margin:3px 0; font-size:13px; transition:.2s; }
 .erp-nav a span { width:21px; text-align:center; color:#8e877c; font-size:16px; }.erp-nav a:hover,.erp-nav a.active { color:#fff; background:rgba(255,255,255,.075); }.erp-nav a.active span { color:#d7c5a4; }
@@ -180,6 +180,6 @@ button,a { -webkit-tap-highlight-color:transparent; }
   .erp-sidebar.open{transform:translateX(0)}
   .erp-sidebar-close{display:grid;position:absolute;top:18px;right:18px;width:32px;height:32px;border:1px solid rgba(255,255,255,.18);border-radius:50%;background:transparent;color:#f9f4eb;font-size:18px;line-height:1;place-items:center;cursor:pointer}
   .erp-backdrop.open{display:block;position:fixed;inset:0;background:rgba(15,13,9,.5);z-index:40}
-  .erp-topbar{height:66px;padding:0 18px}.erp-location{display:none}.erp-mobile-brand{display:grid;width:38px;height:30px;border:1px solid;border-radius:50%;place-items:center;font:italic 12px "Playfair Display",serif}.role-pill{font-size:10px}.erp-content{padding:32px 16px 50px}.erp-hero{display:block}.erp-hero-actions{margin-top:24px}.metric-grid{grid-template-columns:1fr 1fr}.metric-card{padding:18px}.metric-card>strong{font-size:25px}.activity-row{grid-template-columns:36px 1fr auto}.activity-tag{display:none}.erp-hero h1{font-size:40px}
+  .erp-topbar{height:66px;padding:0 18px}.erp-location{display:none}.erp-mobile-brand{display:block;height:28px;width:auto;object-fit:contain}.role-pill{font-size:10px}.erp-content{padding:32px 16px 50px}.erp-hero{display:block}.erp-hero-actions{margin-top:24px}.metric-grid{grid-template-columns:1fr 1fr}.metric-card{padding:18px}.metric-card>strong{font-size:25px}.activity-row{grid-template-columns:36px 1fr auto}.activity-tag{display:none}.erp-hero h1{font-size:40px}
 }
 @media(max-width:480px){.account-picker{grid-template-columns:1fr}.metric-grid{grid-template-columns:1fr}.metric-card{border-right:0!important;border-bottom:1px solid var(--line)}.metric-card:last-child{border-bottom:0}.erp-hero-actions{display:grid;grid-template-columns:1fr 1fr}.activity-row time{display:none}.activity-row{grid-template-columns:36px 1fr}.role-pill{max-width:145px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}

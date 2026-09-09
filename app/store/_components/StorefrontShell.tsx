@@ -35,7 +35,10 @@ export default function StorefrontShell({ children }: { children: React.ReactNod
 
       {/* Desktop top bar */}
       <header className="sticky top-0 z-30 hidden items-center justify-between border-b border-hairline bg-canvas/80 px-8 py-5 backdrop-blur-xl md:flex">
-        <Link href="/store" className="font-serif text-lg italic tracking-wide">THE VEY BRAND</Link>
+        <Link href="/store" className="flex items-center gap-3">
+          <img src="/brand/logo-mark-white.png" alt="" className="h-8 w-auto" />
+          <span className="font-serif text-lg italic tracking-wide">THE VEY BRAND</span>
+        </Link>
         <nav className="flex items-center gap-8 text-xs uppercase tracking-[0.2em] text-muted">
           {TOP_LINKS.map((link) => (
             <Link key={link.label} href={link.href} className="transition-colors hover:text-ink">{link.label}</Link>
@@ -55,7 +58,10 @@ export default function StorefrontShell({ children }: { children: React.ReactNod
 
       {/* Mobile top bar */}
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-hairline bg-canvas/80 px-5 pb-4 backdrop-blur-xl md:hidden [padding-top:calc(env(safe-area-inset-top)+1rem)]">
-        <Link href="/store" className="font-serif text-base italic tracking-wide">THE VEY BRAND</Link>
+        <Link href="/store" className="flex items-center gap-2.5">
+          <img src="/brand/logo-mark-white.png" alt="" className="h-7 w-auto" />
+          <span className="font-serif text-base italic tracking-wide">THE VEY BRAND</span>
+        </Link>
         <Link href="/store/favorites" className="relative flex h-8 w-8 items-center justify-center rounded-full border border-hairline" aria-label="Favorites">
           <Heart size={14} />
           {favoriteCount > 0 && <span className="absolute -right-1 -top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-ink text-[8px] font-semibold text-canvas">{favoriteCount}</span>}

@@ -25,7 +25,8 @@ export default function Splash() {
     <div
       className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-canvas transition-all duration-500 ${leaving ? "scale-105 opacity-0" : "scale-100 opacity-100"}`}
     >
-      <p className="font-serif text-3xl italic tracking-wide">THE VEY BRAND</p>
+      <img src="/brand/logo-mark-white.png" alt="" className="h-16 w-auto" />
+      <p className="mt-4 font-serif text-3xl italic tracking-wide">THE VEY BRAND</p>
       <p className="mt-3 text-xs uppercase tracking-[0.35em] text-muted">See it differently.</p>
     </div>
   );

@@ -65,7 +65,7 @@ export default function ErpShell({ roleLabel, name, permissions, badges = {}, ch
       <aside className={`erp-sidebar ${navOpen ? "open" : ""}`}>
         <button className="erp-sidebar-close" aria-label="Close menu" onClick={() => setNavOpen(false)}><X size={16} /></button>
         <a className="erp-brand" href="/dashboard" aria-label="Veronica Young dashboard">
-          <span className="erp-monogram">VY</span>
+          <img src="/brand/logo-mark-ink.png" alt="" className="erp-monogram" />
           <span><strong>VERONICA YOUNG</strong><small>BUSINESS SUITE</small></span>
         </a>
         <nav className="erp-nav" aria-label="Primary navigation">
@@ -91,7 +91,7 @@ export default function ErpShell({ roleLabel, name, permissions, badges = {}, ch
         <header className="erp-topbar">
           <div>
             <button className="erp-menu-toggle" aria-label="Open menu" onClick={() => setNavOpen(true)}><Menu size={17} /></button>
-            <span className="erp-mobile-brand">VY</span>
+            <img src="/brand/logo-mark-ink.png" alt="" className="erp-mobile-brand" />
             <span className="erp-location">Lagos showroom · Live overview</span>
           </div>
           <div className="erp-top-actions">
