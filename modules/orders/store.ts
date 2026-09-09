@@ -100,6 +100,8 @@ function seedState(): OrdersState {
       createdAt: placedAt,
       events: [buildEvent(null, "pending", "sandbox-sales", null)],
       shipmentId: null,
+      paymentStatus: params.status === "pending" ? "unpaid" : params.status === "cancelled" ? "refunded" : "paid",
+      paymentIntentId: null,
     };
 
     // Fast-forward through the lifecycle for seed data so history looks real.
@@ -220,9 +222,81 @@ export function createOrder(input: CreateOrderInput, actorId: string): Order {
     createdAt: new Date().toISOString(),
     events: [buildEvent(null, "pending", actorId, null)],
     shipmentId: null,
+    paymentStatus: "unpaid",
+    paymentIntentId: null,
   };
 
   state().orders.push(order);
+  return order;
+}
+
+export function attachPaymentIntent(orderId: string, paymentIntentId: string): Order {
+  const order = requireOrder(orderId);
+  order.paymentIntentId = paymentIntentId;
+  order.paymentStatus = "processing";
+  return order;
+}
+
+export function findOrderByPaymentIntent(paymentIntentId: string): Order | undefined {
+  return state().orders.find((order) => order.paymentIntentId === paymentIntentId);
+}
+
+/**
+ * Stripe is the source of truth for payment state -- these three only
+ * run from the webhook handler (app/api/webhooks/stripe), never from a
+ * client request, and are idempotent against Stripe's at-least-once
+ * delivery (a retried event for an already-settled order is a no-op).
+ */
+export function markPaymentSucceeded(orderId: string, actorId = "stripe-webhook"): Order {
+  const order = requireOrder(orderId);
+  if (order.paymentStatus === "paid") return order;
+  order.paymentStatus = "paid";
+  if (order.status === "pending") {
+    order.status = "processing";
+    order.events.push(buildEvent("pending", "processing", actorId, "Payment confirmed via Stripe"));
+  }
+  return order;
+}
+
+export function markPaymentFailed(orderId: string, actorId = "stripe-webhook"): Order {
+  const order = requireOrder(orderId);
+  if (order.paymentStatus === "failed" || order.status === "cancelled") return order;
+  order.paymentStatus = "failed";
+  for (const item of order.items) {
+    releaseReservation({
+      variantId: item.variantId,
+      warehouse: item.warehouse as Warehouse,
+      quantity: item.quantity,
+      reference: order.orderNumber,
+      actorId,
+    });
+  }
+  const fromStatus = order.status;
+  order.status = "cancelled";
+  order.events.push(buildEvent(fromStatus, "cancelled", actorId, "Payment failed via Stripe"));
+  return order;
+}
+
+export function markPaymentRefunded(orderId: string, actorId = "stripe-webhook"): Order {
+  const order = requireOrder(orderId);
+  if (order.paymentStatus === "refunded") return order;
+  order.paymentStatus = "refunded";
+  if (order.status !== "cancelled" && order.status !== "delivered") {
+    for (const item of order.items) {
+      releaseReservation({
+        variantId: item.variantId,
+        warehouse: item.warehouse as Warehouse,
+        quantity: item.quantity,
+        reference: order.orderNumber,
+        actorId,
+      });
+    }
+    const fromStatus = order.status;
+    order.status = "cancelled";
+    order.events.push(buildEvent(fromStatus, "cancelled", actorId, "Refunded via Stripe"));
+  } else {
+    order.events.push(buildEvent(order.status, order.status, actorId, "Refunded via Stripe"));
+  }
   return order;
 }
 
@@ -307,4 +381,42 @@ export function addShipmentEvent(orderId: string, params: { status: string; loca
   if (!shipment) throw new NotFoundError("This order does not have a shipment yet");
   shipment.events.push({ id: randomUUID(), ...params, occurredAt: new Date().toISOString() });
   return shipment;
+}
+
+export function findShipmentByTrackingNumber(trackingNumber: string): { order: Order; shipment: Shipment } | undefined {
+  const shipment = state().shipments.find((s) => s.trackingNumber === trackingNumber);
+  if (!shipment) return undefined;
+  const order = state().orders.find((o) => o.id === shipment.orderId);
+  if (!order) return undefined;
+  return { order, shipment };
+}
+
+const DELIVERED_STATUS_ALIASES = new Set(["delivered", "delivery_confirmed", "completed"]);
+
+/**
+ * The one entry point both the real carrier webhook (app/api/webhooks/
+ * shipping, authenticated by shared secret -- no logistics provider is
+ * wired up yet, see the "Simulate for now" scope) and the ERP's
+ * "Simulate carrier update" button (session-authenticated staff action)
+ * go through, so the two paths can never drift. A real GIG Logistics /
+ * Shippo / etc. integration replaces the webhook route's payload
+ * parsing, not this function.
+ */
+export function recordCarrierEvent(
+  trackingNumber: string,
+  params: { status: string; location: string | null; message: string },
+  actorId = "carrier-webhook"
+): { order: Order; shipment: Shipment } {
+  const found = findShipmentByTrackingNumber(trackingNumber);
+  if (!found) throw new NotFoundError(`No shipment found for tracking number ${trackingNumber}`);
+  const { order, shipment } = found;
+
+  shipment.events.push({ id: randomUUID(), status: params.status, location: params.location, message: params.message, occurredAt: new Date().toISOString() });
+
+  if (DELIVERED_STATUS_ALIASES.has(params.status.toLowerCase()) && order.status === "shipped") {
+    order.status = "delivered";
+    order.events.push(buildEvent("shipped", "delivered", actorId, params.message));
+  }
+
+  return { order, shipment };
 }

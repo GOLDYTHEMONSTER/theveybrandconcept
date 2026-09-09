@@ -6,6 +6,7 @@ import { Minus, Plus, X } from "lucide-react";
 import { useCart } from "../_lib/useCart";
 import { cartTotal, clearCart, removeFromCart, updateQuantity } from "../_lib/cart";
 import { formatPrice } from "../_lib/format";
+import StripePaymentStep from "../_components/StripePaymentStep";
 
 export default function CartPage() {
   const lines = useCart();
@@ -15,6 +16,7 @@ export default function CartPage() {
   const [city, setCity] = useState("");
   const [error, setError] = useState("");
   const [placing, setPlacing] = useState(false);
+  const [payment, setPayment] = useState<{ orderNumber: string; total: number; clientSecret: string } | null>(null);
   const [confirmation, setConfirmation] = useState<{ orderNumber: string } | null>(null);
 
   const total = cartTotal(lines);
@@ -41,13 +43,18 @@ export default function CartPage() {
         setError(data.error || "Could not place your order.");
         return;
       }
-      clearCart();
-      setConfirmation({ orderNumber: data.orderNumber });
+      setPayment({ orderNumber: data.orderNumber, total: data.total, clientSecret: data.clientSecret });
     } catch {
       setError("Could not reach the server. Please try again.");
     } finally {
       setPlacing(false);
     }
+  }
+
+  function handlePaymentSuccess() {
+    clearCart();
+    setConfirmation({ orderNumber: payment!.orderNumber });
+    setPayment(null);
   }
 
   if (confirmation) {
@@ -61,6 +68,21 @@ export default function CartPage() {
         <Link href="/store/shop" className="mt-8 inline-block rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-black">
           Continue shopping
         </Link>
+      </div>
+    );
+  }
+
+  if (payment) {
+    return (
+      <div className="mx-auto max-w-sm px-5 py-16 md:px-10">
+        <p className="text-[11px] uppercase tracking-[0.3em] text-muted">Order #{payment.orderNumber}</p>
+        <h1 className="mt-3 font-serif text-3xl italic">Payment</h1>
+        <div className="mt-6 rounded-4xl border border-hairline bg-surface p-6">
+          <StripePaymentStep clientSecret={payment.clientSecret} total={payment.total} onSuccess={handlePaymentSuccess} />
+        </div>
+        <button type="button" onClick={() => setPayment(null)} className="mt-4 text-xs text-muted underline underline-offset-4 hover:text-ink">
+          Back to cart
+        </button>
       </div>
     );
   }
@@ -119,9 +141,9 @@ export default function CartPage() {
             {error && <p className="mt-3 text-xs text-red-400">{error}</p>}
 
             <button type="submit" disabled={placing} className="mt-5 flex w-full items-center justify-center rounded-full bg-white py-4 text-sm font-semibold text-black transition-transform hover:scale-[1.01] disabled:opacity-50">
-              {placing ? "Placing order…" : "Checkout"}
+              {placing ? "Preparing payment…" : "Continue to payment"}
             </button>
-            <p className="mt-3 text-center text-[10px] text-muted">Preview environment — payment is not processed.</p>
+            <p className="mt-3 text-center text-[10px] text-muted">Stripe test mode — no real charge is made.</p>
           </form>
         </div>
       )}

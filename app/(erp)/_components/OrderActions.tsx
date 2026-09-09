@@ -7,12 +7,19 @@ import { CARRIERS } from "../../../modules/orders/domain";
 interface OrderActionsProps {
   orderId: string;
   status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+  paymentStatus: "unpaid" | "processing" | "paid" | "failed" | "refunded";
   canFulfil: boolean;
   canCancel: boolean;
   hasShipment: boolean;
 }
 
-export default function OrderActions({ orderId, status, canFulfil, canCancel, hasShipment }: OrderActionsProps) {
+const SIMULATED_EVENTS: Array<{ event: string; label: string }> = [
+  { event: "out_for_delivery", label: "Simulate: out for delivery" },
+  { event: "delayed", label: "Simulate: delayed" },
+  { event: "delivered", label: "Simulate: delivered" },
+];
+
+export default function OrderActions({ orderId, status, paymentStatus, canFulfil, canCancel, hasShipment }: OrderActionsProps) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -83,8 +90,10 @@ export default function OrderActions({ orderId, status, canFulfil, canCancel, ha
     }
   }
 
-  const nothingToShow = !canFulfil && !canCancel;
-  if (nothingToShow || status === "delivered" || status === "cancelled") {
+  const canRefund = canCancel && paymentStatus === "paid";
+  const fulfilmentDone = status === "delivered" || status === "cancelled";
+  const nothingToShow = (!canFulfil && !canCancel) || (fulfilmentDone && !canRefund);
+  if (nothingToShow) {
     return error ? <p className="login-error" role="alert">{error}</p> : null;
   }
 
@@ -108,7 +117,36 @@ export default function OrderActions({ orderId, status, canFulfil, canCancel, ha
         {canCancel && (status === "pending" || status === "processing") && (
           <button className="erp-button secondary" disabled={busy} onClick={handleCancel}>Cancel order</button>
         )}
+        {canRefund && (
+          <button
+            className="erp-button secondary"
+            disabled={busy}
+            onClick={() => {
+              if (window.confirm("Request a Stripe refund for this order? This charges nothing further but returns the customer's payment.")) {
+                call(`/api/orders/${orderId}/refund`);
+              }
+            }}
+          >
+            Refund via Stripe
+          </button>
+        )}
       </div>
+
+      {canFulfil && status === "shipped" && (
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {SIMULATED_EVENTS.map(({ event, label }) => (
+            <button
+              key={event}
+              className="erp-button secondary"
+              style={{ fontSize: 10, height: 32, padding: "0 12px" }}
+              disabled={busy}
+              onClick={() => call(`/api/orders/${orderId}/simulate-tracking`, { event })}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {showShipForm && (
         <form onSubmit={handleShip} className="login-form" style={{ border: "1px solid var(--line)", borderRadius: 10, padding: 16 }}>

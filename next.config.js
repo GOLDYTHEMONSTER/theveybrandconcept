@@ -13,7 +13,12 @@ const contentSecurityPolicy = isDev
     // directly to externally-hosted photos (the brand's CDN export) rather
     // than copies in public/ -- without this, default-src 'self' silently
     // blocks every one of those <img> tags with no network-level error.
-    "default-src 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:";
+    // script-src/frame-src/connect-src add js.stripe.com for the same
+    // reason: Stripe's Payment Element loads its own script and renders
+    // card fields inside a cross-origin iframe, and confirmCardPayment
+    // talks to api.stripe.com directly from the browser -- none of that
+    // is covered by 'self'.
+    "default-src 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' 'unsafe-inline' https://js.stripe.com; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; frame-src https://js.stripe.com; connect-src 'self' https://api.stripe.com";
 
 const nextConfig = {
   reactStrictMode: true,

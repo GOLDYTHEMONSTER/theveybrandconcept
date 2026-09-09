@@ -1,6 +1,9 @@
 export const ORDER_STATUSES = ["pending", "processing", "shipped", "delivered", "cancelled"] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
+export const PAYMENT_STATUSES = ["unpaid", "processing", "paid", "failed", "refunded"] as const;
+export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
+
 export const CHANNELS = ["Online store", "Lagos showroom"] as const;
 export type Channel = (typeof CHANNELS)[number];
 
@@ -58,6 +61,8 @@ export interface Order {
   createdAt: string;
   events: OrderEvent[];
   shipmentId: string | null;
+  paymentStatus: PaymentStatus;
+  paymentIntentId: string | null;
 }
 
 export interface CreateOrderItemInput {

@@ -25,3 +25,11 @@ export class InsufficientStockError extends Error {
     this.name = "InsufficientStockError";
   }
 }
+
+/** A required external integration (Stripe, a webhook secret, ...) isn't configured yet. */
+export class ConfigurationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ConfigurationError";
+  }
+}

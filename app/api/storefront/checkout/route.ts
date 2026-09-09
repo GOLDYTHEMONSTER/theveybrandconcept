@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { recordAudit } from "../../../../modules/audit/sandbox-log";
 import { findVariantBySku } from "../../../../modules/catalog/store";
-import { createOrder } from "../../../../modules/orders/store";
+import { attachPaymentIntent, cancelOrder, createOrder } from "../../../../modules/orders/store";
 import { createNotification } from "../../../../modules/notifications/store";
+import { getStripeClient, isStripeConfigured, nairaToStripeAmount } from "../../../../modules/payments/stripe";
 import { RATE_LIMIT_RULES, RateLimitExceededError, requireRateLimit } from "../../../../lib/rate-limit/limiter";
 import { getClientIp, InvalidRequestOriginError, requireSameOrigin } from "../../../../modules/security/request";
-import { ConflictError, InsufficientStockError, NotFoundError, ValidationError } from "../../../../modules/shared/errors";
+import { ConfigurationError, ConflictError, InsufficientStockError, NotFoundError, ValidationError } from "../../../../modules/shared/errors";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -63,9 +64,14 @@ function parseCheckoutBody(input: unknown): CheckoutBody {
  */
 export async function POST(request: NextRequest) {
   const ipAddress = getClientIp(request);
+  let createdOrderId: string | null = null;
   try {
     requireSameOrigin(request);
     await requireRateLimit(RATE_LIMIT_RULES.checkout, ipAddress ?? "unknown");
+
+    if (!isStripeConfigured()) {
+      throw new ConfigurationError("Payment processing is not set up yet — checkout is unavailable until Stripe test keys are added.");
+    }
 
     const body = parseCheckoutBody(await request.json());
     const items = body.items.map((item) => {
@@ -74,7 +80,22 @@ export async function POST(request: NextRequest) {
       return { variantId: variant.id, quantity: item.quantity };
     });
 
+    // Stock is reserved the moment the order is created (see createOrder),
+    // same as before Stripe existed. If PaymentIntent creation fails below,
+    // the order is cancelled immediately so that reservation doesn't sit
+    // there indefinitely for a payment that was never even attempted.
     const order = createOrder({ customer: body.customer.name, channel: "Online store", items }, "storefront-customer");
+    createdOrderId = order.id;
+
+    const { amount, currency } = nairaToStripeAmount(order.total);
+    const paymentIntent = await getStripeClient().paymentIntents.create({
+      amount,
+      currency,
+      receipt_email: body.customer.email,
+      metadata: { orderId: order.id, orderNumber: order.orderNumber, nairaTotal: String(order.total) },
+      automatic_payment_methods: { enabled: true },
+    });
+    attachPaymentIntent(order.id, paymentIntent.id);
 
     recordAudit({
       action: "storefront.checkout",
@@ -82,19 +103,29 @@ export async function POST(request: NextRequest) {
       entityId: order.id,
       actorId: "storefront-customer",
       actorName: body.customer.name,
-      afterValue: { orderNumber: order.orderNumber, email: body.customer.email, total: order.total, items: order.items.length },
+      afterValue: { orderNumber: order.orderNumber, email: body.customer.email, total: order.total, items: order.items.length, paymentIntentId: paymentIntent.id },
     });
 
     createNotification({
       audienceRoles: ["executive", "warehouse_manager", "sales_manager"],
       type: "storefront.order",
       title: "New online order",
-      message: `${body.customer.name} placed order #${order.orderNumber} — ₦${order.total.toLocaleString("en-NG")}`,
+      message: `${body.customer.name} placed order #${order.orderNumber} — ₦${order.total.toLocaleString("en-NG")} (awaiting payment)`,
       href: `/orders/${order.id}`,
     });
 
-    return NextResponse.json({ orderNumber: order.orderNumber, total: order.total }, { status: 201 });
+    return NextResponse.json(
+      { orderNumber: order.orderNumber, total: order.total, clientSecret: paymentIntent.client_secret },
+      { status: 201 }
+    );
   } catch (error) {
+    if (createdOrderId) {
+      try {
+        cancelOrder(createdOrderId, "storefront-customer", "Checkout failed before payment could be started");
+      } catch {
+        // best-effort cleanup only
+      }
+    }
     if (error instanceof InvalidRequestOriginError) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
@@ -103,6 +134,9 @@ export async function POST(request: NextRequest) {
         { error: "Too many checkout attempts. Please try again in a minute." },
         { status: 429, headers: { "Retry-After": Math.ceil((error.resetAt - Date.now()) / 1000).toString() } }
       );
+    }
+    if (error instanceof ConfigurationError) {
+      return NextResponse.json({ error: error.message }, { status: 503 });
     }
     if (error instanceof ValidationError) {
       return NextResponse.json({ error: error.message }, { status: 400 });

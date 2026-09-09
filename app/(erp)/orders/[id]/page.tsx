@@ -6,6 +6,8 @@ import CopyLink from "../../_components/CopyLink";
 
 const STATUS_LABEL = { pending: "Pending", processing: "Processing", shipped: "Shipped", delivered: "Delivered", cancelled: "Cancelled" } as const;
 const STATUS_TONE = { pending: "warning", processing: "neutral", shipped: "neutral", delivered: "positive", cancelled: "negative" } as const;
+const PAYMENT_LABEL = { unpaid: "Unpaid", processing: "Payment processing", paid: "Paid", failed: "Payment failed", refunded: "Refunded" } as const;
+const PAYMENT_TONE = { unpaid: "neutral", processing: "warning", paid: "positive", failed: "negative", refunded: "negative" } as const;
 const currency = new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 });
 
 export default async function OrderDetailPage({ params }: { params: { id: string } }) {
@@ -25,14 +27,16 @@ export default async function OrderDetailPage({ params }: { params: { id: string
           <h1>{order.customer}</h1>
           <p>{order.channel} · Placed {new Date(order.createdAt).toLocaleString("en-NG", { dateStyle: "medium", timeStyle: "short" })}</p>
         </div>
-        <div className="erp-hero-actions">
+        <div className="erp-hero-actions" style={{ gap: 8 }}>
           <span className={`status-pill ${STATUS_TONE[order.status]}`} style={{ alignSelf: "center" }}>{STATUS_LABEL[order.status]}</span>
+          <span className={`status-pill ${PAYMENT_TONE[order.paymentStatus]}`} style={{ alignSelf: "center" }}>{PAYMENT_LABEL[order.paymentStatus]}</span>
         </div>
       </section>
 
       <OrderActions
         orderId={order.id}
         status={order.status}
+        paymentStatus={order.paymentStatus}
         canFulfil={session.permissions.includes("orders.fulfil")}
         canCancel={session.permissions.includes("orders.cancel")}
         hasShipment={Boolean(shipment)}

@@ -12,6 +12,21 @@ interface OrdersTableProps {
 
 const currency = new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 });
 
+const PAYMENT_LABEL: Record<Order["paymentStatus"], string> = {
+  unpaid: "Unpaid",
+  processing: "Processing",
+  paid: "Paid",
+  failed: "Failed",
+  refunded: "Refunded",
+};
+const PAYMENT_TONE: Record<Order["paymentStatus"], string> = {
+  unpaid: "neutral",
+  processing: "warning",
+  paid: "positive",
+  failed: "negative",
+  refunded: "negative",
+};
+
 export default function OrdersTable({ rows, statusLabel, statusTone }: OrdersTableProps) {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("all");
@@ -49,13 +64,14 @@ export default function OrdersTable({ rows, statusLabel, statusTone }: OrdersTab
               <th>Customer</th>
               <th>Channel</th>
               <th>Status</th>
+              <th>Payment</th>
               <th className="numeric">Total</th>
               <th>Placed</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 && (
-              <tr><td colSpan={6} style={{ textAlign: "center", color: "var(--muted)", padding: "32px 0" }}>No orders match your filters.</td></tr>
+              <tr><td colSpan={7} style={{ textAlign: "center", color: "var(--muted)", padding: "32px 0" }}>No orders match your filters.</td></tr>
             )}
             {filtered.map((row) => (
               <tr key={row.id}>
@@ -63,6 +79,7 @@ export default function OrdersTable({ rows, statusLabel, statusTone }: OrdersTab
                 <td>{row.customer}</td>
                 <td>{row.channel}</td>
                 <td><span className={`status-pill ${statusTone[row.status]}`}>{statusLabel[row.status]}</span></td>
+                <td><span className={`status-pill ${PAYMENT_TONE[row.paymentStatus]}`}>{PAYMENT_LABEL[row.paymentStatus]}</span></td>
                 <td className="numeric">{currency.format(row.total)}</td>
                 <td>{new Date(row.createdAt).toLocaleString("en-NG", { dateStyle: "medium", timeStyle: "short" })}</td>
               </tr>

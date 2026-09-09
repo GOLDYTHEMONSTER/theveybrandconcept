@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionContext, SessionContext, UnauthenticatedError } from "../../lib/auth/session";
 import { requireRateLimit, RateLimitExceededError, RATE_LIMIT_RULES } from "../../lib/rate-limit/limiter";
 import { getClientIp, InvalidRequestOriginError, requireSameOrigin } from "./request";
-import { ConflictError, InsufficientStockError, NotFoundError, ValidationError } from "../shared/errors";
+import { ConfigurationError, ConflictError, InsufficientStockError, NotFoundError, ValidationError } from "../shared/errors";
 
 export class ForbiddenError extends Error {
   constructor(public permissionCode: string) {
@@ -53,6 +53,10 @@ export function handleApiError(error: unknown): NextResponse {
   }
   if (error instanceof ConflictError || error instanceof InsufficientStockError) {
     return NextResponse.json({ error: error.message }, { status: 409 });
+  }
+  if (error instanceof ConfigurationError) {
+    console.error("[api] configuration error", error.message);
+    return NextResponse.json({ error: error.message }, { status: 503 });
   }
   console.error("[api] unhandled error", error);
   return NextResponse.json({ error: "Something went wrong." }, { status: 500 });

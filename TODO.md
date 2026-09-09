@@ -15,7 +15,8 @@ these. Review before treating `/store` as production-ready.
 - [ ] Input validation
 - [ ] XSS protection
 - [ ] CSRF considerations
-- [ ] Secure payment implementation (checkout does not process real payment yet)
+- [x] Secure payment implementation (Stripe test mode: PaymentIntents + webhook-driven order status, see .env.example) — [ ] still needs: live keys, and NGN isn't a supported Stripe presentment currency so this runs in USD (converted at a fixed rate) — Paystack/Flutterwave are the standard NGN-native alternative
+- [ ] Real logistics provider integration (shipping/tracking webhook is currently simulated — see app/api/webhooks/shipping)
 - [ ] Database security rules (catalog/orders/inventory are in-memory sandbox stores, not a real DB)
 - [ ] Backup strategy
 
