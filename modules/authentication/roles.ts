@@ -22,6 +22,10 @@ export const ROLE_DEFINITIONS: Record<SandboxRole, RoleDefinition> = {
       "products.create",
       "orders.cancel",
       "audit.view",
+      "attendance.view",
+      "attendance.manage",
+      "tasks.view",
+      "tasks.manage",
     ],
   },
   sales_manager: {
@@ -36,6 +40,9 @@ export const ROLE_DEFINITIONS: Record<SandboxRole, RoleDefinition> = {
       "orders.create",
       "orders.cancel",
       "team.sales.view",
+      "attendance.view",
+      "tasks.view",
+      "tasks.manage",
     ],
   },
   warehouse_manager: {
@@ -50,6 +57,9 @@ export const ROLE_DEFINITIONS: Record<SandboxRole, RoleDefinition> = {
       "orders.fulfil",
       "procurement.view",
       "products.create",
+      "attendance.view",
+      "tasks.view",
+      "tasks.manage",
     ],
   },
   customer_support: {
@@ -61,6 +71,8 @@ export const ROLE_DEFINITIONS: Record<SandboxRole, RoleDefinition> = {
       "orders.view",
       "support.view",
       "support.respond",
+      "attendance.view",
+      "tasks.view",
     ],
   },
 };
@@ -109,6 +121,10 @@ export const PERMISSION_CATALOG: PermissionDefinition[] = [
   { key: "team.sales.view", label: "View the sales team roster", group: "Team" },
   { key: "team.manage", label: "Invite teammates & manage permissions", group: "Team" },
   { key: "audit.view", label: "View the audit log", group: "Security" },
+  { key: "attendance.view", label: "Clock in/out & view own attendance", group: "Attendance" },
+  { key: "attendance.manage", label: "View & manage everyone's attendance", group: "Attendance" },
+  { key: "tasks.view", label: "View tasks assigned to you", group: "Tasks" },
+  { key: "tasks.manage", label: "Create & assign tasks to teammates", group: "Tasks" },
 ];
 
 export const ALL_PERMISSIONS = PERMISSION_CATALOG.map((permission) => permission.key);

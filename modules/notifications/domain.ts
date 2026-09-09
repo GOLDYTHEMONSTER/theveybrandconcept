@@ -9,7 +9,11 @@ export type NotificationType =
   | "product.created"
   | "storefront.order"
   | "team.invited"
-  | "return.requested";
+  | "return.requested"
+  | "attendance.clock_in"
+  | "attendance.late"
+  | "task.assigned"
+  | "task.completed";
 
 export interface NotificationRecord {
   id: string;

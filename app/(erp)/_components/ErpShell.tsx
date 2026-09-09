@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   BarChart3,
+  ClipboardList,
+  Clock,
   ExternalLink,
   Headset,
   Home,
@@ -35,6 +37,8 @@ const NAV_ICONS: Record<NavItem["icon"], LucideIcon> = {
   finance: Wallet,
   analytics: BarChart3,
   team: UserCog,
+  attendance: Clock,
+  tasks: ClipboardList,
   audit: ShieldCheck,
   settings: Settings,
 };

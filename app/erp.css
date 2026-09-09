@@ -44,8 +44,9 @@ button,a { -webkit-tap-highlight-color:transparent; }
 .account-picker strong { font-size:12px; }.account-picker small { margin-top:3px; color:var(--muted); font-size:10px; }
 .login-form { display:grid; gap:16px; }
 .login-form label { color:#514b43; font-size:12px; font-weight:600; }
-.login-form input { display:block; width:100%; margin-top:8px; padding:15px 16px; border:1px solid var(--line); background:#fff; border-radius:10px; outline:none; }
-.login-form input:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(166,135,90,.12); }
+.login-form input,.login-form select,.login-form textarea { display:block; width:100%; margin-top:8px; padding:15px 16px; border:1px solid var(--line); background:#fff; border-radius:10px; outline:none; font:inherit; color:var(--ink); }
+.login-form input:focus,.login-form select:focus,.login-form textarea:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(166,135,90,.12); }
+.login-form textarea { resize:vertical; min-height:80px; }
 .login-submit { margin-top:3px; min-height:52px; border:0; border-radius:10px; padding:0 18px; background:var(--ink); color:#fff; display:flex; justify-content:space-between; align-items:center; cursor:pointer; font-weight:600; }
 .login-submit:disabled { opacity:.65; cursor:wait; }.login-submit span { font-size:21px; font-weight:400; }
 .login-error { margin:0; padding:11px 13px; border-radius:8px; color:#8b2d24; background:#f8e9e6; font-size:12px; }
@@ -166,6 +167,16 @@ button,a { -webkit-tap-highlight-color:transparent; }
 .status-pill.warning{background:#f7ecdd;color:#a06d35}
 .status-pill.negative{background:#f8e9e6;color:#8b2d24}
 .status-pill.neutral{background:#f0ece3;color:#766d5f}
+
+.person-badge{display:flex;align-items:center;gap:9px}
+.person-badge-mark{width:28px;height:28px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;letter-spacing:.02em}
+.person-badge strong{display:block;font-size:12.5px}
+.person-badge small{display:block;color:var(--muted);font-size:10px;margin-top:1px}
+
+.priority-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:9px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+.priority-pill.low{background:#f0ece3;color:#766d5f}
+.priority-pill.medium{background:#f7ecdd;color:#a06d35}
+.priority-pill.high{background:#f8e9e6;color:#8b2d24}
 
 .pagination-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;color:var(--muted);font-size:11px}
 .pagination-bar button{height:36px;padding:0 16px;border:1px solid var(--line);border-radius:8px;background:var(--white);cursor:pointer;font-size:11px;font-weight:600;color:var(--ink)}
