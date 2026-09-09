@@ -29,6 +29,8 @@ export interface Product {
   images: string[];
   /** Real product video for the storefront "Verify it" interaction. */
   videoUrl: string | null;
+  /** Merchant-controlled: shows in the storefront homepage's Featured rail. */
+  featured: boolean;
   variants: ProductVariant[];
   createdBy: string;
   createdAt: string;

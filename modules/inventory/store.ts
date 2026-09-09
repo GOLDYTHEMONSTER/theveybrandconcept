@@ -28,25 +28,10 @@ export interface LedgerEntry {
   occurredAt: string;
 }
 
-const REORDER_POINTS: Record<string, number> = {
-  "VY-NVD-S-CH": 5,
-  "VY-BSD-M-NS": 8,
-  "VY-OMG-L-ON": 5,
-  "VY-SWG-M-IV": 6,
-};
+const REORDER_POINTS: Record<string, number> = {};
 const DEFAULT_REORDER_POINT = 6;
 
 const INITIAL_STOCK: Record<string, { warehouse: Warehouse; onHand: number }> = {
-  "VY-NVD-S-CH": { warehouse: "Lagos showroom", onHand: 3 },
-  "VY-NVD-M-CH": { warehouse: "Lagos showroom", onHand: 14 },
-  "VY-BSD-M-NS": { warehouse: "Lagos showroom", onHand: 4 },
-  "VY-BSD-L-NS": { warehouse: "Guangzhou hub", onHand: 48 },
-  "VY-OMG-L-ON": { warehouse: "Lagos showroom", onHand: 0 },
-  "VY-OMG-M-ON": { warehouse: "Guangzhou hub", onHand: 22 },
-  "VY-SWG-S-IV": { warehouse: "Lagos showroom", onHand: 9 },
-  "VY-SWG-M-IV": { warehouse: "Lagos showroom", onHand: 2 },
-  "VY-MOH-M-WH": { warehouse: "Lagos showroom", onHand: 8 },
-  "VY-COC-M-BR": { warehouse: "Lagos showroom", onHand: 1 },
   "VY-SIENNA-GOWN": { warehouse: "Lagos showroom", onHand: 6 },
   "VY-ATELIER-SET": { warehouse: "Guangzhou hub", onHand: 14 },
   "VY-NOIR-MINI": { warehouse: "Lagos showroom", onHand: 0 },

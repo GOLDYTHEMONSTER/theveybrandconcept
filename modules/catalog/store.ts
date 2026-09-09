@@ -38,62 +38,14 @@ function seedProducts(): Product[] {
     videoUrl?: string | null;
     variants: Array<Omit<ProductVariant, "id" | "productId">>;
   }> = [
-    {
-      name: "Naha Veil Sequence Dress",
-      category: "Dresses",
-      description: "A fitted sequence dress in soft champagne, cut close through the body with a hand-finished hem. Built for evening light — the kind of piece that catches every angle without trying too hard.",
-      imageUrl: "/products/naha-veil-sequence-dress.jpg",
-      variants: [
-        { sku: "VY-NVD-S-CH", color: "Champagne", size: "S", price: 76000, compareAtPrice: null },
-        { sku: "VY-NVD-M-CH", color: "Champagne", size: "M", price: 76000, compareAtPrice: null },
-      ],
-    },
-    {
-      name: "Barley Sequence Dress",
-      category: "Dresses",
-      description: "Navy sequins shot through with silver, a mermaid silhouette that skims the waist and flares below the knee. Structured shoulder detail keeps it from ever feeling costume-y.",
-      imageUrl: "/products/barley-sequence-dress.jpg",
-      variants: [
-        { sku: "VY-BSD-M-NS", color: "Navy-Silver", size: "M", price: 84000, compareAtPrice: 96000 },
-        { sku: "VY-BSD-L-NS", color: "Navy-Silver", size: "L", price: 84000, compareAtPrice: 96000 },
-      ],
-    },
-    {
-      name: "Omega Sequence Dress",
-      category: "Gowns",
-      description: "Onyx sequins on a full-length gown with a deep V-back. Weighted hem for a clean drape, built for the kind of room where you want the dress to move when you do.",
-      imageUrl: null,
-      variants: [
-        { sku: "VY-OMG-M-ON", color: "Onyx", size: "M", price: 112000, compareAtPrice: null },
-        { sku: "VY-OMG-L-ON", color: "Onyx", size: "L", price: 112000, compareAtPrice: null },
-      ],
-    },
-    {
-      name: "Solene Wrap Gown",
-      category: "Gowns",
-      description: "Ivory wrap gown with a soft cowl neckline and a self-tie waist. Quietly dramatic — the fabric does the work, no embellishment needed.",
-      imageUrl: null,
-      variants: [
-        { sku: "VY-SWG-S-IV", color: "Ivory", size: "S", price: 98000, compareAtPrice: null },
-        { sku: "VY-SWG-M-IV", color: "Ivory", size: "M", price: 98000, compareAtPrice: null },
-      ],
-    },
-    {
-      name: "Moho Dress",
-      category: "Gowns",
-      description: "A plunging halter neckline in white, finished with hand-set stones from shoulder to hem. Column silhouette, side slit — built for a single grand entrance.",
-      imageUrl: "/products/moho-dress.jpg",
-      variants: [{ sku: "VY-MOH-M-WH", color: "White", size: "M", price: 68000, compareAtPrice: null }],
-    },
-    {
-      name: "Coca Stud Dress",
-      category: "Dresses",
-      description: "Copper mesh, fully stud-embellished, cut long and lean with a high halter neck and open back. Best worn somewhere with good lighting.",
-      imageUrl: "/products/coca-stud-dress.jpg",
-      variants: [{ sku: "VY-COC-M-BR", color: "Copper Mesh", size: "M", price: 72000, compareAtPrice: null }],
-    },
-    // Storefront flagship pieces (public/index.html + shop.html) — kept in
-    // sync by SKU with the hardcoded showroom entries in public/script.js.
+    // The Vey Brand's real catalog now comes from csv-import.json below.
+    // These 4 are kept because they're the site's only products with real
+    // bundled photography *and* video -- the actual "Verify it" showcase
+    // pieces the storefront's signature interaction was built around. The
+    // other 6 original placeholders (Naha Veil, Barley, Omega, Solene,
+    // Moho, Coca) were removed: four had exact- or near-duplicate names
+    // against real CSV products and two had no photography at all, so
+    // keeping them just cluttered the catalog with confusing lookalikes.
     {
       name: "The Sienna Gown",
       category: "Gowns",
@@ -162,6 +114,7 @@ function seedProducts(): Product[] {
       imageUrl: entry.imageUrl,
       images: entry.images ?? (entry.imageUrl ? [entry.imageUrl] : []),
       videoUrl: entry.videoUrl ?? null,
+      featured: true,
       createdBy: "sandbox-executive",
       createdAt: now,
       variants: entry.variants.map((variant) => ({ ...variant, id: stableId(`variant:${variant.sku}`), productId })),
@@ -212,6 +165,7 @@ function seedCsvImportProducts(): Product[] {
       imageUrl: entry.imageUrl,
       images: entry.images,
       videoUrl: entry.videoUrl,
+      featured: false,
       createdBy: "sandbox-executive",
       createdAt: now,
       variants: entry.variants.map((variant) => ({
@@ -241,7 +195,7 @@ export function listProducts(): Product[] {
 }
 
 export function listVariants(): Array<
-  ProductVariant & { productName: string; category: Product["category"]; imageUrl: string | null; images: string[]; videoUrl: string | null }
+  ProductVariant & { productName: string; category: Product["category"]; imageUrl: string | null; images: string[]; videoUrl: string | null; featured: boolean }
 > {
   return store().flatMap((product) =>
     product.variants.map((variant) => ({
@@ -251,6 +205,7 @@ export function listVariants(): Array<
       imageUrl: product.imageUrl,
       images: product.images,
       videoUrl: product.videoUrl,
+      featured: product.featured,
     }))
   );
 }
@@ -306,6 +261,7 @@ export function createProduct(input: CreateProductInput, actorId: string): { pro
     imageUrl: input.imageUrl,
     images: input.imageUrl ? [input.imageUrl] : [],
     videoUrl: null,
+    featured: false,
     createdBy: actorId,
     createdAt: new Date().toISOString(),
     variants: [variant],
@@ -313,4 +269,11 @@ export function createProduct(input: CreateProductInput, actorId: string): { pro
 
   store().unshift(product);
   return { product, variant };
+}
+
+export function setProductFeatured(productId: string, featured: boolean): Product {
+  const product = getProduct(productId);
+  if (!product) throw new NotFoundError("Product not found");
+  product.featured = featured;
+  return product;
 }

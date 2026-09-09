@@ -137,12 +137,12 @@ function seedState(): OrdersState {
     state.orders.push(order);
   };
 
-  seedOrder({ orderNumber: "VY-2049", customer: "Chioma Eze", channel: "Online store", status: "pending", sku: "VY-NVD-M-CH", quantity: 1, placedHoursAgo: 0.1 });
-  seedOrder({ orderNumber: "VY-2048", customer: "Ngozi Umeh", channel: "Lagos showroom", status: "processing", sku: "VY-OMG-M-ON", quantity: 1, placedHoursAgo: 0.4 });
-  seedOrder({ orderNumber: "VY-2047", customer: "Blessing Okoro", channel: "Online store", status: "shipped", sku: "VY-SWG-S-IV", quantity: 1, placedHoursAgo: 1 });
-  seedOrder({ orderNumber: "VY-2046", customer: "Amaka Nwosu", channel: "Online store", status: "delivered", sku: "VY-BSD-L-NS", quantity: 2, placedHoursAgo: 26 });
-  seedOrder({ orderNumber: "VY-2045", customer: "Funmi Adisa", channel: "Lagos showroom", status: "cancelled", sku: "VY-NVD-M-CH", quantity: 1, placedHoursAgo: 27 });
-  seedOrder({ orderNumber: "VY-2044", customer: "Ijeoma Chukwu", channel: "Online store", status: "delivered", sku: "VY-BSD-L-NS", quantity: 1, placedHoursAgo: 48 });
+  seedOrder({ orderNumber: "VY-2049", customer: "Chioma Eze", channel: "Online store", status: "pending", sku: "VY-SIENNA-GOWN", quantity: 1, placedHoursAgo: 0.1 });
+  seedOrder({ orderNumber: "VY-2048", customer: "Ngozi Umeh", channel: "Lagos showroom", status: "processing", sku: "VY-ATELIER-SET", quantity: 1, placedHoursAgo: 0.4 });
+  seedOrder({ orderNumber: "VY-2047", customer: "Blessing Okoro", channel: "Online store", status: "shipped", sku: "VY-VELVET-SHIFT", quantity: 1, placedHoursAgo: 1 });
+  seedOrder({ orderNumber: "VY-2046", customer: "Amaka Nwosu", channel: "Online store", status: "delivered", sku: "CSV-9771141", quantity: 2, placedHoursAgo: 26 });
+  seedOrder({ orderNumber: "VY-2045", customer: "Funmi Adisa", channel: "Lagos showroom", status: "cancelled", sku: "CSV-9967993", quantity: 1, placedHoursAgo: 27 });
+  seedOrder({ orderNumber: "VY-2044", customer: "Ijeoma Chukwu", channel: "Online store", status: "delivered", sku: "CSV-9779896", quantity: 1, placedHoursAgo: 48 });
 
   return state;
 }

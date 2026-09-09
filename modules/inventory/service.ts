@@ -3,7 +3,9 @@ import { getAssignedWarehouses, getReorderPoint, getStockByWarehouse } from "./s
 
 export interface InventoryRow {
   variantId: string;
+  productId: string;
   product: string;
+  featured: boolean;
   variant: string;
   imageUrl: string | null;
   sku: string;
@@ -50,7 +52,9 @@ export function getInventoryRows(): InventoryRow[] {
       if (!assignedWarehouses.has(stock.warehouse)) continue;
       rows.push({
         variantId: variant.id,
+        productId: variant.productId,
         product: variant.productName,
+        featured: variant.featured,
         variant: variantLabel,
         imageUrl: variant.imageUrl,
         sku: variant.sku,

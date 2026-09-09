@@ -43,7 +43,7 @@ export default async function InventoryPage() {
         ))}
       </section>
 
-      <InventoryTable rows={rows} statusLabel={STATUS_LABEL} statusTone={STATUS_TONE} canAdjust={canAdjust} />
+      <InventoryTable rows={rows} statusLabel={STATUS_LABEL} statusTone={STATUS_TONE} canAdjust={canAdjust} canManageFeatured={canCreateProduct} />
     </>
   );
 }

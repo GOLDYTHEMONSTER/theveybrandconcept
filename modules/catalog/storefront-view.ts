@@ -16,6 +16,7 @@ export interface StorefrontProduct {
   price: number;
   compareAtPrice: number | null;
   available: number;
+  featured: boolean;
 }
 
 export function getStorefrontProducts(): StorefrontProduct[] {
@@ -47,6 +48,7 @@ export function getStorefrontProducts(): StorefrontProduct[] {
         price: Math.min(...prices),
         compareAtPrice: compareAtPrices.length ? Math.max(...compareAtPrices) : null,
         available,
+        featured: product.featured,
       };
     });
 }
