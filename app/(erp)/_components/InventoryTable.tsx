@@ -177,15 +177,20 @@ export default function InventoryTable({ rows, statusLabel, statusTone, canAdjus
                     <td>{group.warehouseCount}</td>
                     {canManageFeatured && (
                       <td onClick={(event) => event.stopPropagation()}>
-                        <button
-                          type="button"
-                          className={`erp-button ${group.featured ? "primary" : "secondary"}`}
-                          style={{ height: 30, padding: "0 10px", fontSize: 10 }}
-                          disabled={savingFeatured === group.productId}
-                          onClick={() => toggleFeatured(group.productId, !group.featured)}
-                        >
-                          {group.featured ? "Featured" : "Feature"}
-                        </button>
+                        <div style={{ display: "flex", gap: 6 }}>
+                          <Link className="erp-button secondary" style={{ height: 30, padding: "0 10px", fontSize: 10 }} href={`/inventory/product/${group.productId}`}>
+                            Edit
+                          </Link>
+                          <button
+                            type="button"
+                            className={`erp-button ${group.featured ? "primary" : "secondary"}`}
+                            style={{ height: 30, padding: "0 10px", fontSize: 10 }}
+                            disabled={savingFeatured === group.productId}
+                            onClick={() => toggleFeatured(group.productId, !group.featured)}
+                          >
+                            {group.featured ? "Featured" : "Feature"}
+                          </button>
+                        </div>
                       </td>
                     )}
                     {canAdjust && <td></td>}

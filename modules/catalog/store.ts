@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "crypto";
-import { ConflictError, NotFoundError } from "../shared/errors";
+import { ConflictError, NotFoundError, ValidationError } from "../shared/errors";
 import type { CreateProductInput, Product, ProductVariant } from "./domain";
 import csvImport from "./csv-import.json";
 
@@ -276,4 +276,86 @@ export function setProductFeatured(productId: string, featured: boolean): Produc
   if (!product) throw new NotFoundError("Product not found");
   product.featured = featured;
   return product;
+}
+
+export interface UpdateProductInput {
+  name?: string;
+  category?: Product["category"];
+  description?: string | null;
+  status?: Product["status"];
+  imageUrl?: string | null;
+  images?: string[];
+  videoUrl?: string | null;
+  featured?: boolean;
+}
+
+export function updateProduct(productId: string, input: UpdateProductInput): Product {
+  const product = getProduct(productId);
+  if (!product) throw new NotFoundError("Product not found");
+  if (input.name !== undefined) {
+    product.name = input.name;
+    product.slug = slugify(input.name);
+  }
+  if (input.category !== undefined) product.category = input.category;
+  if (input.description !== undefined) product.description = input.description;
+  if (input.status !== undefined) product.status = input.status;
+  if (input.imageUrl !== undefined) product.imageUrl = input.imageUrl;
+  if (input.images !== undefined) product.images = input.images;
+  if (input.videoUrl !== undefined) product.videoUrl = input.videoUrl;
+  if (input.featured !== undefined) product.featured = input.featured;
+  return product;
+}
+
+export interface AddVariantInput {
+  sku: string;
+  color: string | null;
+  size: string | null;
+  price: number;
+  compareAtPrice: number | null;
+}
+
+export function addVariant(productId: string, input: AddVariantInput): ProductVariant {
+  const product = getProduct(productId);
+  if (!product) throw new NotFoundError("Product not found");
+  const sku = input.sku.toUpperCase();
+  if (findVariantBySku(sku)) throw new ConflictError(`SKU ${sku} is already in use`);
+
+  const variant: ProductVariant = {
+    id: randomUUID(),
+    productId,
+    sku,
+    color: input.color,
+    size: input.size,
+    price: input.price,
+    compareAtPrice: input.compareAtPrice,
+  };
+  product.variants.push(variant);
+  return variant;
+}
+
+export interface UpdateVariantInput {
+  color?: string | null;
+  size?: string | null;
+  price?: number;
+  compareAtPrice?: number | null;
+}
+
+export function updateVariant(variantId: string, input: UpdateVariantInput): ProductVariant {
+  const found = getVariant(variantId);
+  if (!found) throw new NotFoundError("Product variant not found");
+  const { variant } = found;
+  if (input.color !== undefined) variant.color = input.color;
+  if (input.size !== undefined) variant.size = input.size;
+  if (input.price !== undefined) variant.price = input.price;
+  if (input.compareAtPrice !== undefined) variant.compareAtPrice = input.compareAtPrice;
+  return variant;
+}
+
+export function removeVariant(variantId: string): void {
+  const found = getVariant(variantId);
+  if (!found) throw new NotFoundError("Product variant not found");
+  if (found.product.variants.length <= 1) {
+    throw new ValidationError("A product must keep at least one size or variant — remove the product instead");
+  }
+  found.product.variants = found.product.variants.filter((variant) => variant.id !== variantId);
 }
