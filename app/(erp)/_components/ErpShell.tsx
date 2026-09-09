@@ -22,6 +22,7 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
+import { hueFor, initialsFor } from "../../../modules/shared/identity";
 import { NAV_ITEMS, type NavItem } from "./nav-items";
 import LogoutButton from "./LogoutButton";
 import NotificationBell from "./NotificationBell";
@@ -106,7 +107,10 @@ export default function ErpShell({ roleLabel, name, permissions, badges = {}, ch
               <span className="erp-view-site-label">View site</span> <ExternalLink size={13} />
             </a>
             <NotificationBell />
-            <div className="role-pill"><span>{roleLabel}</span>{name}</div>
+            <div className="header-identity">
+              <span className="header-avatar" style={{ background: hueFor(name) }} title={name}>{initialsFor(name)}</span>
+              <div className="role-pill"><span>{roleLabel}</span>{name}</div>
+            </div>
           </div>
         </header>
 

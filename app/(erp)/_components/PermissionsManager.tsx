@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { SandboxRole } from "../../../modules/authentication/domain";
 import { ROLE_DEFINITIONS, type PermissionDefinition } from "../../../modules/authentication/roles";
+import { hueFor, initialsFor } from "../../../modules/shared/identity";
 
 interface MemberView {
   id: string;
@@ -131,7 +132,7 @@ export default function PermissionsManager({ members, catalog }: PermissionsMana
                 textAlign: "left",
               }}
             >
-              <span className="focus-index">●</span>
+              <span className="header-avatar" style={{ background: hueFor(member.name), width: 26, height: 26, fontSize: 9 }}>{initialsFor(member.name)}</span>
               <div>
                 <strong>{member.name}</strong>
                 <small>{member.roleLabel}{member.status === "suspended" ? " · Suspended" : ""}</small>

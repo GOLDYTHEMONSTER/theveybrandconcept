@@ -22,6 +22,7 @@ const DEPARTMENT_BY_ROLE: Record<SandboxRole, string> = {
   sales_manager: "Sales",
   warehouse_manager: "Operations",
   customer_support: "Customer Service",
+  hr_manager: "Human Resources",
 };
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -31,6 +32,7 @@ const SEED_MEMBERS: Array<{ id: string; name: string; email: string; role: Sandb
   { id: "sandbox-sales", name: "Amara Okafor", email: "sales@theveybrand.com", role: "sales_manager" },
   { id: "sandbox-warehouse", name: "David Chen", email: "warehouse@theveybrand.com", role: "warehouse_manager" },
   { id: "sandbox-support", name: "Ife Bello", email: "support@theveybrand.com", role: "customer_support" },
+  { id: "sandbox-hr", name: "Ngozi Adeyemi", email: "hr@theveybrand.com", role: "hr_manager" },
 ];
 
 const globalTeam = globalThis as typeof globalThis & { __veyTeam?: TeamMember[] };

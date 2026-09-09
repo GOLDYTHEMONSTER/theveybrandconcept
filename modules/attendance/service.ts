@@ -14,6 +14,7 @@ export interface AttendanceRow {
   clockOut: string | null;
   durationLabel: string;
   status: "on_time" | "late" | "in_progress";
+  note: string | null;
 }
 
 function minutesSinceMidnight(iso: string): number {
@@ -39,6 +40,7 @@ function toRow(record: AttendanceRecord): AttendanceRow {
     clockOut: record.clockOut ? new Date(record.clockOut).toLocaleTimeString("en-NG", { hour: "2-digit", minute: "2-digit" }) : null,
     durationLabel: record.clockOut ? durationLabel(record.durationMinutes) : "In progress",
     status: record.clockOut === null ? "in_progress" : isLate ? "late" : "on_time",
+    note: record.note,
   };
 }
 

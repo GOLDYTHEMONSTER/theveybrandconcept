@@ -1,7 +1,7 @@
 import { requirePagePermission } from "../../../lib/auth/session";
 import { getAttendanceMetrics, getAttendanceRows, getAttendanceRowsForMember } from "../../../modules/attendance/service";
 import { getOpenRecordForMember } from "../../../modules/attendance/store";
-import ClockButton from "../_components/ClockButton";
+import ClockCard from "../_components/ClockCard";
 import ExportCsvButton from "../_components/ExportCsvButton";
 import MetricGrid from "../_components/MetricGrid";
 import PersonBadge from "../_components/PersonBadge";
@@ -15,7 +15,7 @@ export default async function AttendancePage() {
   const session = await requirePagePermission("attendance.view");
   const canManage = session.permissions.includes("attendance.manage");
 
-  const isClockedIn = Boolean(getOpenRecordForMember(session.userId));
+  const openRecord = getOpenRecordForMember(session.userId);
   const rows = canManage ? getAttendanceRows() : getAttendanceRowsForMember(session.userId);
   const metrics = canManage ? getAttendanceMetrics() : undefined;
 
@@ -31,16 +31,17 @@ export default async function AttendancePage() {
               : "Clock in when your shift starts, clock out when it ends — your history is kept below."}
           </p>
         </div>
-        <div className="erp-hero-actions">
-          {canManage && (
+        {canManage && (
+          <div className="erp-hero-actions">
             <ExportCsvButton
               filename="attendance.csv"
               rows={rows.map((row) => ({ name: row.memberName, department: row.department, date: row.date, clockIn: row.clockIn, clockOut: row.clockOut ?? "", duration: row.durationLabel, status: STATUS_LABEL[row.status] }))}
             />
-          )}
-          <ClockButton isClockedIn={isClockedIn} />
-        </div>
+          </div>
+        )}
       </section>
+
+      <ClockCard clockInAt={openRecord?.clockIn ?? null} />
 
       {metrics && <MetricGrid metrics={metrics} label="Attendance metrics" />}
 
@@ -63,7 +64,10 @@ export default async function AttendancePage() {
                 <td>{row.date}</td>
                 <td>{row.clockIn}</td>
                 <td>{row.clockOut ?? "—"}</td>
-                <td>{row.durationLabel}</td>
+                <td>
+                  {row.durationLabel}
+                  {row.note && <small>{row.note}</small>}
+                </td>
                 <td><span className={`status-pill ${STATUS_TONE[row.status]}`}>{STATUS_LABEL[row.status]}</span></td>
               </tr>
             ))}
@@ -76,7 +80,7 @@ export default async function AttendancePage() {
 
       {!canManage && (
         <p className="sandbox-note">
-          <span>●</span> You're seeing only your own attendance. Executives can view and export the full team's record.
+          <span>●</span> You're seeing only your own attendance. Executives and HR can view and export the full team's record.
         </p>
       )}
     </>

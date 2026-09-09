@@ -75,6 +75,19 @@ export const ROLE_DEFINITIONS: Record<SandboxRole, RoleDefinition> = {
       "tasks.view",
     ],
   },
+  hr_manager: {
+    label: "HR Manager",
+    description: "The team roster, attendance and task allocation",
+    permissions: [
+      "dashboard.hr",
+      "team.view",
+      "team.manage",
+      "attendance.view",
+      "attendance.manage",
+      "tasks.view",
+      "tasks.manage",
+    ],
+  },
 };
 
 export function hasPermission(
@@ -102,6 +115,7 @@ export const PERMISSION_CATALOG: PermissionDefinition[] = [
   { key: "dashboard.sales", label: "View sales dashboard", group: "Dashboard" },
   { key: "dashboard.warehouse", label: "View warehouse dashboard", group: "Dashboard" },
   { key: "dashboard.support", label: "View support dashboard", group: "Dashboard" },
+  { key: "dashboard.hr", label: "View HR dashboard", group: "Dashboard" },
   { key: "analytics.view", label: "View analytics", group: "Analytics" },
   { key: "orders.view", label: "View orders", group: "Orders" },
   { key: "orders.create", label: "Create orders", group: "Orders" },

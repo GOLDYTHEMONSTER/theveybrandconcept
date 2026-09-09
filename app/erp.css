@@ -106,7 +106,10 @@ button,a { -webkit-tap-highlight-color:transparent; }
 .notification-item-body strong{font-size:12px;color:var(--ink)}
 .notification-item.unread .notification-item-body strong{font-weight:700}
 .notification-item-body small{font-size:11px;color:var(--muted);line-height:1.4}
-.notification-item-body time{font-size:9px;color:#a69f94;margin-top:2px}.notification-dot{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--gold);right:7px;top:7px}.role-pill{margin-left:8px;padding-left:16px;border-left:1px solid var(--line);font-size:11px}.role-pill span{display:block;color:var(--gold);font-size:8px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:3px}
+.notification-item-body time{font-size:9px;color:#a69f94;margin-top:2px}.notification-dot{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--gold);right:7px;top:7px}
+.header-identity{display:flex;align-items:center;margin-left:8px}
+.header-avatar{width:32px;height:32px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;letter-spacing:.02em}
+.role-pill{margin-left:10px;padding-left:16px;border-left:1px solid var(--line);font-size:11px}.role-pill span{display:block;color:var(--gold);font-size:8px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:3px}
 .erp-content { padding:50px clamp(24px,4vw,58px) 70px; max-width:1500px; margin:0 auto; }.erp-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;margin-bottom:38px}.erp-hero h1{font:500 clamp(36px,4vw,56px)/1.05 "Playfair Display",serif;margin:0 0 13px;letter-spacing:-.025em}.erp-hero>div>p:last-child{max-width:680px;color:var(--muted);margin:0;line-height:1.6;font-size:14px}.erp-hero-actions{display:flex;gap:9px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}.erp-button{display:inline-flex;align-items:center;justify-content:center;height:43px;border-radius:8px;padding:0 16px;border:1px solid var(--line);cursor:pointer;font-size:11px;font-weight:600;text-decoration:none;color:inherit;white-space:nowrap;background:var(--white)}.erp-button.secondary{background:transparent}.erp-button.primary{background:var(--ink);color:#fff;border-color:var(--ink)}.erp-button.primary span{margin-left:11px}
 .metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));border:1px solid var(--line);border-radius:12px;background:var(--white);overflow:hidden;margin-bottom:18px}.metric-card{padding:22px 24px;border-right:1px solid var(--line)}.metric-card:last-child{border-right:0}.metric-label{display:flex;justify-content:space-between;color:var(--muted);font-size:11px}.metric-label button{border:0;background:transparent;color:#aaa198;cursor:pointer}.metric-card>strong{display:block;margin:19px 0 8px;font:500 30px "Playfair Display",serif}.metric-change{font-size:10px}.metric-change.positive{color:#657652}.metric-change.warning{color:#a06d35}.metric-change.neutral{color:var(--muted)}
 .metric-trend{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%}.metric-trend.positive{color:#657652;background:#eef1e8}.metric-trend.warning{color:#a06d35;background:#f7ecdd}.metric-trend.neutral{color:var(--muted);background:var(--cream)}
@@ -178,6 +181,18 @@ button,a { -webkit-tap-highlight-color:transparent; }
 .priority-pill.medium{background:#f7ecdd;color:#a06d35}
 .priority-pill.high{background:#f8e9e6;color:#8b2d24}
 
+.clock-card{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 24px;margin-bottom:26px}
+.clock-card-status{display:flex;align-items:center;gap:12px}
+.clock-card-status strong{display:block;font-size:14px}
+.clock-card-status small{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
+.clock-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;background:#c9c2b4}
+.clock-dot.on{background:#5f8a5a;box-shadow:0 0 0 4px rgba(95,138,90,.16)}
+.clock-card-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.clock-card-note{height:43px;padding:0 14px;border:1px solid var(--line);border-radius:8px;font:inherit;min-width:220px;background:var(--paper)}
+.clock-card-note:focus{outline:none;border-color:var(--gold)}
+.clock-card-error{display:block;width:100%;color:#8b2d24}
+@media(max-width:640px){.clock-card{padding:16px}.clock-card-actions{width:100%}.clock-card-note{min-width:0;flex:1}}
+
 .pagination-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;color:var(--muted);font-size:11px}
 .pagination-bar button{height:36px;padding:0 16px;border:1px solid var(--line);border-radius:8px;background:var(--white);cursor:pointer;font-size:11px;font-weight:600;color:var(--ink)}
 .pagination-bar button:disabled{opacity:.45;cursor:not-allowed}
@@ -216,12 +231,15 @@ button,a { -webkit-tap-highlight-color:transparent; }
   .erp-topbar{height:66px;padding:0 14px}.erp-location{display:none}.erp-mobile-brand{display:block;height:28px;width:auto;object-fit:contain}.erp-content{padding:32px 16px 50px}.erp-hero{display:block}.erp-hero-actions{margin-top:24px}.metric-grid{grid-template-columns:1fr 1fr}.metric-card{padding:18px}.metric-card>strong{font-size:25px}.activity-row{grid-template-columns:36px 1fr auto}.activity-tag{display:none}.erp-hero h1{font-size:40px}
   .erp-top-actions{gap:6px}
   .erp-view-site{padding:0 10px}
-  .role-pill{font-size:10px;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-left:4px;padding-left:10px}
+  .header-identity{margin-left:4px}
+  .header-avatar{width:28px;height:28px;font-size:10px}
+  .role-pill{font-size:10px;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-left:6px;padding-left:10px}
 }
 @media(max-width:480px){.account-picker{grid-template-columns:1fr}.metric-grid{grid-template-columns:1fr}.metric-card{border-right:0!important;border-bottom:1px solid var(--line)}.metric-card:last-child{border-bottom:0}.erp-hero-actions{display:grid;grid-template-columns:1fr 1fr}.activity-row time{display:none}.activity-row{grid-template-columns:36px 1fr}
   .erp-top-actions{gap:5px}
   .erp-view-site{width:36px;height:36px;padding:0;border-radius:50%;justify-content:center}
   .erp-view-site-label{display:none}
+  .header-avatar{width:26px;height:26px;font-size:9px}
   .role-pill{max-width:72px;font-size:9px;padding-left:8px}
   .role-pill span{display:none}
 }

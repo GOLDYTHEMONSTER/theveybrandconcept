@@ -3,6 +3,10 @@ import { listOrders } from "../orders/store";
 import { getInventoryMetrics, getInventoryValue } from "../inventory/service";
 import { listRecentAudit, type SandboxAuditEntry } from "../audit/sandbox-log";
 import { computeTrend, splitByRecency, WEEK_MS, type Trend } from "../shared/trend";
+import { getAttendanceMetrics } from "../attendance/service";
+import { listAttendance } from "../attendance/store";
+import { listTeamMembers } from "../team/store";
+import { listTasks } from "../tasks/store";
 
 export interface DashboardMetric {
   label: string;
@@ -49,6 +53,16 @@ function describeAuditEntry(entry: SandboxAuditEntry): { title: string; detail: 
       return { title: "Stock adjusted", detail: entry.reason ?? "Manual adjustment", tag: "Inventory" };
     case "products.create":
       return { title: "New product added", detail: String(after.name ?? ""), tag: "Catalog" };
+    case "attendance.clock_in":
+      return { title: "Clocked in", detail: entry.actorName, tag: "Attendance" };
+    case "attendance.clock_out": {
+      const minutes = Number(after.durationMinutes ?? 0);
+      return { title: "Clocked out", detail: `${entry.actorName} · ${Math.floor(minutes / 60)}h ${minutes % 60}m`, tag: "Attendance" };
+    }
+    case "tasks.create":
+      return { title: `Task assigned: ${String(after.title ?? "")}`, detail: `by ${entry.actorName}`, tag: "Task" };
+    case "tasks.status_change":
+      return { title: `Task marked ${String(after.status ?? "").replace("_", " ")}`, detail: entry.actorName, tag: "Task" };
     default:
       return { title: entry.action, detail: entry.actorName, tag: "Activity" };
   }
@@ -141,6 +155,38 @@ export function getDashboardForRole(role: SandboxRole): DashboardView {
       activities: activities.length ? activities : FALLBACK_ACTIVITY,
       focusTitle: "Stock attention",
       focusItems: inventoryMetrics.slice(1, 4).map((metric) => ({ label: metric.label, value: metric.value, note: metric.change })),
+    };
+  }
+
+  if (role === "hr_manager") {
+    const attendanceMetrics = getAttendanceMetrics();
+    const clockedInNow = attendanceMetrics.find((metric) => metric.label === "Clocked in now");
+    const lateArrivals = attendanceMetrics.find((metric) => metric.label === "Late arrivals");
+    const team = listTeamMembers();
+    const suspended = team.filter((member) => member.status === "suspended").length;
+    const tasks = listTasks();
+    const openTasks = tasks.filter((task) => task.status === "todo" || task.status === "in_progress");
+    const overdueTasks = openTasks.filter((task) => task.dueDate && new Date(task.dueDate).getTime() < Date.now());
+    const { current: attendanceThisWeek, previous: attendanceLastWeek } = splitByRecency(
+      listAttendance().filter((record) => record.clockOut !== null),
+      (record) => record.clockIn,
+      WEEK_MS
+    );
+
+    return {
+      eyebrow: "People operations",
+      title: "Your team, at a glance.",
+      summary: `${team.length} teammate${team.length === 1 ? "" : "s"} on the roster, ${clockedInNow?.value ?? 0} clocked in right now, and ${openTasks.length} task${openTasks.length === 1 ? "" : "s"} in progress.`,
+      metrics: [
+        { label: "Team members", value: String(team.length), change: suspended ? `${suspended} suspended` : "All active", tone: suspended ? "warning" : "positive" },
+        { label: "Clocked in now", value: String(clockedInNow?.value ?? "0"), change: clockedInNow?.change ?? "", tone: clockedInNow?.tone },
+        { label: "Late arrivals", value: String(lateArrivals?.value ?? "0"), change: "This week vs last", tone: lateArrivals?.tone, trend: computeTrend(attendanceThisWeek.length, attendanceLastWeek.length, "up") },
+        { label: "Overdue tasks", value: String(overdueTasks.length), change: overdueTasks.length ? "Needs follow-up" : "Nothing overdue", tone: overdueTasks.length ? "warning" : "positive" },
+      ],
+      activityTitle: "People activity",
+      activities: activities.length ? activities : FALLBACK_ACTIVITY,
+      focusTitle: "Open tasks",
+      focusItems: openTasks.slice(0, 3).map((task) => ({ label: task.title, value: task.assigneeName, note: task.dueDate ? `Due ${new Date(task.dueDate).toLocaleDateString("en-NG", { dateStyle: "medium" })}` : "No due date" })),
     };
   }
 

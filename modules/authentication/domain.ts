@@ -3,6 +3,7 @@ export const SANDBOX_ROLES = [
   "sales_manager",
   "warehouse_manager",
   "customer_support",
+  "hr_manager",
 ] as const;
 
 export type SandboxRole = (typeof SANDBOX_ROLES)[number];

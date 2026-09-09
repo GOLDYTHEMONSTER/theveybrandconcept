@@ -3,6 +3,7 @@ import { requirePagePermission } from "../../../lib/auth/session";
 import { getTeamMetrics, getTeamRows } from "../../../modules/team/service";
 import ExportCsvButton from "../_components/ExportCsvButton";
 import MetricGrid from "../_components/MetricGrid";
+import PersonBadge from "../_components/PersonBadge";
 import TeamRoleSelect from "../_components/TeamRoleSelect";
 import TeamStatusButton from "../_components/TeamStatusButton";
 
@@ -11,6 +12,7 @@ export const dynamic = "force-dynamic";
 export default async function TeamPage() {
   const session = await requirePagePermission("team.view", "team.sales.view");
   const canManage = session.permissions.includes("team.manage");
+  const canAssignTasks = session.permissions.includes("tasks.manage");
   const isDepartmentScoped = !session.permissions.includes("team.view");
 
   const allRows = getTeamRows();
@@ -50,13 +52,13 @@ export default async function TeamPage() {
               <th>Department</th>
               <th>Status</th>
               <th>Permissions</th>
-              {canManage && <th>Actions</th>}
+              {(canManage || canAssignTasks) && <th>Actions</th>}
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => (
               <tr key={row.id}>
-                <td><strong>{row.name}</strong><small>{row.email}</small></td>
+                <td><PersonBadge name={row.name} subline={row.email} /></td>
                 <td>
                   {canManage ? (
                     <TeamRoleSelect memberId={row.id} currentRole={row.role} disabled={row.id === session.userId} />
@@ -70,9 +72,16 @@ export default async function TeamPage() {
                   {row.permissionCount} granted
                   {row.hasOverrides && <small style={{ color: "#a06d35" }}>Custom overrides</small>}
                 </td>
-                {canManage && (
+                {(canManage || canAssignTasks) && (
                   <td>
-                    <TeamStatusButton memberId={row.id} currentStatus={row.status} disabled={row.id === session.userId} />
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-start" }}>
+                      {canManage && <TeamStatusButton memberId={row.id} currentStatus={row.status} disabled={row.id === session.userId} />}
+                      {canAssignTasks && row.status === "active" && (
+                        <Link href={`/tasks/new?assigneeId=${row.id}`} className="erp-button secondary" style={{ height: 28, padding: "0 10px", fontSize: 10 }}>
+                          Assign task
+                        </Link>
+                      )}
+                    </div>
                   </td>
                 )}
               </tr>

@@ -1,4 +1,5 @@
 import { getSessionContext } from "../../../lib/auth/session";
+import { hueFor, initialsFor } from "../../../modules/shared/identity";
 
 export default async function SettingsPage() {
   const session = await getSessionContext();
@@ -18,7 +19,7 @@ export default async function SettingsPage() {
           <div className="panel-heading"><div><p className="erp-eyebrow">Profile</p><h2>Account details</h2></div></div>
           <div className="activity-list">
             <div className="activity-row">
-              <span className="activity-mark">{session.name.slice(0, 1)}</span>
+              <span className="activity-mark" style={{ background: hueFor(session.name), color: "#fff" }}>{initialsFor(session.name)}</span>
               <div><strong>{session.name}</strong><small>{session.email}</small></div>
               <span className="activity-tag">{session.roleLabel}</span>
               <time>{session.organizationId === "theveybrand-sandbox" ? "Veronica Young Brand" : session.organizationId}</time>

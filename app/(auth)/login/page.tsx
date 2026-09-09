@@ -2,17 +2,13 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { hueFor, initialsFor } from "../../../modules/shared/identity";
 
 interface DemoAccount {
   name: string;
   role: string;
   roleLabel: string;
   email: string;
-}
-
-function initialsFor(name: string): string {
-  const parts = name.trim().split(/\s+/);
-  return ((parts[0]?.[0] ?? "") + (parts[parts.length - 1]?.[0] ?? "")).toUpperCase();
 }
 
 export default function LoginPage() {
@@ -85,7 +81,7 @@ export default function LoginPage() {
           <div className="account-picker">
             {accounts.map((account) => (
               <button type="button" className={email === account.email ? "selected" : ""} onClick={() => chooseAccount(account.email)} key={account.email}>
-                <span>{initialsFor(account.name)}</span><div><strong>{account.roleLabel}</strong><small>{account.name}</small></div>
+                <span style={{ background: hueFor(account.name), color: "#fff" }}>{initialsFor(account.name)}</span><div><strong>{account.roleLabel}</strong><small>{account.name}</small></div>
               </button>
             ))}
           </div>

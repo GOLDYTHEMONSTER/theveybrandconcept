@@ -95,6 +95,19 @@ function seed(): Task[] {
       createdAt: ago(1),
       updatedAt: ago(1),
     },
+    {
+      title: "Draft onboarding checklist for new hires",
+      description: "Standardize the first-week checklist across departments.",
+      assigneeId: "sandbox-hr",
+      assigneeName: "Ngozi Adeyemi",
+      assignedById: "sandbox-executive",
+      assignedByName: "Veronica Young",
+      priority: "medium",
+      status: "in_progress",
+      dueDate: inDays(3),
+      createdAt: ago(2),
+      updatedAt: ago(1),
+    },
   ];
 
   return rows.map((row) => ({ ...row, id: randomUUID(), taskNumber: nextTaskNumber() }));

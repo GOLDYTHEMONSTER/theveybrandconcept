@@ -9,11 +9,17 @@ const PRIORITY_OPTIONS: Array<{ value: "low" | "medium" | "high"; label: string 
   { value: "high", label: "High" },
 ];
 
-export default function NewTaskForm({ assignees }: { assignees: Array<{ id: string; name: string; roleLabel: string }> }) {
+export default function NewTaskForm({
+  assignees,
+  initialAssigneeId,
+}: {
+  assignees: Array<{ id: string; name: string; roleLabel: string }>;
+  initialAssigneeId?: string;
+}) {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [assigneeId, setAssigneeId] = useState(assignees[0]?.id ?? "");
+  const [assigneeId, setAssigneeId] = useState(initialAssigneeId ?? assignees[0]?.id ?? "");
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
   const [dueDate, setDueDate] = useState("");
   const [error, setError] = useState("");
