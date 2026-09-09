@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CARRIERS } from "../../../modules/orders/domain";
 
@@ -91,8 +92,9 @@ export default function OrderActions({ orderId, status, paymentStatus, canFulfil
   }
 
   const canRefund = canCancel && paymentStatus === "paid";
+  const canReturn = canCancel && status === "delivered";
   const fulfilmentDone = status === "delivered" || status === "cancelled";
-  const nothingToShow = (!canFulfil && !canCancel) || (fulfilmentDone && !canRefund);
+  const nothingToShow = (!canFulfil && !canCancel) || (fulfilmentDone && !canRefund && !canReturn);
   if (nothingToShow) {
     return error ? <p className="login-error" role="alert">{error}</p> : null;
   }
@@ -129,6 +131,9 @@ export default function OrderActions({ orderId, status, paymentStatus, canFulfil
           >
             Refund via Stripe
           </button>
+        )}
+        {canReturn && (
+          <Link className="erp-button secondary" href={`/returns/new?orderId=${orderId}`}>Start a return</Link>
         )}
       </div>
 

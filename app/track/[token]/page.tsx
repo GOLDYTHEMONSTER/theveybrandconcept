@@ -1,4 +1,5 @@
 import { getShipmentByToken } from "../../../modules/orders/store";
+import RequestReturnForm from "./_components/RequestReturnForm";
 
 const STATUS_LABEL: Record<string, string> = {
   pending: "Order received",
@@ -15,7 +16,7 @@ export default function TrackingPage({ params }: { params: { token: string } }) 
     return (
       <main className="track-canvas">
         <div className="track-card">
-          <div className="track-brand"><span className="login-monogram">VY</span><div><strong>VERONICA YOUNG</strong><small>BUSINESS SUITE</small></div></div>
+          <div className="track-brand"><img src="/brand/logo-mark-ink.png" alt="" className="login-monogram" /><div><strong>VERONICA YOUNG</strong><small>BUSINESS SUITE</small></div></div>
           <div className="track-empty">
             <p className="erp-eyebrow">Tracking</p>
             <h1 style={{ marginBottom: 10 }}>We couldn't find that shipment.</h1>
@@ -33,7 +34,7 @@ export default function TrackingPage({ params }: { params: { token: string } }) 
   return (
     <main className="track-canvas">
       <div className="track-card">
-        <div className="track-brand"><span className="login-monogram">VY</span><div><strong>VERONICA YOUNG</strong><small>BUSINESS SUITE</small></div></div>
+        <div className="track-brand"><img src="/brand/logo-mark-ink.png" alt="" className="login-monogram" /><div><strong>VERONICA YOUNG</strong><small>BUSINESS SUITE</small></div></div>
 
         <p className="erp-eyebrow">Order {maskedNumber}</p>
         <h1>{STATUS_LABEL[order.status] ?? "Tracking your order"}</h1>
@@ -58,6 +59,10 @@ export default function TrackingPage({ params }: { params: { token: string } }) 
             ))}
           </div>
         </div>
+
+        {order.status === "delivered" && order.paymentStatus === "paid" && (
+          <RequestReturnForm token={params.token} items={order.items} />
+        )}
       </div>
     </main>
   );

@@ -18,6 +18,7 @@ export const RATE_LIMIT_RULES = {
   apiWrite: { name: "api:write", limit: 30, windowSeconds: 60 } as RateLimitRule,
   apiExport: { name: "api:export", limit: 5, windowSeconds: 300 } as RateLimitRule,
   checkout: { name: "storefront:checkout", limit: 10, windowSeconds: 60 } as RateLimitRule,
+  returns: { name: "storefront:returns", limit: 5, windowSeconds: 60 } as RateLimitRule,
   search: { name: "storefront:search", limit: 60, windowSeconds: 60 } as RateLimitRule,
 } as const;
 

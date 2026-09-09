@@ -13,6 +13,7 @@ import {
   Settings,
   ShieldCheck,
   ShoppingBag,
+  Undo2,
   UserCog,
   Users,
   Wallet,
@@ -26,6 +27,7 @@ import NotificationBell from "./NotificationBell";
 const NAV_ICONS: Record<NavItem["icon"], LucideIcon> = {
   home: Home,
   orders: ShoppingBag,
+  returns: Undo2,
   customers: Users,
   inventory: Package,
   support: Headset,
@@ -65,7 +67,7 @@ export default function ErpShell({ roleLabel, name, permissions, badges = {}, ch
       <aside className={`erp-sidebar ${navOpen ? "open" : ""}`}>
         <button className="erp-sidebar-close" aria-label="Close menu" onClick={() => setNavOpen(false)}><X size={16} /></button>
         <a className="erp-brand" href="/dashboard" aria-label="Veronica Young dashboard">
-          <img src="/brand/logo-mark-ink.png" alt="" className="erp-monogram" />
+          <img src="/brand/logo-mark-white.png" alt="" className="erp-monogram" />
           <span><strong>VERONICA YOUNG</strong><small>BUSINESS SUITE</small></span>
         </a>
         <nav className="erp-nav" aria-label="Primary navigation">

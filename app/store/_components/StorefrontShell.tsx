@@ -8,12 +8,17 @@ import { cartCount } from "../_lib/cart";
 import { useFavorites } from "../_lib/useFavorites";
 import Splash from "./Splash";
 
+// Must match ShopGrid's own CATEGORIES exactly (app/store/_components/
+// ShopGrid.tsx) -- these used to include "Tops" and "Sets", which aren't
+// real categories in modules/catalog/domain.ts, so ShopGrid silently
+// ignored them and showed the full, unfiltered catalog instead.
 const DISCOVER_LINKS = [
   { label: "Home", href: "/store" },
   { label: "New", href: "/store/shop?category=New" },
   { label: "Dresses", href: "/store/shop?category=Dresses" },
-  { label: "Tops", href: "/store/shop?category=Tops" },
-  { label: "Sets", href: "/store/shop?category=Sets" },
+  { label: "Gowns", href: "/store/shop?category=Gowns" },
+  { label: "Outerwear", href: "/store/shop?category=Outerwear" },
+  { label: "Accessories", href: "/store/shop?category=Accessories" },
   { label: "Gallery", href: "/store/discover" },
 ];
 

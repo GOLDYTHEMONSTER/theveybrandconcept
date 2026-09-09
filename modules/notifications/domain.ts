@@ -8,7 +8,8 @@ export type NotificationType =
   | "inventory.out_of_stock"
   | "product.created"
   | "storefront.order"
-  | "team.invited";
+  | "team.invited"
+  | "return.requested";
 
 export interface NotificationRecord {
   id: string;

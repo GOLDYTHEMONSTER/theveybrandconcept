@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { CustomerRow, CustomerSegment } from "../../../modules/crm/service";
 
 interface CustomersTableProps {
@@ -34,11 +35,12 @@ export default function CustomersTable({ rows, segmentLabel, segmentTone }: Cust
               <th>Last order</th>
               <th className="numeric">Lifetime value</th>
               <th>Channel</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 && (
-              <tr><td colSpan={6} style={{ textAlign: "center", color: "var(--muted)", padding: "32px 0" }}>No customers match your search.</td></tr>
+              <tr><td colSpan={7} style={{ textAlign: "center", color: "var(--muted)", padding: "32px 0" }}>No customers match your search.</td></tr>
             )}
             {filtered.map((row) => (
               <tr key={row.id}>
@@ -48,6 +50,11 @@ export default function CustomersTable({ rows, segmentLabel, segmentTone }: Cust
                 <td>{new Date(row.lastOrderAt).toLocaleDateString("en-NG", { dateStyle: "medium" })}</td>
                 <td className="numeric">{currency.format(row.lifetimeValue)}</td>
                 <td>{row.channels.join(", ")}</td>
+                <td className="numeric">
+                  <Link className="erp-button secondary" style={{ height: 32, padding: "0 12px", fontSize: 10 }} href={`/customers/${encodeURIComponent(row.id)}`}>
+                    Edit
+                  </Link>
+                </td>
               </tr>
             ))}
           </tbody>
