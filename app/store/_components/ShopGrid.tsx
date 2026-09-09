@@ -1,16 +1,34 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { Suspense, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import ProductCard from "./ProductCard";
+import { isShopFilter, SHOP_FILTERS, type ShopFilter } from "../_lib/categories";
 import type { StorefrontProduct } from "../../../modules/catalog/storefront-view";
 
-const CATEGORIES = ["All", "Dresses", "Gowns", "Outerwear", "Accessories", "New"];
+function filterFromUrl(value: string | null): ShopFilter {
+  return isShopFilter(value) ? value : "All";
+}
 
 function ShopGridInner({ products }: { products: StorefrontProduct[] }) {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const initial = searchParams.get("category");
-  const [active, setActive] = useState(initial && CATEGORIES.includes(initial) ? initial : "All");
+  const urlCategory = searchParams.get("category");
+  const [active, setActive] = useState<ShopFilter>(() => filterFromUrl(urlCategory));
+
+  // The sidebar's category links navigate to this same route with a new
+  // ?category= -- App Router keeps this component mounted across that,
+  // so without this effect `active` (set once via useState's initializer)
+  // never updated and clicking a sidebar link silently did nothing.
+  useEffect(() => {
+    setActive(filterFromUrl(urlCategory));
+  }, [urlCategory]);
+
+  function selectCategory(category: ShopFilter) {
+    setActive(category);
+    const query = category === "All" ? "" : `?category=${encodeURIComponent(category)}`;
+    router.replace(`/store/shop${query}`, { scroll: false });
+  }
 
   const visible = useMemo(() => {
     if (active === "All") return products;
@@ -21,10 +39,10 @@ function ShopGridInner({ products }: { products: StorefrontProduct[] }) {
   return (
     <div>
       <div className="store-scrollbar mb-8 flex gap-2 overflow-x-auto pb-1">
-        {CATEGORIES.map((category) => (
+        {SHOP_FILTERS.map((category) => (
           <button
             key={category}
-            onClick={() => setActive(category)}
+            onClick={() => selectCategory(category)}
             className={`shrink-0 rounded-full border px-4 py-2 text-xs transition-colors ${active === category ? "border-ink bg-ink text-canvas" : "border-hairline text-muted hover:text-ink"}`}
           >
             {category}

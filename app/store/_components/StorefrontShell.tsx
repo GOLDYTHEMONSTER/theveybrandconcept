@@ -2,25 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Suspense } from "react";
 import { Heart, Home, LayoutGrid, ShoppingBag, Sparkles } from "lucide-react";
+import DiscoverLinks from "./DiscoverLinks";
 import { useCart } from "../_lib/useCart";
 import { cartCount } from "../_lib/cart";
 import { useFavorites } from "../_lib/useFavorites";
 import Splash from "./Splash";
-
-// Must match ShopGrid's own CATEGORIES exactly (app/store/_components/
-// ShopGrid.tsx) -- these used to include "Tops" and "Sets", which aren't
-// real categories in modules/catalog/domain.ts, so ShopGrid silently
-// ignored them and showed the full, unfiltered catalog instead.
-const DISCOVER_LINKS = [
-  { label: "Home", href: "/store" },
-  { label: "New", href: "/store/shop?category=New" },
-  { label: "Dresses", href: "/store/shop?category=Dresses" },
-  { label: "Gowns", href: "/store/shop?category=Gowns" },
-  { label: "Outerwear", href: "/store/shop?category=Outerwear" },
-  { label: "Accessories", href: "/store/shop?category=Accessories" },
-  { label: "Gallery", href: "/store/discover" },
-];
 
 const TOP_LINKS = [
   { label: "Shop", href: "/store/shop" },
@@ -78,27 +66,17 @@ export default function StorefrontShell({ children }: { children: React.ReactNod
         <aside className="sticky top-[73px] hidden h-[calc(100vh-73px)] w-56 shrink-0 flex-col gap-8 overflow-y-auto border-r border-hairline px-6 py-8 md:flex">
           <div>
             <p className="mb-3 text-[10px] uppercase tracking-[0.22em] text-muted">Discover</p>
-            <nav className="flex flex-col gap-1">
-              {DISCOVER_LINKS.map((link) => {
-                const active = pathname === link.href.split("?")[0] && link.href === "/store"
-                  ? pathname === "/store"
-                  : false;
-                return (
-                  <Link
-                    key={link.label}
-                    href={link.href}
-                    className={`rounded-full px-3 py-2 text-sm transition-colors ${active ? "bg-surface text-ink" : "text-muted hover:text-ink"}`}
-                  >
-                    {link.label}
-                  </Link>
-                );
-              })}
-            </nav>
+            <Suspense fallback={null}>
+              <DiscoverLinks />
+            </Suspense>
           </div>
           <div>
             <p className="mb-3 text-[10px] uppercase tracking-[0.22em] text-muted">Saved</p>
             <nav className="flex flex-col gap-1">
-              <Link href="/store/favorites" className="flex items-center justify-between rounded-full px-3 py-2 text-sm text-muted transition-colors hover:text-ink">
+              <Link
+                href="/store/favorites"
+                className={`flex items-center justify-between rounded-full px-3 py-2 text-sm transition-colors ${pathname === "/store/favorites" ? "bg-surface text-ink" : "text-muted hover:text-ink"}`}
+              >
                 Favorites {favoriteCount > 0 && <span className="text-xs text-muted">{favoriteCount}</span>}
               </Link>
             </nav>
@@ -110,15 +88,15 @@ export default function StorefrontShell({ children }: { children: React.ReactNod
 
       {/* Mobile bottom nav */}
       <nav className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-around border-t border-hairline bg-canvas/95 pt-2.5 backdrop-blur-xl md:hidden [padding-bottom:calc(env(safe-area-inset-bottom)+0.625rem)]">
-        <Link href="/store" className="flex flex-col items-center gap-1 px-3 py-1 text-[10px] text-muted"><Home size={18} /> Home</Link>
-        <Link href="/store/shop" className="flex flex-col items-center gap-1 px-3 py-1 text-[10px] text-muted"><Sparkles size={18} /> Shop</Link>
+        <Link href="/store" className={`flex flex-col items-center gap-1 px-3 py-1 text-[10px] ${pathname === "/store" ? "text-ink" : "text-muted"}`}><Home size={18} /> Home</Link>
+        <Link href="/store/shop" className={`flex flex-col items-center gap-1 px-3 py-1 text-[10px] ${pathname === "/store/shop" ? "text-ink" : "text-muted"}`}><Sparkles size={18} /> Shop</Link>
         <Link href="/store/discover" aria-label="Gallery" className="flex items-center justify-center rounded-full bg-ink px-5 py-3 text-canvas"><LayoutGrid size={18} /></Link>
-        <Link href="/store/favorites" className="relative flex flex-col items-center gap-1 px-3 py-1 text-[10px] text-muted">
-          <Heart size={18} />
+        <Link href="/store/favorites" className={`relative flex flex-col items-center gap-1 px-3 py-1 text-[10px] ${pathname === "/store/favorites" ? "text-ink" : "text-muted"}`}>
+          <Heart size={18} fill={pathname === "/store/favorites" ? "currentColor" : "none"} />
           {favoriteCount > 0 && <span className="absolute -top-0.5 right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-ink text-[8px] font-semibold text-canvas">{favoriteCount}</span>}
           Saved
         </Link>
-        <Link href="/store/cart" className="relative flex flex-col items-center gap-1 px-3 py-1 text-[10px] text-muted">
+        <Link href="/store/cart" className={`relative flex flex-col items-center gap-1 px-3 py-1 text-[10px] ${pathname === "/store/cart" ? "text-ink" : "text-muted"}`}>
           <ShoppingBag size={18} />
           {count > 0 && <span className="absolute -top-0.5 right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-ink text-[8px] font-semibold text-canvas">{count}</span>}
           Cart

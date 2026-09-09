@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { StorefrontProduct } from "../../../modules/catalog/storefront-view";
 import { formatPrice } from "../_lib/format";
+import FavoriteButton from "./FavoriteButton";
 
 const AUTO_ADVANCE_MS = 5500;
 
@@ -43,6 +44,11 @@ export default function HeroCarousel({ products }: { products: StorefrontProduct
             }`}
           />
         ))}
+
+        <FavoriteButton
+          productId={active.id}
+          className="absolute right-3 top-3 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md transition-colors hover:bg-black/60"
+        />
 
         {count > 1 && (
           <>

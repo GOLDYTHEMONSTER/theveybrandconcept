@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import { formatPrice } from "../_lib/format";
+import FavoriteButton from "./FavoriteButton";
 
 export interface GalleryPin {
   key: string;
@@ -31,6 +32,10 @@ export default function MasonryGallery({ pins }: { pins: GalleryPin[] }) {
             <span className="absolute left-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 backdrop-blur-md">
               <Sparkles size={12} />
             </span>
+            <FavoriteButton
+              productId={pin.productId}
+              className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md transition-colors hover:bg-black/80"
+            />
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
               <p className="text-xs text-white">{pin.name}</p>
               <p className="text-[11px] text-white/70">{formatPrice(pin.price)}</p>
