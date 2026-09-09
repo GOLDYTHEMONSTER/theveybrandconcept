@@ -1,4 +1,4 @@
-import { randomUUID } from "crypto";
+import { createHash, randomUUID } from "crypto";
 import { ConflictError, NotFoundError } from "../shared/errors";
 import type { CreateProductInput, Product, ProductVariant } from "./domain";
 
@@ -9,6 +9,22 @@ function slugify(name: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
+}
+
+/**
+ * Deterministic id for the fixed seed catalog. Vercel can route requests
+ * for the same product to different serverless instances, and each one
+ * re-runs this module fresh -- randomUUID() there meant every instance
+ * invented different ids for the same 10 products, so a link built from
+ * one instance's id 404'd the moment a follow-up request (viewing the
+ * product, adding it to cart) landed on another. Seed ids must be a pure
+ * function of the product's own data, not randomness. Runtime-created
+ * products (createProduct below) are real new entities each time, so
+ * those still get a real random id.
+ */
+function stableId(seed: string): string {
+  const hex = createHash("sha1").update(seed).digest("hex");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
 }
 
 function seedProducts(): Product[] {
@@ -133,7 +149,7 @@ function seedProducts(): Product[] {
 
   const now = new Date().toISOString();
   return seed.map((entry) => {
-    const productId = randomUUID();
+    const productId = stableId(`product:${entry.name}`);
     return {
       id: productId,
       organizationId: ORGANIZATION_ID,
@@ -147,7 +163,7 @@ function seedProducts(): Product[] {
       videoUrl: entry.videoUrl ?? null,
       createdBy: "sandbox-executive",
       createdAt: now,
-      variants: entry.variants.map((variant) => ({ ...variant, id: randomUUID(), productId })),
+      variants: entry.variants.map((variant) => ({ ...variant, id: stableId(`variant:${variant.sku}`), productId })),
     };
   });
 }
