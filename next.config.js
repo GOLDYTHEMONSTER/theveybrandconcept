@@ -9,7 +9,11 @@ const contentSecurityPolicy = isDev
     // nonce-based CSP would avoid this, but nonces require middleware
     // to inject per-request, which Next 14.2's Edge Runtime can't run
     // here (see middleware.ts removal notes).
-    "default-src 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'";
+    // img-src allows https: broadly because the product catalog links
+    // directly to externally-hosted photos (the brand's CDN export) rather
+    // than copies in public/ -- without this, default-src 'self' silently
+    // blocks every one of those <img> tags with no network-level error.
+    "default-src 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:";
 
 const nextConfig = {
   reactStrictMode: true,

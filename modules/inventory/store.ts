@@ -3,6 +3,14 @@ import { ValidationError } from "../shared/errors";
 import { InsufficientStockError } from "../shared/errors";
 import { WAREHOUSES, type Warehouse } from "../shared/warehouses";
 import { listVariants } from "../catalog/store";
+import csvImport from "../catalog/csv-import.json";
+
+const CSV_STOCK_BY_SKU: Record<string, number> = {};
+for (const product of csvImport as Array<{ variants: Array<{ sku: string; stock: number }> }>) {
+  for (const variant of product.variants) {
+    CSV_STOCK_BY_SKU[variant.sku] = variant.stock;
+  }
+}
 
 export type LedgerBucket = "on_hand" | "reserved";
 export type LedgerType = "initial" | "adjustment" | "reservation" | "release" | "fulfilled" | "restock";
@@ -49,7 +57,9 @@ function seedLedger(): LedgerEntry[] {
   const now = new Date().toISOString();
   return listVariants()
     .map((variant) => {
-      const seed = INITIAL_STOCK[variant.sku];
+      const hardcoded = INITIAL_STOCK[variant.sku];
+      const csvOnHand = CSV_STOCK_BY_SKU[variant.sku];
+      const seed = hardcoded ?? (csvOnHand !== undefined ? { warehouse: "Lagos showroom" as Warehouse, onHand: csvOnHand } : undefined);
       if (!seed) return null;
       const entry: LedgerEntry = {
         id: randomUUID(),

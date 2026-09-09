@@ -1,0 +1,1520 @@
+[
+  {
+    "csvProductId": "5245663",
+    "name": "Waist Trainer",
+    "category": "Accessories",
+    "description": "Sculpting waist trainer, cinch and define your waistline, flexible boning.",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/9b8a9ae989049775b5b3a26d4c531d6c30965550.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/9b8a9ae989049775b5b3a26d4c531d6c30965550.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/1fcf5c1bb68a62c959135ed492824717ecd5b2a8.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/76587bd0b02df6500f8961dd38a95126ef8249d1.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/a8706c656a7d8d0ca036a7fe78dbcc308eb51d43.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/6356669382fe55f565d4dc712f3daf3076e21def.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9967993",
+        "sku": "CSV-9967993",
+        "color": null,
+        "size": "XS",
+        "price": 45000,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9967994",
+        "sku": "CSV-9967994",
+        "color": null,
+        "size": "S",
+        "price": 45000,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9967995",
+        "sku": "CSV-9967995",
+        "color": null,
+        "size": "M",
+        "price": 45000,
+        "compareAtPrice": null,
+        "stock": 4
+      },
+      {
+        "csvVariantId": "9967996",
+        "sku": "CSV-9967996",
+        "color": null,
+        "size": "L",
+        "price": 45000,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9967997",
+        "sku": "CSV-9967997",
+        "color": null,
+        "size": "XL",
+        "price": 45000,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9967998",
+        "sku": "CSV-9967998",
+        "color": null,
+        "size": "XXL",
+        "price": 52500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9967999",
+        "sku": "CSV-9967999",
+        "color": null,
+        "size": "XXXL",
+        "price": 52500,
+        "compareAtPrice": null,
+        "stock": 5
+      }
+    ]
+  },
+  {
+    "csvProductId": "5238626",
+    "name": "Roo Sleeve Luxe Dress—(25days Preorder)",
+    "category": "Dresses",
+    "description": "Stretchy, true to size, very tall girl friendly, model wore M",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/d4db8ecee19203df4b9ad18d9f9333631f74cde0.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/d4db8ecee19203df4b9ad18d9f9333631f74cde0.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/55ad2138678a447a22d5188c1fdc7572e4f5716e.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/242b739879a3c7cfb0605370a62e4f9ee1c58094.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/723a547c9fff9dae69f36ba934ba452474b9b015.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9940857",
+        "sku": "CSV-9940857",
+        "color": null,
+        "size": "XS",
+        "price": 334500,
+        "compareAtPrice": null,
+        "stock": 50
+      },
+      {
+        "csvVariantId": "9940858",
+        "sku": "CSV-9940858",
+        "color": null,
+        "size": "S",
+        "price": 334500,
+        "compareAtPrice": null,
+        "stock": 50
+      },
+      {
+        "csvVariantId": "9940859",
+        "sku": "CSV-9940859",
+        "color": null,
+        "size": "M",
+        "price": 334500,
+        "compareAtPrice": null,
+        "stock": 50
+      },
+      {
+        "csvVariantId": "9940860",
+        "sku": "CSV-9940860",
+        "color": null,
+        "size": "L",
+        "price": 334500,
+        "compareAtPrice": null,
+        "stock": 50
+      },
+      {
+        "csvVariantId": "9940861",
+        "sku": "CSV-9940861",
+        "color": null,
+        "size": "XL",
+        "price": 334500,
+        "compareAtPrice": null,
+        "stock": 50
+      },
+      {
+        "csvVariantId": "9940865",
+        "sku": "CSV-9940865",
+        "color": null,
+        "size": "2XL",
+        "price": 379500,
+        "compareAtPrice": null,
+        "stock": 50
+      },
+      {
+        "csvVariantId": "9940866",
+        "sku": "CSV-9940866",
+        "color": null,
+        "size": "3XL",
+        "price": 379500,
+        "compareAtPrice": null,
+        "stock": 50
+      }
+    ]
+  },
+  {
+    "csvProductId": "5157526",
+    "name": "Choco Stud Mesh",
+    "category": "Dresses",
+    "description": "Stretchy, true to size, model wore M",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/aa468d5c24b1f66e749de9e1bb106c9f7d5e03c8.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/aa468d5c24b1f66e749de9e1bb106c9f7d5e03c8.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/6671401920ed6be3dca813bdb1d7fb9318ceed5e.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/ff12d72760a31eab6d411f3addd7877efe26713f.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/2913464e4228ca027b4efe1ef1f4ec2b2a7529cd.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9780963",
+        "sku": "CSV-9780963",
+        "color": null,
+        "size": "S",
+        "price": 207000,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9780964",
+        "sku": "CSV-9780964",
+        "color": null,
+        "size": "M",
+        "price": 207000,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9780965",
+        "sku": "CSV-9780965",
+        "color": null,
+        "size": "L",
+        "price": 207000,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9780966",
+        "sku": "CSV-9780966",
+        "color": null,
+        "size": "XL",
+        "price": 207000,
+        "compareAtPrice": null,
+        "stock": 5
+      }
+    ]
+  },
+  {
+    "csvProductId": "5157025",
+    "name": "Mona Shawl Dress",
+    "category": "Dresses",
+    "description": "Stretchy, runs big, tall girl friendly, wore S Comes with the shawl and gloves",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/4c52e59eaeec246c59d10e7aec051d27e860aa3e.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/4c52e59eaeec246c59d10e7aec051d27e860aa3e.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/0f73ff9c4ab1dd33799c4eca13c1527b2a5ea665.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/101cbc1f83dee31e281f4627fdfd1d77254d314b.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9780008",
+        "sku": "CSV-9780008",
+        "color": null,
+        "size": "S",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 1
+      },
+      {
+        "csvVariantId": "9780009",
+        "sku": "CSV-9780009",
+        "color": null,
+        "size": "M",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 1
+      },
+      {
+        "csvVariantId": "9780010",
+        "sku": "CSV-9780010",
+        "color": null,
+        "size": "L",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 1
+      }
+    ]
+  },
+  {
+    "csvProductId": "5157001",
+    "name": "Cal Stud Mesh Dress",
+    "category": "Dresses",
+    "description": "Stretchy, true to size, see through, model wore S",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/8bd365148c928226e3f85bb0d7227d5ac268e019.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/8bd365148c928226e3f85bb0d7227d5ac268e019.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/f5d57506fb43157af8f8a59cc15e477b4ee625ca.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/84424e8f310e91d039b07bf69e2d94401b40c3ca.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/7f819ac34ee442563cacffe907629e44865b35c6.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/9d48c05465f4e9e2d65343099efd622595f23b94.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9779958",
+        "sku": "CSV-9779958",
+        "color": null,
+        "size": "XS",
+        "price": 187500,
+        "compareAtPrice": null,
+        "stock": 4
+      },
+      {
+        "csvVariantId": "9779959",
+        "sku": "CSV-9779959",
+        "color": null,
+        "size": "S",
+        "price": 187500,
+        "compareAtPrice": null,
+        "stock": 3
+      },
+      {
+        "csvVariantId": "9779960",
+        "sku": "CSV-9779960",
+        "color": null,
+        "size": "M",
+        "price": 187500,
+        "compareAtPrice": null,
+        "stock": 3
+      },
+      {
+        "csvVariantId": "9779961",
+        "sku": "CSV-9779961",
+        "color": null,
+        "size": "L",
+        "price": 187500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9779962",
+        "sku": "CSV-9779962",
+        "color": null,
+        "size": "XL",
+        "price": 187500,
+        "compareAtPrice": null,
+        "stock": 4
+      }
+    ]
+  },
+  {
+    "csvProductId": "5156976",
+    "name": "Elvrik Fringe Dress—Lilac",
+    "category": "Dresses",
+    "description": "Stretchy, true to size, tall girl friendly, model wore S",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/d8e1197c2cd8626483f31440ad1bf6c3976f725e.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/d8e1197c2cd8626483f31440ad1bf6c3976f725e.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/d6533217bf2b4b355a1af5698333905c31d5d294.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/f516d803a48ace53c972cf89adb9e19a8712f963.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/ed76fe8d2b265fde88f8510d6c7537bff8c57171.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/fbaf9ef71f0eb83023ce66055a2562efc51c672c.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/532ba01478cd1d4661a47e44af0eb8e2923159c6.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9779900",
+        "sku": "CSV-9779900",
+        "color": null,
+        "size": "S",
+        "price": 213000,
+        "compareAtPrice": null,
+        "stock": 4
+      },
+      {
+        "csvVariantId": "9779901",
+        "sku": "CSV-9779901",
+        "color": null,
+        "size": "M",
+        "price": 213000,
+        "compareAtPrice": null,
+        "stock": 4
+      },
+      {
+        "csvVariantId": "9779902",
+        "sku": "CSV-9779902",
+        "color": null,
+        "size": "L",
+        "price": 213000,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9779903",
+        "sku": "CSV-9779903",
+        "color": null,
+        "size": "XL",
+        "price": 213000,
+        "compareAtPrice": null,
+        "stock": 3
+      }
+    ]
+  },
+  {
+    "csvProductId": "5156974",
+    "name": "Coca Stud Dress",
+    "category": "Dresses",
+    "description": "Stretchy, true to size, tall girl friendly, model wore S",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/b39e0b2608f2adf71b2f441013f51eb57c6a053a.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/b39e0b2608f2adf71b2f441013f51eb57c6a053a.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/5dea06acbb291499a791f4e04f0adcf5222504e5.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/f6a249f16a262384657fb49c35f0ccbba1895e0a.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/1fc51a8d1b45f10d590b25007cd14d339dd9ba42.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/f83e0096da5dc1632e8b1747c40be1d9fa4c7df5.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9779895",
+        "sku": "CSV-9779895",
+        "color": null,
+        "size": "S",
+        "price": 187500,
+        "compareAtPrice": null,
+        "stock": 1
+      },
+      {
+        "csvVariantId": "9779896",
+        "sku": "CSV-9779896",
+        "color": null,
+        "size": "M",
+        "price": 187500,
+        "compareAtPrice": null,
+        "stock": 1
+      },
+      {
+        "csvVariantId": "9779897",
+        "sku": "CSV-9779897",
+        "color": null,
+        "size": "L",
+        "price": 187500,
+        "compareAtPrice": null,
+        "stock": 1
+      },
+      {
+        "csvVariantId": "9779898",
+        "sku": "CSV-9779898",
+        "color": null,
+        "size": "XL",
+        "price": 187500,
+        "compareAtPrice": null,
+        "stock": 4
+      }
+    ]
+  },
+  {
+    "csvProductId": "5151304",
+    "name": "Mari Sequins Dress—Gold",
+    "category": "Dresses",
+    "description": "Stretchy, runs big, models wore S, size down, tall girl friendly",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/04a4889f3a41aa1eef15d05067ee6f1735835237.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/04a4889f3a41aa1eef15d05067ee6f1735835237.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/60cc1a7dc16d9b3a0566b399e3e614543d7a2829.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/e02e9fecb45ca2d0aa4a7a417f55ec3747b45d6e.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/74c03288de1eba531d5e1778a7d3b4e525898d76.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9771140",
+        "sku": "CSV-9771140",
+        "color": null,
+        "size": "S",
+        "price": 142500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9771141",
+        "sku": "CSV-9771141",
+        "color": null,
+        "size": "M",
+        "price": 142500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9771142",
+        "sku": "CSV-9771142",
+        "color": null,
+        "size": "L",
+        "price": 142500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9771143",
+        "sku": "CSV-9771143",
+        "color": null,
+        "size": "XL",
+        "price": 142500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9771144",
+        "sku": "CSV-9771144",
+        "color": null,
+        "size": "XXL",
+        "price": 142500,
+        "compareAtPrice": null,
+        "stock": 4
+      },
+      {
+        "csvVariantId": "9771145",
+        "sku": "CSV-9771145",
+        "color": null,
+        "size": "XXXL",
+        "price": 142500,
+        "compareAtPrice": null,
+        "stock": 5
+      }
+    ]
+  },
+  {
+    "csvProductId": "5151299",
+    "name": "Mari Sequins Dress—Charcoal Silver",
+    "category": "Dresses",
+    "description": "Stretchy, runs big, models wore S, size down, tall girl friendly",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/fcec4c6615097cae46e39b472b963c590a36e5f7.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/fcec4c6615097cae46e39b472b963c590a36e5f7.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/fb6361d1fd1edbb46fb4a82547570a03f49b4d4a.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/9b255db20a04c93df331fd87d8b136db311efb6c.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/7e5ae2e966906589a9de16b41e5dd5956e041a47.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9771122",
+        "sku": "CSV-9771122",
+        "color": null,
+        "size": "S",
+        "price": 142500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9771123",
+        "sku": "CSV-9771123",
+        "color": null,
+        "size": "M",
+        "price": 142500,
+        "compareAtPrice": null,
+        "stock": 4
+      },
+      {
+        "csvVariantId": "9771124",
+        "sku": "CSV-9771124",
+        "color": null,
+        "size": "L",
+        "price": 142500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9771125",
+        "sku": "CSV-9771125",
+        "color": null,
+        "size": "XL",
+        "price": 142500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9771126",
+        "sku": "CSV-9771126",
+        "color": null,
+        "size": "XXL",
+        "price": 142500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9771127",
+        "sku": "CSV-9771127",
+        "color": null,
+        "size": "XXXL",
+        "price": 142500,
+        "compareAtPrice": null,
+        "stock": 5
+      }
+    ]
+  },
+  {
+    "csvProductId": "5151263",
+    "name": "Mari Sequins Dress—Navy",
+    "category": "Dresses",
+    "description": "Stretchy, runs big, models wore S, size down, tall girl friendly",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/e11e89b690a2fbf406feeff0003ebcaee0629979.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/e11e89b690a2fbf406feeff0003ebcaee0629979.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/39333236c83f3d4e87ca2e709b9784ef04cfe503.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/270c188298aa8932f989be223d2d47c702105a98.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/82120e840de540242e69c7b887a6ce45384a4bc5.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/90b81d58e7313aa43499e1babf811b583d3bf153.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9771069",
+        "sku": "CSV-9771069",
+        "color": null,
+        "size": "S",
+        "price": 142500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9771070",
+        "sku": "CSV-9771070",
+        "color": null,
+        "size": "M",
+        "price": 142500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9771071",
+        "sku": "CSV-9771071",
+        "color": null,
+        "size": "L",
+        "price": 142500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9771072",
+        "sku": "CSV-9771072",
+        "color": null,
+        "size": "XL",
+        "price": 142500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9771073",
+        "sku": "CSV-9771073",
+        "color": null,
+        "size": "XXL",
+        "price": 142500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9771074",
+        "sku": "CSV-9771074",
+        "color": null,
+        "size": "XXXL",
+        "price": 142500,
+        "compareAtPrice": null,
+        "stock": 5
+      }
+    ]
+  },
+  {
+    "csvProductId": "5151108",
+    "name": "Roo Short luxe Dress",
+    "category": "Dresses",
+    "description": "Stretchy, true to size, model wore M",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/fb585d1ecc74acde719583bf1a857c89631b8e1d.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/fb585d1ecc74acde719583bf1a857c89631b8e1d.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/d4eae477fcd9d49c44e153481f6425edabfc911b.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/1d43389160d2061851fcd47a4444df3407eab215.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/85600b08f5caf8bfcef811a0a88a34ff0dde6a23.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/6c7ef02f8d415ad16a19d16c4565735c8df5ec3a.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9770859",
+        "sku": "CSV-9770859",
+        "color": null,
+        "size": "XS",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 50
+      },
+      {
+        "csvVariantId": "9770860",
+        "sku": "CSV-9770860",
+        "color": null,
+        "size": "S",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 50
+      },
+      {
+        "csvVariantId": "9770861",
+        "sku": "CSV-9770861",
+        "color": null,
+        "size": "M",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 48
+      },
+      {
+        "csvVariantId": "9770862",
+        "sku": "CSV-9770862",
+        "color": null,
+        "size": "L",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 50
+      },
+      {
+        "csvVariantId": "9770863",
+        "sku": "CSV-9770863",
+        "color": null,
+        "size": "XL",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 50
+      }
+    ]
+  },
+  {
+    "csvProductId": "5148598",
+    "name": "Roo Luxe Dress (15days Preorder)",
+    "category": "Dresses",
+    "description": "Stretchy, true to size, tall girl friendly, model wore M",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/9584aeb5fa577f1b0ce800bd35160dde897d22ac.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/9584aeb5fa577f1b0ce800bd35160dde897d22ac.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/048837e045ea6b022dc7518499be441eed4a3037.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/baa3f27b0e162014e405da7a3fb4bc2eee81ddbf.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/c5a7456e29414143a4a25b535fac3b4a6f85b046.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/d391b0ef5618705fd6b1e84a4c474ecbc1d430c3.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9767939",
+        "sku": "CSV-9767939",
+        "color": null,
+        "size": "XS",
+        "price": 289500,
+        "compareAtPrice": null,
+        "stock": 47
+      },
+      {
+        "csvVariantId": "9767940",
+        "sku": "CSV-9767940",
+        "color": null,
+        "size": "S",
+        "price": 289500,
+        "compareAtPrice": null,
+        "stock": 42
+      },
+      {
+        "csvVariantId": "9767941",
+        "sku": "CSV-9767941",
+        "color": null,
+        "size": "M",
+        "price": 289500,
+        "compareAtPrice": null,
+        "stock": 35
+      },
+      {
+        "csvVariantId": "9767942",
+        "sku": "CSV-9767942",
+        "color": null,
+        "size": "L",
+        "price": 289500,
+        "compareAtPrice": null,
+        "stock": 43
+      },
+      {
+        "csvVariantId": "9767943",
+        "sku": "CSV-9767943",
+        "color": null,
+        "size": "XL",
+        "price": 289500,
+        "compareAtPrice": null,
+        "stock": 45
+      },
+      {
+        "csvVariantId": "9875724",
+        "sku": "CSV-9875724",
+        "color": null,
+        "size": "2XL",
+        "price": 334500,
+        "compareAtPrice": null,
+        "stock": 49
+      },
+      {
+        "csvVariantId": "9875725",
+        "sku": "CSV-9875725",
+        "color": null,
+        "size": "3XL",
+        "price": 334500,
+        "compareAtPrice": null,
+        "stock": 48
+      }
+    ]
+  },
+  {
+    "csvProductId": "5042211",
+    "name": "Elvrik Fringe Dress—Mustard",
+    "category": "Dresses",
+    "description": "Stretchy, true to size, model wore M(10)",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/019b2d5f90f94f099670c938c31ff40f7803ce63.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/019b2d5f90f94f099670c938c31ff40f7803ce63.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/cdd5291fb215b61ef3be7850362cf4bf99aec247.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/633e441176425bc8831bd961990fa4022d07e284.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9574560",
+        "sku": "CSV-9574560",
+        "color": null,
+        "size": "S",
+        "price": 213000,
+        "compareAtPrice": null,
+        "stock": 0
+      },
+      {
+        "csvVariantId": "9574561",
+        "sku": "CSV-9574561",
+        "color": null,
+        "size": "M",
+        "price": 213000,
+        "compareAtPrice": null,
+        "stock": 0
+      },
+      {
+        "csvVariantId": "9574562",
+        "sku": "CSV-9574562",
+        "color": null,
+        "size": "L",
+        "price": 213000,
+        "compareAtPrice": null,
+        "stock": 2
+      },
+      {
+        "csvVariantId": "9574563",
+        "sku": "CSV-9574563",
+        "color": null,
+        "size": "XL",
+        "price": 213000,
+        "compareAtPrice": null,
+        "stock": 1
+      },
+      {
+        "csvVariantId": "9574564",
+        "sku": "CSV-9574564",
+        "color": null,
+        "size": "XXL",
+        "price": 213000,
+        "compareAtPrice": null,
+        "stock": 2
+      }
+    ]
+  },
+  {
+    "csvProductId": "5021385",
+    "name": "Crystal Glamour Dress—Electric Yellow",
+    "category": "Dresses",
+    "description": "Skin Mesh on crystal stones, Stretchy, true to size, model wore M",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/bb3b9685499cfb8e85f7c0f6fd44ff3e937866a7.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/bb3b9685499cfb8e85f7c0f6fd44ff3e937866a7.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/a3b5eabff3f6313fae472a1123d114a6e272838e.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/978a21a2b8a46593054be8ff7b1f5ee1131a4cfd.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/1909e5b99c7d9d1a93137f60bdee4c3cda10a3a8.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9531236",
+        "sku": "CSV-9531236",
+        "color": null,
+        "size": "S",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9531237",
+        "sku": "CSV-9531237",
+        "color": null,
+        "size": "M",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 4
+      },
+      {
+        "csvVariantId": "9531238",
+        "sku": "CSV-9531238",
+        "color": null,
+        "size": "L",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 4
+      },
+      {
+        "csvVariantId": "9531239",
+        "sku": "CSV-9531239",
+        "color": null,
+        "size": "XL",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9531240",
+        "sku": "CSV-9531240",
+        "color": null,
+        "size": "XS",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 5
+      }
+    ]
+  },
+  {
+    "csvProductId": "5021384",
+    "name": "Crystal Glamour dress—Turquoise Blue",
+    "category": "Dresses",
+    "description": "Skin Mesh on crystal stones, Stretchy, true to size, model wore M",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/608b131bd12b4cda7a1524cdbf61673ba12055f1.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/608b131bd12b4cda7a1524cdbf61673ba12055f1.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/b1bc2eb1e68fee4d51ded69581d0f76ca8e839ba.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/80351db649aceddba08a3d42d9f9445a57732c7c.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9531231",
+        "sku": "CSV-9531231",
+        "color": null,
+        "size": "S",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 4
+      },
+      {
+        "csvVariantId": "9531232",
+        "sku": "CSV-9531232",
+        "color": null,
+        "size": "M",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 3
+      },
+      {
+        "csvVariantId": "9531233",
+        "sku": "CSV-9531233",
+        "color": null,
+        "size": "L",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9531234",
+        "sku": "CSV-9531234",
+        "color": null,
+        "size": "XL",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9531235",
+        "sku": "CSV-9531235",
+        "color": null,
+        "size": "XS",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 4
+      }
+    ]
+  },
+  {
+    "csvProductId": "5021380",
+    "name": "Crystal Glamour dress—SILVER",
+    "category": "Dresses",
+    "description": "Skin Mesh on crystal stones, Stretchy, true to size, model wore M",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/6a3160c8e5b0f8d6bcea518ac26ff3f767df2087.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/6a3160c8e5b0f8d6bcea518ac26ff3f767df2087.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/3c274947eca2b3d508aa31903f944ab274720a56.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/726d50ff28f819c894f69e17ef7824538869110b.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9531223",
+        "sku": "CSV-9531223",
+        "color": null,
+        "size": "S",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 4
+      },
+      {
+        "csvVariantId": "9531224",
+        "sku": "CSV-9531224",
+        "color": null,
+        "size": "M",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 4
+      },
+      {
+        "csvVariantId": "9531225",
+        "sku": "CSV-9531225",
+        "color": null,
+        "size": "L",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9531226",
+        "sku": "CSV-9531226",
+        "color": null,
+        "size": "XL",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9531227",
+        "sku": "CSV-9531227",
+        "color": null,
+        "size": "XS",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 5
+      }
+    ]
+  },
+  {
+    "csvProductId": "5021372",
+    "name": "Crystal Glamour Dress—LILAC",
+    "category": "Dresses",
+    "description": "Skin Mesh on crystal stones, Stretchy, true to size, model wore M",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/86895e93dd8cbf7c5f3e44adff6f23e29c7bf2e3.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/86895e93dd8cbf7c5f3e44adff6f23e29c7bf2e3.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/430f57dccb4d74b33f82e9e9915a6fc0057acc0f.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/32add63046bfa0d7175cf92437e3abe1db03665e.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/a0c5414833df5d31bfa76ee1eeb85d06a84870b9.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/40ba18bd6db3ceffd9a022ac957bdc3b3f33ef51.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9531210",
+        "sku": "CSV-9531210",
+        "color": null,
+        "size": "S",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 3
+      },
+      {
+        "csvVariantId": "9531211",
+        "sku": "CSV-9531211",
+        "color": null,
+        "size": "M",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9531212",
+        "sku": "CSV-9531212",
+        "color": null,
+        "size": "L",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9531213",
+        "sku": "CSV-9531213",
+        "color": null,
+        "size": "XL",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9531214",
+        "sku": "CSV-9531214",
+        "color": null,
+        "size": "XS",
+        "price": 229500,
+        "compareAtPrice": null,
+        "stock": 5
+      }
+    ]
+  },
+  {
+    "csvProductId": "4948056",
+    "name": "Khora Dress PREORDER 15days",
+    "category": "Dresses",
+    "description": "Stretchy, true to size, model wore M, very tall girl friendly",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/3662d4897b6d736bed399b91dcd6293d71111416.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/3662d4897b6d736bed399b91dcd6293d71111416.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/08deba15bbc4f00090521af10724eec4a1e358d0.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/2ec6d5958518433ec4986fe6f009cfc214269104.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/4e33d2ce5a864a35801fa44ee628e7bbdeb05c3a.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9358364",
+        "sku": "CSV-9358364",
+        "color": null,
+        "size": "S",
+        "price": 340500,
+        "compareAtPrice": null,
+        "stock": 4
+      },
+      {
+        "csvVariantId": "9358365",
+        "sku": "CSV-9358365",
+        "color": null,
+        "size": "M",
+        "price": 340500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9358366",
+        "sku": "CSV-9358366",
+        "color": null,
+        "size": "L",
+        "price": 340500,
+        "compareAtPrice": null,
+        "stock": 5
+      },
+      {
+        "csvVariantId": "9358367",
+        "sku": "CSV-9358367",
+        "color": null,
+        "size": "XL",
+        "price": 340500,
+        "compareAtPrice": null,
+        "stock": 4
+      },
+      {
+        "csvVariantId": "9358368",
+        "sku": "CSV-9358368",
+        "color": null,
+        "size": "XXL",
+        "price": 340500,
+        "compareAtPrice": null,
+        "stock": 5
+      }
+    ]
+  },
+  {
+    "csvProductId": "4930636",
+    "name": "Moho Dress",
+    "category": "Dresses",
+    "description": "Stretchy, true to size, model wore M",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/f99e57b9961387962639492f80bffe316e42fd5e.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/f99e57b9961387962639492f80bffe316e42fd5e.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/5e0405a9674b58c53254283de7aacdfd686b7bf5.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/fb2dbe44b889b7dcf0563f78f990f0eb67dfc2cc.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/c3832cf35a5ca869e832ce67a3ac81212281af52.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9305896",
+        "sku": "CSV-9305896",
+        "color": null,
+        "size": "S",
+        "price": 105000,
+        "compareAtPrice": null,
+        "stock": 0
+      },
+      {
+        "csvVariantId": "9305897",
+        "sku": "CSV-9305897",
+        "color": null,
+        "size": "M",
+        "price": 105000,
+        "compareAtPrice": null,
+        "stock": 0
+      },
+      {
+        "csvVariantId": "9305898",
+        "sku": "CSV-9305898",
+        "color": null,
+        "size": "L",
+        "price": 105000,
+        "compareAtPrice": null,
+        "stock": 0
+      },
+      {
+        "csvVariantId": "9305899",
+        "sku": "CSV-9305899",
+        "color": null,
+        "size": "XL",
+        "price": 105000,
+        "compareAtPrice": null,
+        "stock": 0
+      }
+    ]
+  },
+  {
+    "csvProductId": "4930629",
+    "name": "Lina Dress",
+    "category": "Dresses",
+    "description": "Stretchy, true to size, model wore M",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/ad6e2d6b2bcb537d823a5150e00f80535a38bd23.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/ad6e2d6b2bcb537d823a5150e00f80535a38bd23.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/0ddc1f36a651f1dbe821708332ee4e77aa011bae.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/6afe2f10332c3f5f55c8dd4a3d4772d5169589a4.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9305887",
+        "sku": "CSV-9305887",
+        "color": null,
+        "size": "S",
+        "price": 105000,
+        "compareAtPrice": null,
+        "stock": 0
+      },
+      {
+        "csvVariantId": "9305888",
+        "sku": "CSV-9305888",
+        "color": null,
+        "size": "M",
+        "price": 105000,
+        "compareAtPrice": null,
+        "stock": 0
+      },
+      {
+        "csvVariantId": "9305889",
+        "sku": "CSV-9305889",
+        "color": null,
+        "size": "L",
+        "price": 105000,
+        "compareAtPrice": null,
+        "stock": 0
+      }
+    ]
+  },
+  {
+    "csvProductId": "4930620",
+    "name": "Cyra Dress",
+    "category": "Dresses",
+    "description": "Stretchy, true to size, model wore M",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/e301f59f9fd1c04ab6a7e5eaf9b2f275d81ab9e2.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/e301f59f9fd1c04ab6a7e5eaf9b2f275d81ab9e2.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/a3e3b4102a4af2f63268e305cd3c8ec0f7429efe.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/d92496062c8b77334386e154bd7905e2c07caf0f.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9305842",
+        "sku": "CSV-9305842",
+        "color": null,
+        "size": "S",
+        "price": 102000,
+        "compareAtPrice": null,
+        "stock": 0
+      },
+      {
+        "csvVariantId": "9305843",
+        "sku": "CSV-9305843",
+        "color": null,
+        "size": "M",
+        "price": 102000,
+        "compareAtPrice": null,
+        "stock": 0
+      },
+      {
+        "csvVariantId": "9305844",
+        "sku": "CSV-9305844",
+        "color": null,
+        "size": "L",
+        "price": 102000,
+        "compareAtPrice": null,
+        "stock": 0
+      },
+      {
+        "csvVariantId": "9305845",
+        "sku": "CSV-9305845",
+        "color": null,
+        "size": "XL",
+        "price": 102000,
+        "compareAtPrice": null,
+        "stock": 0
+      }
+    ]
+  },
+  {
+    "csvProductId": "4930603",
+    "name": "Drea Dress",
+    "category": "Dresses",
+    "description": "Stretchy, true to size, model wore M",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/f61c3351995fb08effded01edb59615cf1fc3f63.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/f61c3351995fb08effded01edb59615cf1fc3f63.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/4adf3a4463849136605b6cd76e0b0c7c5aa8fd70.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9305822",
+        "sku": "CSV-9305822",
+        "color": null,
+        "size": "S",
+        "price": 103500,
+        "compareAtPrice": null,
+        "stock": 0
+      },
+      {
+        "csvVariantId": "9305823",
+        "sku": "CSV-9305823",
+        "color": null,
+        "size": "M",
+        "price": 103500,
+        "compareAtPrice": null,
+        "stock": 0
+      },
+      {
+        "csvVariantId": "9305824",
+        "sku": "CSV-9305824",
+        "color": null,
+        "size": "L",
+        "price": 103500,
+        "compareAtPrice": null,
+        "stock": 0
+      },
+      {
+        "csvVariantId": "9305825",
+        "sku": "CSV-9305825",
+        "color": null,
+        "size": "XL",
+        "price": 103500,
+        "compareAtPrice": null,
+        "stock": 0
+      }
+    ]
+  },
+  {
+    "csvProductId": "4923036",
+    "name": "Barley Sequence Dress—Navy/Silver",
+    "category": "Dresses",
+    "description": "Stretchy, Runs small , model wore L",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/2015f6b6adb7b9358d059e6a2a98c78f6f8b7953.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/2015f6b6adb7b9358d059e6a2a98c78f6f8b7953.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/6d2a7dfcfa2047caf1b0381f6f08a0ebd342eddb.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/a13da8f717f94ad9295d0f70aaedf63a41e5d567.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/5216edfbde7ebde0d9e5006d7f68100c11cd02d1.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/be76b8d52df2c81f07eafbff6c2566d812b370a2.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9291830",
+        "sku": "CSV-9291830",
+        "color": null,
+        "size": "M",
+        "price": 124500,
+        "compareAtPrice": null,
+        "stock": 0
+      },
+      {
+        "csvVariantId": "9291831",
+        "sku": "CSV-9291831",
+        "color": null,
+        "size": "L",
+        "price": 124500,
+        "compareAtPrice": null,
+        "stock": 0
+      },
+      {
+        "csvVariantId": "9291832",
+        "sku": "CSV-9291832",
+        "color": null,
+        "size": "XL",
+        "price": 124500,
+        "compareAtPrice": null,
+        "stock": 1
+      },
+      {
+        "csvVariantId": "9291833",
+        "sku": "CSV-9291833",
+        "color": null,
+        "size": "XXL",
+        "price": 124500,
+        "compareAtPrice": null,
+        "stock": 2
+      },
+      {
+        "csvVariantId": "9291834",
+        "sku": "CSV-9291834",
+        "color": null,
+        "size": "4XL",
+        "price": 124500,
+        "compareAtPrice": null,
+        "stock": 2
+      },
+      {
+        "csvVariantId": "9291835",
+        "sku": "CSV-9291835",
+        "color": null,
+        "size": "3XL",
+        "price": 124500,
+        "compareAtPrice": null,
+        "stock": 2
+      }
+    ]
+  },
+  {
+    "csvProductId": "4920754",
+    "name": "Mahey Dress",
+    "category": "Dresses",
+    "description": "Stretchy, mesh, one size fits SML",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/3dc9c926594acdd3735a8ac38e0e3208bc0fac96.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/3dc9c926594acdd3735a8ac38e0e3208bc0fac96.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/b8e65693d31318c1a7df71bfde05e475eb9c59b1.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/063c23161dba13def74544625178f7a192162ace.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9287276",
+        "sku": "CSV-9287276",
+        "color": null,
+        "size": "S",
+        "price": 304500,
+        "compareAtPrice": null,
+        "stock": 1
+      },
+      {
+        "csvVariantId": "9287277",
+        "sku": "CSV-9287277",
+        "color": null,
+        "size": "M",
+        "price": 304500,
+        "compareAtPrice": null,
+        "stock": 0
+      },
+      {
+        "csvVariantId": "9287278",
+        "sku": "CSV-9287278",
+        "color": null,
+        "size": "L",
+        "price": 304500,
+        "compareAtPrice": null,
+        "stock": 1
+      }
+    ]
+  },
+  {
+    "csvProductId": "4916452",
+    "name": "Naha Veil Sequence Dresss",
+    "category": "Dresses",
+    "description": "Stretchy, true to size, model wore uK10 (M) Length 165” Dress color is white with the sequin as baby pink and champagne gold",
+    "imageUrl": "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/324d0e3fdcbfbe5cf4e718cac666fc96372a0ba4.jpeg",
+    "images": [
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/324d0e3fdcbfbe5cf4e718cac666fc96372a0ba4.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/7f1b3df6ad276dba080e06d96844385405fe121d.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/a0396096296bcf2745e8bc589c469f2e3da66aa5.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/574b65c834ef194797b35111e2ac9db0115e6dd7.jpeg",
+      "https://dodptt9f4zk9h.cloudfront.net/stores/327265/products/197631e8ebba3978b0220213d7aca028c19a19f5.jpeg"
+    ],
+    "videoUrl": null,
+    "variants": [
+      {
+        "csvVariantId": "9280389",
+        "sku": "CSV-9280389",
+        "color": null,
+        "size": "M",
+        "price": 132000,
+        "compareAtPrice": null,
+        "stock": 0
+      },
+      {
+        "csvVariantId": "9280390",
+        "sku": "CSV-9280390",
+        "color": null,
+        "size": "L",
+        "price": 132000,
+        "compareAtPrice": null,
+        "stock": 1
+      },
+      {
+        "csvVariantId": "9280391",
+        "sku": "CSV-9280391",
+        "color": null,
+        "size": "XL",
+        "price": 132000,
+        "compareAtPrice": null,
+        "stock": 0
+      },
+      {
+        "csvVariantId": "9280392",
+        "sku": "CSV-9280392",
+        "color": null,
+        "size": "XXL",
+        "price": 132000,
+        "compareAtPrice": null,
+        "stock": 1
+      },
+      {
+        "csvVariantId": "9280393",
+        "sku": "CSV-9280393",
+        "color": null,
+        "size": "4XL",
+        "price": 132000,
+        "compareAtPrice": null,
+        "stock": 2
+      },
+      {
+        "csvVariantId": "9280394",
+        "sku": "CSV-9280394",
+        "color": null,
+        "size": "3XL",
+        "price": 132000,
+        "compareAtPrice": null,
+        "stock": 2
+      }
+    ]
+  }
+]

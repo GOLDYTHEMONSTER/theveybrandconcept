@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from "crypto";
 import { ConflictError, NotFoundError } from "../shared/errors";
 import type { CreateProductInput, Product, ProductVariant } from "./domain";
+import csvImport from "./csv-import.json";
 
 const ORGANIZATION_ID = "theveybrand-sandbox";
 
@@ -168,9 +169,67 @@ function seedProducts(): Product[] {
   });
 }
 
+interface CsvImportVariant {
+  csvVariantId: string;
+  sku: string;
+  color: string | null;
+  size: string | null;
+  price: number;
+  compareAtPrice: number | null;
+  stock: number;
+}
+
+interface CsvImportProduct {
+  csvProductId: string;
+  name: string;
+  category: Product["category"];
+  description: string | null;
+  imageUrl: string | null;
+  images: string[];
+  videoUrl: string | null;
+  variants: CsvImportVariant[];
+}
+
+/**
+ * The brand's real catalog export (products (1).csv), converted once into
+ * JSON -- see modules/catalog/csv-import.json. Ids are derived from the
+ * CSV's own Product ID / Variant ID columns rather than the product name,
+ * so a duplicated or renamed title can't collide with the hand-written
+ * seed catalog above.
+ */
+function seedCsvImportProducts(): Product[] {
+  const now = new Date().toISOString();
+  return (csvImport as CsvImportProduct[]).map((entry) => {
+    const productId = stableId(`product:csv-${entry.csvProductId}`);
+    return {
+      id: productId,
+      organizationId: ORGANIZATION_ID,
+      name: entry.name,
+      slug: slugify(entry.name),
+      category: entry.category,
+      description: entry.description,
+      status: "active",
+      imageUrl: entry.imageUrl,
+      images: entry.images,
+      videoUrl: entry.videoUrl,
+      createdBy: "sandbox-executive",
+      createdAt: now,
+      variants: entry.variants.map((variant) => ({
+        id: stableId(`variant:csv-${variant.csvVariantId}`),
+        productId,
+        sku: variant.sku,
+        color: variant.color,
+        size: variant.size,
+        price: variant.price,
+        compareAtPrice: variant.compareAtPrice,
+      })),
+    };
+  });
+}
+
 const globalCatalog = globalThis as typeof globalThis & { __veyCatalog?: Product[] };
 if (!globalCatalog.__veyCatalog) {
-  globalCatalog.__veyCatalog = seedProducts();
+  globalCatalog.__veyCatalog = [...seedProducts(), ...seedCsvImportProducts()];
 }
 
 function store(): Product[] {
