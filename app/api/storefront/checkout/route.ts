@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
     // same as before Stripe existed. If PaymentIntent creation fails below,
     // the order is cancelled immediately so that reservation doesn't sit
     // there indefinitely for a payment that was never even attempted.
-    const order = createOrder({ customer: body.customer.name, channel: "Online store", items }, "storefront-customer");
+    const order = createOrder({ customer: body.customer.name, customerEmail: body.customer.email, channel: "Online store", items }, "storefront-customer");
     createdOrderId = order.id;
 
     const { amount, currency } = nairaToStripeAmount(order.total);
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
       metadata: { orderId: order.id, orderNumber: order.orderNumber, nairaTotal: String(order.total) },
       automatic_payment_methods: { enabled: true },
     });
-    attachPaymentIntent(order.id, paymentIntent.id);
+    attachPaymentIntent(order.id, paymentIntent.id, paymentIntent.client_secret);
 
     recordAudit({
       action: "storefront.checkout",

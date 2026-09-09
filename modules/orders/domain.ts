@@ -53,6 +53,7 @@ export interface Order {
   orderNumber: string;
   organizationId: string;
   customer: string;
+  customerEmail: string | null;
   channel: Channel;
   status: OrderStatus;
   items: OrderItem[];
@@ -63,6 +64,10 @@ export interface Order {
   shipmentId: string | null;
   paymentStatus: PaymentStatus;
   paymentIntentId: string | null;
+  /** Opaque token for the public "resume payment" recovery page (app/store/recover/[token]) -- never the raw order id, same reasoning as Shipment.publicToken. */
+  recoveryToken: string;
+  /** Stripe's client_secret is stable for a PaymentIntent's lifetime, so this is cached here rather than re-fetched from Stripe on every recovery page view. */
+  paymentClientSecret: string | null;
 }
 
 export interface CreateOrderItemInput {
@@ -72,6 +77,7 @@ export interface CreateOrderItemInput {
 
 export interface CreateOrderInput {
   customer: string;
+  customerEmail?: string | null;
   channel: Channel;
   items: CreateOrderItemInput[];
 }

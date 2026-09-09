@@ -92,6 +92,7 @@ function seedState(): OrdersState {
       orderNumber: params.orderNumber,
       organizationId: ORGANIZATION_ID,
       customer: params.customer,
+      customerEmail: null,
       channel: params.channel,
       status: "pending",
       items: [item],
@@ -102,6 +103,8 @@ function seedState(): OrdersState {
       shipmentId: null,
       paymentStatus: params.status === "pending" ? "unpaid" : params.status === "cancelled" ? "refunded" : "paid",
       paymentIntentId: null,
+      recoveryToken: randomUUID().replace(/-/g, ""),
+      paymentClientSecret: null,
     };
 
     // Fast-forward through the lifecycle for seed data so history looks real.
@@ -145,6 +148,43 @@ function seedState(): OrdersState {
   seedOrder({ orderNumber: "VY-2046", customer: "Amaka Nwosu", channel: "Online store", status: "delivered", sku: "CSV-9771141", quantity: 2, placedHoursAgo: 26 });
   seedOrder({ orderNumber: "VY-2045", customer: "Funmi Adisa", channel: "Lagos showroom", status: "cancelled", sku: "CSV-9967993", quantity: 1, placedHoursAgo: 27 });
   seedOrder({ orderNumber: "VY-2044", customer: "Ijeoma Chukwu", channel: "Online store", status: "delivered", sku: "CSV-9779896", quantity: 1, placedHoursAgo: 48 });
+
+  // One abandoned checkout for the Recovery tool to have something to show:
+  // reached Stripe's payment step (paymentStatus "processing") an hour ago
+  // and never completed it, order still "pending".
+  {
+    const variant = findVariant("VY-SIENNA-GOWN");
+    const warehouse = reserveStock({ variantId: variant.id, quantity: 1, reference: "pending-order", actorId: "sandbox-sales" });
+    state.counter += 1;
+    const placedAt = new Date(Date.now() - 3600_000).toISOString();
+    state.orders.push({
+      id: randomUUID(),
+      orderNumber: `VY-${state.counter}`,
+      organizationId: ORGANIZATION_ID,
+      customer: "Tolu Bankole",
+      customerEmail: "tolu.bankole@example.com",
+      channel: "Online store",
+      status: "pending",
+      items: [{
+        variantId: variant.id,
+        productName: variant.productName,
+        variantLabel: [variant.size, variant.color].filter(Boolean).join(" · "),
+        sku: variant.sku,
+        quantity: 1,
+        unitPrice: variant.price,
+        warehouse,
+      }],
+      total: variant.price,
+      createdBy: "storefront-customer",
+      createdAt: placedAt,
+      events: [buildEvent(null, "pending", "storefront-customer", null)],
+      shipmentId: null,
+      paymentStatus: "processing",
+      paymentIntentId: "pi_seed_abandoned_example",
+      recoveryToken: randomUUID().replace(/-/g, ""),
+      paymentClientSecret: null,
+    });
+  }
 
   return state;
 }
@@ -214,6 +254,7 @@ export function createOrder(input: CreateOrderInput, actorId: string): Order {
     orderNumber,
     organizationId: ORGANIZATION_ID,
     customer: input.customer,
+    customerEmail: input.customerEmail ?? null,
     channel: input.channel,
     status: "pending",
     items,
@@ -224,15 +265,37 @@ export function createOrder(input: CreateOrderInput, actorId: string): Order {
     shipmentId: null,
     paymentStatus: "unpaid",
     paymentIntentId: null,
+    recoveryToken: randomUUID().replace(/-/g, ""),
+    paymentClientSecret: null,
   };
 
   state().orders.push(order);
   return order;
 }
 
-export function attachPaymentIntent(orderId: string, paymentIntentId: string): Order {
+export function findOrderByRecoveryToken(token: string): Order | undefined {
+  return state().orders.find((order) => order.recoveryToken === token);
+}
+
+const ABANDONED_THRESHOLD_MINUTES = 15;
+
+/**
+ * A "processing" payment that's been stuck for a while with the order
+ * still "pending" -- the customer reached Stripe's payment step and
+ * never finished it. Recent ones (still inside the window) aren't
+ * "abandoned" yet, just mid-checkout.
+ */
+export function getAbandonedCheckouts(): Order[] {
+  const cutoff = Date.now() - ABANDONED_THRESHOLD_MINUTES * 60_000;
+  return state()
+    .orders.filter((order) => order.status === "pending" && order.paymentStatus === "processing" && new Date(order.createdAt).getTime() < cutoff)
+    .sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+}
+
+export function attachPaymentIntent(orderId: string, paymentIntentId: string, clientSecret: string | null): Order {
   const order = requireOrder(orderId);
   order.paymentIntentId = paymentIntentId;
+  order.paymentClientSecret = clientSecret;
   order.paymentStatus = "processing";
   return order;
 }
