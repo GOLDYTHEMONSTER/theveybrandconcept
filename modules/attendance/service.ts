@@ -5,6 +5,10 @@ import type { MetricCardData } from "../../app/(erp)/_components/MetricGrid";
 const SHIFT_START_MINUTES = 9 * 60; // 09:00
 const LATE_GRACE_MINUTES = 10;
 
+export function isLateClockIn(iso: string): boolean {
+  return minutesSinceMidnight(iso) > SHIFT_START_MINUTES + LATE_GRACE_MINUTES;
+}
+
 export interface AttendanceRow {
   id: string;
   memberName: string;

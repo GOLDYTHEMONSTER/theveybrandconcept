@@ -13,7 +13,11 @@ export type NotificationType =
   | "attendance.clock_in"
   | "attendance.late"
   | "task.assigned"
-  | "task.completed";
+  | "task.completed"
+  | "order.processing"
+  | "order.delivered"
+  | "procurement.ordered"
+  | "procurement.received";
 
 export interface NotificationRecord {
   id: string;

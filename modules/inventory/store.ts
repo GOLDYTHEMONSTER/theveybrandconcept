@@ -218,6 +218,26 @@ export function fulfillReservation(params: {
   });
 }
 
+/** Adds stock received against a purchase order -- distinct from a manual adjustment so the ledger keeps the two apart. */
+export function restockInventory(params: {
+  variantId: string;
+  warehouse: Warehouse;
+  quantity: number;
+  reference: string;
+  actorId: string;
+}): LedgerEntry {
+  return append({
+    variantId: params.variantId,
+    warehouse: params.warehouse,
+    bucket: "on_hand",
+    quantity: params.quantity,
+    type: "restock",
+    reason: `Received against ${params.reference}`,
+    reference: params.reference,
+    actorId: params.actorId,
+  });
+}
+
 export function seedInitialStock(params: { variantId: string; warehouse: Warehouse; quantity: number; actorId: string }): void {
   append({
     variantId: params.variantId,

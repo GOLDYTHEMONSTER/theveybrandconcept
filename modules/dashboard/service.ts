@@ -63,6 +63,12 @@ function describeAuditEntry(entry: SandboxAuditEntry): { title: string; detail: 
       return { title: `Task assigned: ${String(after.title ?? "")}`, detail: `by ${entry.actorName}`, tag: "Task" };
     case "tasks.status_change":
       return { title: `Task marked ${String(after.status ?? "").replace("_", " ")}`, detail: entry.actorName, tag: "Task" };
+    case "procurement.create":
+      return { title: `PO-${after.poNumber ?? "—"} drafted`, detail: `${after.quantity ?? ""} × ${after.sku ?? ""}`, tag: "Procurement" };
+    case "procurement.order":
+      return { title: "Purchase order placed", detail: entry.actorName, tag: "Procurement" };
+    case "procurement.receive":
+      return { title: "Purchase order received", detail: `${after.quantity ?? ""} units into ${after.warehouse ?? ""}`, tag: "Procurement" };
     default:
       return { title: entry.action, detail: entry.actorName, tag: "Activity" };
   }

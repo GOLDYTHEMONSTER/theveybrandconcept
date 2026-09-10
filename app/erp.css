@@ -234,6 +234,7 @@ button,a { -webkit-tap-highlight-color:transparent; }
   .header-identity{margin-left:4px}
   .header-avatar{width:28px;height:28px;font-size:10px}
   .role-pill{font-size:10px;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-left:6px;padding-left:10px}
+  .notification-panel{position:fixed;top:78px;left:50%;right:auto;transform:translateX(-50%);width:min(92vw,380px);max-width:92vw}
 }
 @media(max-width:480px){.account-picker{grid-template-columns:1fr}.metric-grid{grid-template-columns:1fr}.metric-card{border-right:0!important;border-bottom:1px solid var(--line)}.metric-card:last-child{border-bottom:0}.erp-hero-actions{display:grid;grid-template-columns:1fr 1fr}.activity-row time{display:none}.activity-row{grid-template-columns:36px 1fr}
   .erp-top-actions{gap:5px}

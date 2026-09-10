@@ -28,6 +28,19 @@ export function toggleFavorite(productId: string): boolean {
   return !exists;
 }
 
+/**
+ * Drops any saved id that no longer matches a real product -- e.g. a
+ * favorite from before a catalog cleanup. Without this, that id sits in
+ * localStorage forever: invisible on the Favorites page (nothing renders
+ * for a product that doesn't exist) yet still counted in the header
+ * badge, with no control anywhere to remove it.
+ */
+export function pruneFavorites(validProductIds: string[]): void {
+  const current = readFavorites();
+  const next = current.filter((id) => validProductIds.includes(id));
+  if (next.length !== current.length) writeFavorites(next);
+}
+
 export function subscribeToFavorites(callback: () => void): () => void {
   window.addEventListener(FAVORITES_EVENT, callback);
   window.addEventListener("storage", callback);
