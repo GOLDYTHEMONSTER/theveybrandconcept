@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import { recordAudit } from "../audit/sandbox-log";
 import { ConflictError, NotFoundError, ValidationError } from "../shared/errors";
+import { createSeededRandom, stableId, stableToken } from "../shared/seeded-random";
 import type { Warehouse } from "../shared/warehouses";
 import { listVariants } from "../catalog/store";
 import { fulfillReservation, getStockTotals, releaseReservation, reserveStock } from "../inventory/store";
@@ -78,18 +79,25 @@ function emailFor(name: string): string {
   return CUSTOMER_EMAIL[name];
 }
 
+/**
+ * All "randomness" in this file's seed data comes from this one seeded
+ * stream so a cold start on a different serverless instance reproduces
+ * byte-identical orders (same ids, same customers, same statuses) rather
+ * than a fresh random draw -- see modules/shared/seeded-random.ts.
+ */
+const seedRand = createSeededRandom("theveybrand-orders-seed-v1");
 function randomInt(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(seedRand() * (max - min + 1)) + min;
 }
 function pick<T>(items: readonly T[]): T {
-  return items[Math.floor(Math.random() * items.length)];
+  return items[Math.floor(seedRand() * items.length)];
 }
 
 function seedState(): OrdersState {
   const variants = listVariants();
-  const findVariant = (sku: string) => variants.find((v) => v.sku === sku)!;
 
   const state: OrdersState = { orders: [], shipments: [], counter: 1999 };
+  let seedIndex = 0;
 
   /** Any variant with enough available stock right now for a seed order of this size -- checked live since earlier seed orders in this same pass draw stock down. */
   function pickAvailableVariant(quantity: number) {
@@ -104,14 +112,15 @@ function seedState(): OrdersState {
     daysAgo: number;
     withEmail: boolean;
   }) => {
-    const quantity = Math.random() < 0.8 ? 1 : 2;
+    const index = seedIndex++;
+    const quantity = seedRand() < 0.8 ? 1 : 2;
     const variant = pickAvailableVariant(quantity);
     if (!variant) return; // stock exhausted across the board -- skip rather than fail the whole seed
 
     const warehouse = reserveStock({
       variantId: variant.id,
       quantity,
-      reference: `seed-${state.orders.length}`,
+      reference: `seed-${index}`,
       actorId: "sandbox-executive",
     });
 
@@ -130,7 +139,7 @@ function seedState(): OrdersState {
     };
 
     const order: Order = {
-      id: randomUUID(),
+      id: stableId(`order-seed-${index}`),
       orderNumber,
       organizationId: ORGANIZATION_ID,
       customer: params.customer,
@@ -145,7 +154,7 @@ function seedState(): OrdersState {
       shipmentId: null,
       paymentStatus: params.status === "pending" ? "unpaid" : params.status === "cancelled" ? "refunded" : "paid",
       paymentIntentId: null,
-      recoveryToken: randomUUID().replace(/-/g, ""),
+      recoveryToken: stableToken(`order-recovery-${index}`),
       paymentClientSecret: null,
     };
 
@@ -175,11 +184,11 @@ function seedState(): OrdersState {
         fulfillReservation({ variantId: variant.id, warehouse, quantity: item.quantity, reference: order.orderNumber, actorId: "sandbox-warehouse" });
         const carrier = pick(CARRIERS);
         const shipment: Shipment = {
-          id: randomUUID(),
+          id: stableId(`shipment-seed-${index}`),
           orderId: order.id,
           carrier,
-          trackingNumber: `${carrier.slice(0, 3).toUpperCase()}${Math.floor(100000 + Math.random() * 899999)}`,
-          publicToken: randomUUID().replace(/-/g, "").slice(0, 16),
+          trackingNumber: `${carrier.slice(0, 3).toUpperCase()}${randomInt(100000, 999999)}`,
+          publicToken: stableToken(`shipment-public-${index}`, 16),
           createdAt: stageIso,
           events: [
             { id: randomUUID(), status: "Label created", location: warehouse, message: "Shipping label generated", occurredAt: stageIso },
@@ -217,7 +226,7 @@ function seedState(): OrdersState {
   for (let daysAgo = 34; daysAgo >= 0; daysAgo -= 1) {
     const ordersToday = daysAgo > 14 ? randomInt(0, 2) : daysAgo > 3 ? randomInt(1, 4) : randomInt(2, 5);
     for (let i = 0; i < ordersToday; i += 1) {
-      const channel: Channel = Math.random() < 0.68 ? "Online store" : "Lagos showroom";
+      const channel: Channel = seedRand() < 0.68 ? "Online store" : "Lagos showroom";
       let status: OrderStatus;
       if (daysAgo === 0) status = pick(["pending", "pending", "processing"] as const);
       else if (daysAgo <= 2) status = pick(["pending", "processing", "processing", "shipped"] as const);
@@ -229,7 +238,7 @@ function seedState(): OrdersState {
         channel,
         status,
         daysAgo,
-        withEmail: channel === "Online store" || Math.random() < 0.4,
+        withEmail: channel === "Online store" || seedRand() < 0.4,
       });
     }
   }
@@ -239,6 +248,7 @@ function seedState(): OrdersState {
   // "oldest" metric has something real to say.
   const abandonedAges = [0.3, 2, 9, 26];
   for (const hoursAgo of abandonedAges) {
+    const index = seedIndex++;
     const variant = pickAvailableVariant(1);
     if (!variant) continue;
     const warehouse = reserveStock({ variantId: variant.id, quantity: 1, reference: "abandoned-checkout", actorId: "sandbox-sales" });
@@ -246,7 +256,7 @@ function seedState(): OrdersState {
     const customer = pick(CUSTOMER_POOL);
     const placedAt = new Date(Date.now() - hoursAgo * 3600_000).toISOString();
     state.orders.push({
-      id: randomUUID(),
+      id: stableId(`order-seed-${index}`),
       orderNumber: `VY-${state.counter}`,
       organizationId: ORGANIZATION_ID,
       customer,
@@ -269,7 +279,7 @@ function seedState(): OrdersState {
       shipmentId: null,
       paymentStatus: "processing",
       paymentIntentId: `pi_seed_abandoned_${state.counter}`,
-      recoveryToken: randomUUID().replace(/-/g, ""),
+      recoveryToken: stableToken(`order-recovery-${index}`),
       paymentClientSecret: null,
     });
   }

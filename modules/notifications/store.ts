@@ -3,6 +3,7 @@ import type { SandboxRole } from "../authentication/domain";
 import { listOrders } from "../orders/store";
 import { listReturns } from "../returns/store";
 import { listPurchaseOrders } from "../procurement/store";
+import { stableId } from "../shared/seeded-random";
 import type { NotificationRecord, NotificationType, NotificationView } from "./domain";
 
 const ORGANIZATION_ID = "theveybrand-sandbox";
@@ -24,7 +25,7 @@ function seedNotifications(): NotificationRecord[] {
     .slice(0, 4);
   for (const order of recentDelivered) {
     records.push({
-      id: randomUUID(),
+      id: stableId(`notification-seed-order-${order.id}`),
       organizationId: ORGANIZATION_ID,
       audienceRoles: ["executive", "sales_manager"],
       type: "order.delivered",
@@ -41,7 +42,7 @@ function seedNotifications(): NotificationRecord[] {
     .slice(0, 3);
   for (const request of recentReturns) {
     records.push({
-      id: randomUUID(),
+      id: stableId(`notification-seed-return-${request.id}`),
       organizationId: ORGANIZATION_ID,
       audienceRoles: ["executive", "sales_manager", "customer_support"],
       type: "return.requested",
@@ -58,7 +59,7 @@ function seedNotifications(): NotificationRecord[] {
     .slice(0, 2);
   for (const po of recentPOs) {
     records.push({
-      id: randomUUID(),
+      id: stableId(`notification-seed-po-${po.id}`),
       organizationId: ORGANIZATION_ID,
       audienceRoles: ["executive", "warehouse_manager"],
       type: "procurement.received",

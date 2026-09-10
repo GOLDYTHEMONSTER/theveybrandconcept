@@ -13,7 +13,7 @@ for (const product of csvImport as Array<{ variants: Array<{ sku: string; stock:
 }
 
 export type LedgerBucket = "on_hand" | "reserved";
-export type LedgerType = "initial" | "adjustment" | "reservation" | "release" | "fulfilled" | "restock";
+export type LedgerType = "initial" | "adjustment" | "reservation" | "release" | "fulfilled" | "restock" | "transfer";
 
 export interface LedgerEntry {
   id: string;
@@ -236,6 +236,46 @@ export function restockInventory(params: {
     reference: params.reference,
     actorId: params.actorId,
   });
+}
+
+/** Moves stock between warehouses -- a matched decrement/increment pair against the same variant, never a bare adjustment at either end. */
+export function transferStock(params: {
+  variantId: string;
+  fromWarehouse: Warehouse;
+  toWarehouse: Warehouse;
+  quantity: number;
+  actorId: string;
+}): { from: LedgerEntry; to: LedgerEntry } {
+  if (params.fromWarehouse === params.toWarehouse) {
+    throw new ValidationError("Source and destination warehouse must be different");
+  }
+  const source = getStockByWarehouse(params.variantId).find((row) => row.warehouse === params.fromWarehouse);
+  if (!source || source.available < params.quantity) {
+    throw new ValidationError(`Only ${source?.available ?? 0} unit(s) available to transfer from ${params.fromWarehouse}`);
+  }
+
+  const reference = `transfer-${randomUUID()}`;
+  const from = append({
+    variantId: params.variantId,
+    warehouse: params.fromWarehouse,
+    bucket: "on_hand",
+    quantity: -params.quantity,
+    type: "transfer",
+    reason: `Transferred to ${params.toWarehouse}`,
+    reference,
+    actorId: params.actorId,
+  });
+  const to = append({
+    variantId: params.variantId,
+    warehouse: params.toWarehouse,
+    bucket: "on_hand",
+    quantity: params.quantity,
+    type: "transfer",
+    reason: `Transferred from ${params.fromWarehouse}`,
+    reference,
+    actorId: params.actorId,
+  });
+  return { from, to };
 }
 
 export function seedInitialStock(params: { variantId: string; warehouse: Warehouse; quantity: number; actorId: string }): void {

@@ -18,6 +18,7 @@ export default async function InventoryPage() {
   const metrics = getInventoryMetrics();
   const rows = getInventoryRows();
   const canAdjust = session.permissions.includes("inventory.adjust");
+  const canTransfer = session.permissions.includes("inventory.transfer");
   const canCreateProduct = session.permissions.includes("products.create");
 
   return (
@@ -48,7 +49,7 @@ export default async function InventoryPage() {
 
       <MetricGrid metrics={metrics} label="Inventory metrics" />
 
-      <InventoryTable rows={rows} statusLabel={STATUS_LABEL} statusTone={STATUS_TONE} canAdjust={canAdjust} canManageFeatured={canCreateProduct} />
+      <InventoryTable rows={rows} statusLabel={STATUS_LABEL} statusTone={STATUS_TONE} canAdjust={canAdjust} canTransfer={canTransfer} canManageFeatured={canCreateProduct} />
     </>
   );
 }

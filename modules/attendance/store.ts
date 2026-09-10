@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import { ConflictError, NotFoundError, ValidationError } from "../shared/errors";
+import { stableId } from "../shared/seeded-random";
 import { getTeamMember, listTeamMembers } from "../team/store";
 import type { AttendanceRecord } from "./domain";
 
@@ -46,7 +47,7 @@ function seed(): AttendanceRecord[] {
       const clockOut = clockOutDate.toISOString();
       const durationMinutes = Math.round((new Date(clockOut).getTime() - new Date(clockIn).getTime()) / 60000);
       records.push({
-        id: randomUUID(),
+        id: stableId(`attendance-seed-${member.id}-${daysAgo}`),
         memberId: member.id,
         memberName: member.name,
         department: member.department,
@@ -62,7 +63,7 @@ function seed(): AttendanceRecord[] {
   // "currently on the clock" state has a real example out of the box.
   if (members[0] && !isWeekend(0)) {
     records.push({
-      id: randomUUID(),
+      id: stableId(`attendance-seed-open-${members[0].id}`),
       memberId: members[0].id,
       memberName: members[0].name,
       department: members[0].department,

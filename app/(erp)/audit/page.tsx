@@ -11,8 +11,12 @@ export const dynamic = "force-dynamic";
 export default async function AuditPage() {
   await requirePagePermission("audit.view");
 
-  const auditEntries = listRecentAudit(200);
-  const securityEvents = listRecentSecurityEvents(200);
+  // 500 matches the audit log's own storage cap (see modules/audit/sandbox-log.ts)
+  // -- this shows everything currently retained rather than an arbitrary
+  // smaller slice, so "Audited actions" and the table below never silently
+  // disagree about what "all" means.
+  const auditEntries = listRecentAudit(500);
+  const securityEvents = listRecentSecurityEvents(500);
 
   const failedLogins = securityEvents.filter((event) => event.type === "login.failure").length;
   const successfulLogins = securityEvents.filter((event) => event.type === "login.success").length;
@@ -54,6 +58,11 @@ export default async function AuditPage() {
         <h2 style={{ font: "500 23px 'Playfair Display', serif", margin: "0 0 16px" }}>Recent actions</h2>
       </section>
       <AuditTable entries={auditEntries} />
+      {auditEntries.length >= 500 && (
+        <p className="sandbox-note">
+          <span>●</span> Showing the most recent 500 actions — the sandbox log's retention limit. Older entries have rolled off.
+        </p>
+      )}
     </>
   );
 }

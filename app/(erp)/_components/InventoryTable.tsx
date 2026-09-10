@@ -10,6 +10,7 @@ interface InventoryTableProps {
   statusLabel: Record<InventoryRow["status"], string>;
   statusTone: Record<InventoryRow["status"], string>;
   canAdjust: boolean;
+  canTransfer: boolean;
   canManageFeatured: boolean;
 }
 
@@ -63,7 +64,7 @@ function groupByProduct(rows: InventoryRow[]): ProductGroup[] {
   return Array.from(groups.values()).sort((a, b) => a.product.localeCompare(b.product));
 }
 
-export default function InventoryTable({ rows, statusLabel, statusTone, canAdjust, canManageFeatured }: InventoryTableProps) {
+export default function InventoryTable({ rows, statusLabel, statusTone, canAdjust, canTransfer, canManageFeatured }: InventoryTableProps) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [warehouse, setWarehouse] = useState("all");
@@ -107,7 +108,7 @@ export default function InventoryTable({ rows, statusLabel, statusTone, canAdjus
     }
   }
 
-  const columnCount = 6 + (canManageFeatured ? 1 : 0) + (canAdjust ? 1 : 0);
+  const columnCount = 6 + (canManageFeatured ? 1 : 0) + (canAdjust || canTransfer ? 1 : 0);
 
   return (
     <>
@@ -147,7 +148,7 @@ export default function InventoryTable({ rows, statusLabel, statusTone, canAdjus
               <th>Status</th>
               <th>Locations</th>
               {canManageFeatured && <th>Featured</th>}
-              {canAdjust && <th></th>}
+              {(canAdjust || canTransfer) && <th></th>}
             </tr>
           </thead>
           <tbody>
@@ -193,7 +194,7 @@ export default function InventoryTable({ rows, statusLabel, statusTone, canAdjus
                         </div>
                       </td>
                     )}
-                    {canAdjust && <td></td>}
+                    {(canAdjust || canTransfer) && <td></td>}
                   </tr>
                   {isOpen && group.rows.map((row) => (
                     <tr key={`${row.variantId}-${row.warehouse}`} className="inventory-variant-row">
@@ -206,11 +207,20 @@ export default function InventoryTable({ rows, statusLabel, statusTone, canAdjus
                       <td><span className={`status-pill ${statusTone[row.status]}`}>{statusLabel[row.status]}</span></td>
                       <td></td>
                       {canManageFeatured && <td></td>}
-                      {canAdjust && (
+                      {(canAdjust || canTransfer) && (
                         <td className="numeric">
-                          <Link className="erp-button secondary" style={{ height: 32, padding: "0 12px", fontSize: 10 }} href={`/inventory/${row.variantId}/adjust?warehouse=${encodeURIComponent(row.warehouse)}`}>
-                            Adjust
-                          </Link>
+                          <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                            {canAdjust && (
+                              <Link className="erp-button secondary" style={{ height: 32, padding: "0 12px", fontSize: 10 }} href={`/inventory/${row.variantId}/adjust?warehouse=${encodeURIComponent(row.warehouse)}`}>
+                                Adjust
+                              </Link>
+                            )}
+                            {canTransfer && (
+                              <Link className="erp-button secondary" style={{ height: 32, padding: "0 12px", fontSize: 10 }} href={`/inventory/${row.variantId}/transfer?warehouse=${encodeURIComponent(row.warehouse)}`}>
+                                Transfer
+                              </Link>
+                            )}
+                          </div>
                         </td>
                       )}
                     </tr>

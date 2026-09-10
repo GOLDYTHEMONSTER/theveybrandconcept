@@ -57,6 +57,8 @@ function describeAuditEntry(entry: SandboxAuditEntry): { title: string; detail: 
       return { title: "Order delivered", detail: entry.actorName, tag: "Delivered" };
     case "inventory.adjust":
       return { title: "Stock adjusted", detail: entry.reason ?? "Manual adjustment", tag: "Inventory" };
+    case "inventory.transfer":
+      return { title: "Stock transferred", detail: `${after.quantity ?? ""} units: ${after.from ?? ""} → ${after.to ?? ""}`, tag: "Inventory" };
     case "products.create":
       return { title: "New product added", detail: String(after.name ?? ""), tag: "Catalog" };
     case "attendance.clock_in":

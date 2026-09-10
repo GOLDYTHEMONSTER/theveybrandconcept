@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import { recordAudit } from "../audit/sandbox-log";
 import { NotFoundError, ValidationError } from "../shared/errors";
+import { createSeededRandom, stableId } from "../shared/seeded-random";
 import { getTeamMember, listTeamMembers } from "../team/store";
 import type { Task, TaskPriority, TaskStatus } from "./domain";
 
@@ -9,6 +10,10 @@ export type { Task, TaskPriority, TaskStatus } from "./domain";
 const globalTasks = globalThis as typeof globalThis & { __veyTasks?: Task[]; __veyTaskSeq?: number };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+// Seeded so a cold start on a different serverless instance reproduces the
+// same tasks (same ids, same statuses) -- see modules/shared/seeded-random.ts.
+const seedRand = createSeededRandom("theveybrand-tasks-seed-v1");
 
 function ago(days: number): string {
   return new Date(Date.now() - days * DAY_MS).toISOString();
@@ -141,7 +146,7 @@ function seed(): Task[] {
     const createdDaysAgo = randomInt(2, 24);
     const createdAt = ago(createdDaysAgo);
     const updatedAt = status === "todo" ? createdAt : ago(randomInt(0, createdDaysAgo - 1));
-    const dueDate = status === "done" ? null : Math.random() < 0.6 ? (Math.random() < 0.25 ? ago(randomInt(1, 3)) : inDays(randomInt(1, 10))) : null;
+    const dueDate = status === "done" ? null : seedRand() < 0.6 ? (seedRand() < 0.25 ? ago(randomInt(1, 3)) : inDays(randomInt(1, 10))) : null;
 
     rows.push({
       title: template.title,
@@ -158,7 +163,7 @@ function seed(): Task[] {
     });
   });
 
-  const tasks = rows.map((row) => ({ ...row, id: randomUUID(), taskNumber: nextTaskNumber() }));
+  const tasks = rows.map((row, index) => ({ ...row, id: stableId(`task-seed-${index}`), taskNumber: nextTaskNumber() }));
 
   for (const task of tasks) {
     recordAudit({
@@ -187,7 +192,7 @@ function seed(): Task[] {
 }
 
 function randomInt(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(seedRand() * (max - min + 1)) + min;
 }
 
 if (!globalTasks.__veyTasks) {

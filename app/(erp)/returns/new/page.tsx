@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requirePagePermission } from "../../../../lib/auth/session";
 import { getOrder } from "../../../../modules/orders/store";
@@ -7,7 +8,23 @@ import NewReturnForm from "../../_components/NewReturnForm";
 export default async function NewReturnPage({ searchParams }: { searchParams: { orderId?: string } }) {
   await requirePagePermission("orders.view");
 
-  const order = searchParams.orderId ? getOrder(searchParams.orderId) : undefined;
+  if (!searchParams.orderId) {
+    return (
+      <section className="erp-hero">
+        <div>
+          <p className="erp-eyebrow">Returns · New</p>
+          <h1>Which order is this for?</h1>
+          <p>A return starts from a specific order — open the order you want to return from and use "Start a return" there.</p>
+        </div>
+        <div className="erp-hero-actions">
+          <Link href="/returns" className="erp-button secondary">Back to returns</Link>
+          <Link href="/orders" className="erp-button primary">Find an order</Link>
+        </div>
+      </section>
+    );
+  }
+
+  const order = getOrder(searchParams.orderId);
   if (!order) notFound();
 
   const alreadyReturned = new Map<string, number>();

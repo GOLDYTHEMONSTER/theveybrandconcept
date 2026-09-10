@@ -3,6 +3,7 @@ import { recordAudit } from "../audit/sandbox-log";
 import { adjustStock } from "../inventory/store";
 import { getOrder, listOrders, requireOrder } from "../orders/store";
 import { ConflictError, NotFoundError, ValidationError } from "../shared/errors";
+import { createSeededRandom, stableId } from "../shared/seeded-random";
 import type { Warehouse } from "../shared/warehouses";
 import { RETURN_REASONS, type CreateReturnInput, type ReturnEvent, type ReturnReason, type ReturnRequest, type ReturnStatus } from "./domain";
 
@@ -29,11 +30,15 @@ function buildEvent(fromStatus: ReturnStatus | null, toStatus: ReturnStatus, act
 }
 
 const DAY_MS = 24 * 3600_000;
+// Seeded so a cold start on a different serverless instance reproduces the
+// same return requests (same ids, same statuses) instead of inventing new
+// ones -- see modules/shared/seeded-random.ts.
+const seedRand = createSeededRandom("theveybrand-returns-seed-v1");
 function randomInt(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(seedRand() * (max - min + 1)) + min;
 }
 function pick<T>(items: readonly T[]): T {
-  return items[Math.floor(Math.random() * items.length)];
+  return items[Math.floor(seedRand() * items.length)];
 }
 
 /**
@@ -48,14 +53,22 @@ function seedReturns(counter: { value: number }): ReturnRequest[] {
   if (!deliveredOrders.length) return [];
 
   const targetCount = Math.min(16, Math.max(4, Math.round(deliveredOrders.length * 0.22)));
-  const chosen = [...deliveredOrders].sort(() => Math.random() - 0.5).slice(0, targetCount);
+  // Deterministic Fisher-Yates (not `.sort(() => Math.random() - 0.5)`, which is both a biased shuffle and non-reproducible).
+  const shuffled = [...deliveredOrders];
+  for (let i = shuffled.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(seedRand() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  const chosen = shuffled.slice(0, targetCount);
   const STATUS_WEIGHTS: ReturnStatus[] = ["requested", "requested", "requested", "approved", "approved", "received", "refunded", "refunded", "refunded", "rejected"];
   const seeded: ReturnRequest[] = [];
+  let seedIndex = 0;
 
   for (const order of chosen) {
     const orderPlacedAt = new Date(order.createdAt).getTime();
     const ageMs = Date.now() - orderPlacedAt;
     if (ageMs < 2 * DAY_MS) continue; // too recent to plausibly already have a return in motion
+    const index = seedIndex++;
 
     const item = pick(order.items);
     const reason = pick(RETURN_REASONS) as ReturnReason;
@@ -87,7 +100,7 @@ function seedReturns(counter: { value: number }): ReturnRequest[] {
     }
 
     const request: ReturnRequest = {
-      id: randomUUID(),
+      id: stableId(`return-seed-${index}`),
       returnNumber,
       orderId: order.id,
       orderNumber: order.orderNumber,

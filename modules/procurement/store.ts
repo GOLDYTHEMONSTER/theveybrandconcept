@@ -3,6 +3,7 @@ import { recordAudit } from "../audit/sandbox-log";
 import { listVariants } from "../catalog/store";
 import { restockInventory } from "../inventory/store";
 import { NotFoundError, ValidationError } from "../shared/errors";
+import { createSeededRandom, stableId } from "../shared/seeded-random";
 import type { Warehouse } from "../shared/warehouses";
 import type { PurchaseOrder, PurchaseOrderStatus } from "./domain";
 
@@ -28,11 +29,14 @@ function nextPoNumber(): number {
   return globalProcurement.__veyPoSeq;
 }
 
+// Seeded so a cold start on a different serverless instance reproduces the
+// same purchase orders (same ids, same statuses) -- see modules/shared/seeded-random.ts.
+const seedRand = createSeededRandom("theveybrand-procurement-seed-v1");
 function randomInt(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(seedRand() * (max - min + 1)) + min;
 }
 function pick<T>(items: readonly T[]): T {
-  return items[Math.floor(Math.random() * items.length)];
+  return items[Math.floor(seedRand() * items.length)];
 }
 
 /**
@@ -60,6 +64,7 @@ function seed(): PurchaseOrder[] {
     { status: "draft", createdDaysAgo: 0 },
   ];
 
+  let index = 0;
   for (const plan of PLAN) {
     const variant = pick(variants);
     const warehouse = pick(warehouses);
@@ -68,7 +73,7 @@ function seed(): PurchaseOrder[] {
     const leadDays = randomInt(7, 14);
 
     const order: PurchaseOrder = {
-      id: randomUUID(),
+      id: stableId(`po-seed-${index++}`),
       poNumber: nextPoNumber(),
       variantId: variant.id,
       productId: variant.productId,
