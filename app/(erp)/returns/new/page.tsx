@@ -14,7 +14,7 @@ export default async function NewReturnPage({ searchParams }: { searchParams: { 
         <div>
           <p className="erp-eyebrow">Returns · New</p>
           <h1>Which order is this for?</h1>
-          <p>A return starts from a specific order — open the order you want to return from and use "Start a return" there.</p>
+          <p>A return starts from a specific order — open the order you want to return from and use &quot;Start a return&quot; there.</p>
         </div>
         <div className="erp-hero-actions">
           <Link href="/returns" className="erp-button secondary">Back to returns</Link>
@@ -51,7 +51,7 @@ export default async function NewReturnPage({ searchParams }: { searchParams: { 
 
       <section className="dashboard-grid">
         <article className="erp-panel activity-panel">
-          <div className="panel-heading"><div><p className="erp-eyebrow">Return details</p><h2>What's being returned</h2></div></div>
+          <div className="panel-heading"><div><p className="erp-eyebrow">Return details</p><h2>What&apos;s being returned</h2></div></div>
           {returnableItems.length === 0 ? (
             <p style={{ fontSize: 13, color: "var(--muted)" }}>Every item on this order has already been returned.</p>
           ) : (

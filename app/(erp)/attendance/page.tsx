@@ -80,7 +80,7 @@ export default async function AttendancePage() {
 
       {!canManage && (
         <p className="sandbox-note">
-          <span>●</span> You're seeing only your own attendance. Executives and HR can view and export the full team's record.
+          <span>●</span> You&apos;re seeing only your own attendance. Executives and HR can view and export the full team&apos;s record.
         </p>
       )}
     </>

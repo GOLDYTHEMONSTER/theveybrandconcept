@@ -19,7 +19,7 @@ export default async function NewTaskPage({ searchParams }: { searchParams: { as
         <div>
           <p className="erp-eyebrow">Tasks · Assign</p>
           <h1>{preselected ? `Give ${preselected.name.split(" ")[0]} their next task.` : "Give someone their next task."}</h1>
-          <p>They'll see it on their Tasks page and get notified right away.</p>
+          <p>They&apos;ll see it on their Tasks page and get notified right away.</p>
         </div>
       </section>
 

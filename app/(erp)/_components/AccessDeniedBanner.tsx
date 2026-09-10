@@ -31,7 +31,7 @@ export default function AccessDeniedBanner() {
 
   return (
     <div className="access-denied-banner" role="alert">
-      <span>Your role doesn't include access to <strong>{label}</strong>. Ask an administrator to grant it if you need it.</span>
+      <span>Your role doesn&apos;t include access to <strong>{label}</strong>. Ask an administrator to grant it if you need it.</span>
       <button type="button" aria-label="Dismiss" onClick={() => setPermission(null)}>×</button>
     </div>
   );

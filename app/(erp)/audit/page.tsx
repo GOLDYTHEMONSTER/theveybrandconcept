@@ -60,7 +60,7 @@ export default async function AuditPage() {
       <AuditTable entries={auditEntries} />
       {auditEntries.length >= 500 && (
         <p className="sandbox-note">
-          <span>●</span> Showing the most recent 500 actions — the sandbox log's retention limit. Older entries have rolled off.
+          <span>●</span> Showing the most recent 500 actions — the sandbox log&apos;s retention limit. Older entries have rolled off.
         </p>
       )}
     </>

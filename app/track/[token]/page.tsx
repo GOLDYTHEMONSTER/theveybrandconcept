@@ -19,7 +19,7 @@ export default function TrackingPage({ params }: { params: { token: string } }) 
           <div className="track-brand"><img src="/brand/logo-mark-ink.png" alt="" className="login-monogram" /><div><strong>VERONICA YOUNG</strong><small>BUSINESS SUITE</small></div></div>
           <div className="track-empty">
             <p className="erp-eyebrow">Tracking</p>
-            <h1 style={{ marginBottom: 10 }}>We couldn't find that shipment.</h1>
+            <h1 style={{ marginBottom: 10 }}>We couldn&apos;t find that shipment.</h1>
             <p>Double-check the tracking link, or contact support for help.</p>
           </div>
         </div>

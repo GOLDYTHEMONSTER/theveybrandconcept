@@ -10,7 +10,7 @@ export default async function TeamInvitePage() {
         <div>
           <p className="erp-eyebrow">Team · Invite</p>
           <h1>Add a teammate.</h1>
-          <p>They'll appear on the login screen immediately, signing in with the shared sandbox password.</p>
+          <p>They&apos;ll appear on the login screen immediately, signing in with the shared sandbox password.</p>
         </div>
       </section>
 

@@ -10,7 +10,7 @@ export default function NotFound() {
         </div>
         <div className="track-empty">
           <p className="erp-eyebrow">404</p>
-          <h1 style={{ marginBottom: 10 }}>This page doesn't exist.</h1>
+          <h1 style={{ marginBottom: 10 }}>This page doesn&apos;t exist.</h1>
           <p>The link may be out of date, or the page may have moved.</p>
           <div style={{ display: "flex", gap: 10, marginTop: 24, justifyContent: "center" }}>
             <Link href="/dashboard" className="erp-button primary">Go to dashboard</Link>

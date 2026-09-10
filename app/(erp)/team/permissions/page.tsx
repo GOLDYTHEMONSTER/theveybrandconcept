@@ -25,7 +25,7 @@ export default async function TeamPermissionsPage() {
           <p className="erp-eyebrow">Team · Permissions</p>
           <h1>Access, by account.</h1>
           <p>
-            Every account starts with its role's default permissions. Toggle a box here to grant or revoke one
+            Every account starts with its role&apos;s default permissions. Toggle a box here to grant or revoke one
             permission for that account specifically, without touching anyone else on the same role.
           </p>
         </div>

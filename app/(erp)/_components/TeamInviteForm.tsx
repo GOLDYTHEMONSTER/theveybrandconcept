@@ -60,7 +60,7 @@ export default function TeamInviteForm() {
         </select>
       </label>
       <p className="sandbox-note" style={{ textAlign: "left" }}>
-        <span>●</span> They'll sign in with this email and the shared demo password, starting with their role's default permissions.
+        <span>●</span> They&apos;ll sign in with this email and the shared demo password, starting with their role&apos;s default permissions.
       </p>
 
       {error && <p className="login-error" role="alert">{error}</p>}

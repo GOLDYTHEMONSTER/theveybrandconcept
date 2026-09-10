@@ -19,7 +19,7 @@ export default async function SupportPage() {
       </section>
 
       <p className="sandbox-note">
-        <span>●</span> Illustrative only — there's no real ticketing backend yet, so these numbers and tickets aren't live data.
+        <span>●</span> Illustrative only — there&apos;s no real ticketing backend yet, so these numbers and tickets aren&apos;t live data.
       </p>
 
       <MetricGrid metrics={metrics} label="Support metrics" />

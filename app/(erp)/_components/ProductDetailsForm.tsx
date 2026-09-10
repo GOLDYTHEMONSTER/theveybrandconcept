@@ -79,7 +79,7 @@ export default function ProductDetailsForm({ product }: { product: Product }) {
         />
       </label>
 
-      <label>Video URL (for the storefront's &quot;Verify it&quot; player)
+      <label>Video URL (for the storefront&apos;s &quot;Verify it&quot; player)
         <input value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} type="url" placeholder="https://…" />
       </label>
 

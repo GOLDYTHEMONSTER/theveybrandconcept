@@ -16,7 +16,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
         </div>
         <div className="track-empty">
           <p className="erp-eyebrow">Something went wrong</p>
-          <h1 style={{ marginBottom: 10 }}>That didn't load right.</h1>
+          <h1 style={{ marginBottom: 10 }}>That didn&apos;t load right.</h1>
           <p>Try again, or head back to somewhere safe. If it keeps happening, let the team know what you were doing.</p>
           <div style={{ display: "flex", gap: 10, marginTop: 24, justifyContent: "center" }}>
             <button type="button" className="erp-button primary" onClick={() => reset()}>Try again</button>

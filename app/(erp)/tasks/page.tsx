@@ -75,7 +75,7 @@ export default async function TasksPage() {
 
       {!canManage && (
         <p className="sandbox-note">
-          <span>●</span> You're seeing only tasks assigned to you. Update the status as you make progress.
+          <span>●</span> You&apos;re seeing only tasks assigned to you. Update the status as you make progress.
         </p>
       )}
     </>

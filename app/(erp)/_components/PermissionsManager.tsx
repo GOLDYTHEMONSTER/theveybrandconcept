@@ -72,7 +72,7 @@ export default function PermissionsManager({ members, catalog }: PermissionsMana
   return (
     <section className="dashboard-grid">
       <article className="erp-panel activity-panel">
-        <div className="panel-heading"><div><p className="erp-eyebrow">{selected.roleLabel} default</p><h2>{selected.name}'s access</h2></div></div>
+        <div className="panel-heading"><div><p className="erp-eyebrow">{selected.roleLabel} default</p><h2>{selected.name}&apos;s access</h2></div></div>
 
         {error && <p className="login-error" role="alert">{error}</p>}
 
