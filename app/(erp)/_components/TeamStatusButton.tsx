@@ -14,6 +14,12 @@ export default function TeamStatusButton({ memberId, currentStatus, disabled }: 
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
+
+  // This toggle only makes sense between active and suspended -- onboarding
+  // completes itself via the checklist, and offboarding/terminated are exit
+  // states nobody should be able to undo with one click (see /onboarding).
+  if (currentStatus !== "active" && currentStatus !== "suspended") return null;
+
   const nextStatus: TeamMemberStatus = currentStatus === "active" ? "suspended" : "active";
 
   async function handleClick() {

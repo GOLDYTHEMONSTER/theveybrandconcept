@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { recordAudit } from "../../../../modules/audit/sandbox-log";
 import { SANDBOX_ROLES, type SandboxRole } from "../../../../modules/authentication/domain";
-import { createNotification } from "../../../../modules/notifications/store";
+import { startOnboarding } from "../../../../modules/onboarding/store";
 import { guardMutation, handleApiError } from "../../../../modules/security/api-guard";
 import { ValidationError } from "../../../../modules/shared/errors";
 import { inviteTeamMember } from "../../../../modules/team/store";
@@ -35,15 +35,14 @@ export async function POST(request: NextRequest) {
       afterValue: { name: member.name, email: member.email, role: member.role },
     });
 
-    createNotification({
-      audienceRoles: ["executive"],
-      type: "team.invited",
-      title: "New teammate added",
-      message: `${session.name} added ${member.name} as ${member.department}`,
-      href: "/team",
-    });
+    // Every new hire starts in onboarding, not active -- see
+    // modules/onboarding/store.ts for what that gates and why.
+    const onboardingCase = startOnboarding(member.id, session.userId, session.name);
 
-    return NextResponse.json({ id: member.id, name: member.name, email: member.email, role: member.role }, { status: 201 });
+    return NextResponse.json(
+      { id: member.id, name: member.name, email: member.email, role: member.role, onboardingCaseId: onboardingCase.id },
+      { status: 201 }
+    );
   } catch (error) {
     return handleApiError(error);
   }

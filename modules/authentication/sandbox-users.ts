@@ -7,14 +7,23 @@ const DEMO_PASSWORD = "Demo123!";
 export const SANDBOX_DEMO_PASSWORD = DEMO_PASSWORD;
 
 /**
- * Every active team member can log in with the shared sandbox password --
- * there's no real per-user credential store, so this is what the login
- * page's account picker renders (kept live: a teammate invited from
- * Team > Invite shows up here immediately).
+ * A logged-in-capable account is either fully active or still working
+ * through onboarding (with a deliberately narrow permission set until it
+ * completes -- see effectivePermissionsFor). Offboarding, terminated and
+ * suspended are all hard lockouts: access ends the moment an exit starts,
+ * not once its paperwork does.
+ */
+const LOGIN_CAPABLE_STATUSES = ["active", "onboarding"];
+
+/**
+ * Every login-capable team member can sign in with the shared sandbox
+ * password -- there's no real per-user credential store, so this is what
+ * the login page's account picker renders (kept live: a teammate invited
+ * from Team > Invite shows up here immediately, in onboarding status).
  */
 export function listSandboxLoginAccounts() {
   return listTeamMembers()
-    .filter((member) => member.status === "active")
+    .filter((member) => LOGIN_CAPABLE_STATUSES.includes(member.status))
     .map((member) => ({
       email: member.email,
       name: member.name,
@@ -26,7 +35,7 @@ export function listSandboxLoginAccounts() {
 export function authenticateSandboxUser(email: string, password: string): AuthenticatedUser | null {
   if (password !== DEMO_PASSWORD) return null;
   const member = findMemberByEmail(email);
-  if (!member || member.status !== "active") return null;
+  if (!member || !LOGIN_CAPABLE_STATUSES.includes(member.status)) return null;
 
   return {
     id: member.id,

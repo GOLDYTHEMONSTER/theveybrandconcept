@@ -87,6 +87,14 @@ function describeAuditEntry(entry: SandboxAuditEntry): { title: string; detail: 
       return { title: "Return received back into stock", detail: entry.actorName, tag: "Return" };
     case "returns.refund":
       return { title: "Return refunded", detail: entry.actorName, tag: "Return" };
+    case "onboarding.start":
+      return { title: "Onboarding started", detail: entry.actorName, tag: "People" };
+    case "onboarding.complete":
+      return { title: "Onboarding complete", detail: entry.actorName, tag: "People" };
+    case "offboarding.start":
+      return { title: "Offboarding started — access revoked", detail: entry.reason ?? entry.actorName, tag: "People" };
+    case "offboarding.complete":
+      return { title: "Offboarding complete", detail: entry.actorName, tag: "People" };
     default:
       return { title: entry.action, detail: entry.actorName, tag: "Activity" };
   }

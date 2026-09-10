@@ -21,7 +21,11 @@ export type NotificationType =
   | "order.processing"
   | "order.delivered"
   | "procurement.ordered"
-  | "procurement.received";
+  | "procurement.received"
+  | "onboarding.started"
+  | "onboarding.completed"
+  | "offboarding.started"
+  | "offboarding.completed";
 
 export interface NotificationRecord {
   id: string;

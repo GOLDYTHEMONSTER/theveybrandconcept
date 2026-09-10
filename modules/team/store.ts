@@ -3,7 +3,10 @@ import { SANDBOX_ROLES, type SandboxRole } from "../authentication/domain";
 import { getEffectivePermissions, ROLE_DEFINITIONS, type PermissionOverrides } from "../authentication/roles";
 import { ConflictError, NotFoundError, ValidationError } from "../shared/errors";
 
-export type TeamMemberStatus = "active" | "suspended";
+export type TeamMemberStatus = "onboarding" | "active" | "offboarding" | "terminated" | "suspended";
+
+/** Statuses that lock a sandbox account out of signing in entirely -- a hard access cutoff, not a permission downgrade. */
+const LOCKED_OUT_STATUSES: TeamMemberStatus[] = ["offboarding", "terminated", "suspended"];
 
 export interface TeamMember {
   id: string;
@@ -72,7 +75,18 @@ export function findMemberByEmail(email: string): TeamMember | null {
   return store().find((row) => row.email === normalized) ?? null;
 }
 
-export function effectivePermissionsFor(member: Pick<TeamMember, "role" | "overrides">): string[] {
+/**
+ * Status gates access before role ever enters the picture. An onboarding
+ * account can only see its own checklist -- not whatever its eventual
+ * role would otherwise grant -- until onboarding actually completes.
+ * Anyone locked out (offboarding, terminated, suspended) can't reach this
+ * function at all in practice (see LOCKED_OUT_STATUSES / authenticateSandboxUser),
+ * but returning no permissions here too means there's no path to a
+ * stale, over-privileged session if that ever changes.
+ */
+export function effectivePermissionsFor(member: Pick<TeamMember, "role" | "overrides" | "status">): string[] {
+  if (LOCKED_OUT_STATUSES.includes(member.status)) return [];
+  if (member.status === "onboarding") return ["onboarding.view", "attendance.view"];
   return getEffectivePermissions(member.role, member.overrides);
 }
 
@@ -94,7 +108,7 @@ export function inviteTeamMember(
     email,
     role: input.role,
     department: DEPARTMENT_BY_ROLE[input.role],
-    status: "active",
+    status: "onboarding",
     overrides: { granted: [], revoked: [] },
     createdAt: now,
     updatedAt: now,
@@ -122,8 +136,9 @@ export function updateTeamMemberRole(id: string, role: SandboxRole, actorId: str
 
 export function setMemberStatus(id: string, status: TeamMemberStatus, actorId: string): TeamMember {
   const member = getTeamMember(id);
-  if (status === "suspended") {
-    if (member.id === actorId) throw new ValidationError("You cannot suspend your own account");
+  const isExit = status === "suspended" || status === "offboarding" || status === "terminated";
+  if (isExit) {
+    if (member.id === actorId) throw new ValidationError("You cannot remove your own access");
     const otherActiveExecutives = store().some(
       (row) => row.id !== id && row.role === "executive" && row.status === "active"
     );

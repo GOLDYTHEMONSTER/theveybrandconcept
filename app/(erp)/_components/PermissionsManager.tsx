@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { SandboxRole } from "../../../modules/authentication/domain";
 import { ROLE_DEFINITIONS, type PermissionDefinition } from "../../../modules/authentication/roles";
 import { hueFor, initialsFor } from "../../../modules/shared/identity";
+import type { TeamMemberStatus } from "../../../modules/team/store";
 
 interface MemberView {
   id: string;
@@ -12,7 +13,7 @@ interface MemberView {
   email: string;
   role: SandboxRole;
   roleLabel: string;
-  status: "active" | "suspended";
+  status: TeamMemberStatus;
   effective: string[];
 }
 
@@ -135,7 +136,7 @@ export default function PermissionsManager({ members, catalog }: PermissionsMana
               <span className="header-avatar" style={{ background: hueFor(member.name), width: 26, height: 26, fontSize: 9 }}>{initialsFor(member.name)}</span>
               <div>
                 <strong>{member.name}</strong>
-                <small>{member.roleLabel}{member.status === "suspended" ? " · Suspended" : ""}</small>
+                <small>{member.roleLabel}{member.status !== "active" ? ` · ${member.status}` : ""}</small>
               </div>
               <b>{member.effective.length}</b>
             </button>

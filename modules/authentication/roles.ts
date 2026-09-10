@@ -127,6 +127,7 @@ export const PERMISSION_CATALOG: PermissionDefinition[] = [
   { key: "team.view", label: "View the full team roster", group: "Team" },
   { key: "team.sales.view", label: "View the sales team roster", group: "Team" },
   { key: "team.manage", label: "Invite teammates & manage permissions", group: "Team" },
+  { key: "onboarding.view", label: "View your own onboarding checklist", group: "Team" },
   { key: "audit.view", label: "View the audit log", group: "Security" },
   { key: "attendance.view", label: "Clock in/out & view own attendance", group: "Attendance" },
   { key: "attendance.manage", label: "View & manage everyone's attendance", group: "Attendance" },

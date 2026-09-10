@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSandboxSession } from "../../modules/authentication/session";
 import type { SandboxRole } from "../../modules/authentication/domain";
+import { getTeamMember } from "../../modules/team/store";
 
 export class UnauthenticatedError extends Error {}
 export class NoOrganizationError extends Error {}
@@ -17,9 +18,29 @@ export interface SessionContext {
   permissions: string[];
 }
 
+const LOCKED_OUT_STATUSES = ["offboarding", "terminated", "suspended"];
+
 export async function getSessionContext(): Promise<SessionContext> {
   const session = getSandboxSession();
   if (!session) throw new UnauthenticatedError("Not authenticated");
+
+  // The session cookie is a signature-verified snapshot from login, not a
+  // live record -- correct for permission changes (those intentionally
+  // apply next login, per Team's own sandbox-note), wrong for a security
+  // cutoff. Offboarding a teammate has to end their *current* session
+  // immediately, not just block their next login attempt, or "access
+  // revoked" would be a lie for up to SANDBOX_SESSION_MAX_AGE. This is the
+  // one thing this function checks live instead of trusting the token.
+  let member;
+  try {
+    member = getTeamMember(session.id);
+  } catch {
+    throw new UnauthenticatedError("Account no longer exists");
+  }
+  if (LOCKED_OUT_STATUSES.includes(member.status)) {
+    throw new UnauthenticatedError("Access has been revoked");
+  }
+
   return {
     userId: session.id,
     organizationId: session.organizationId,

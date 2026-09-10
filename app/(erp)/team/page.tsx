@@ -1,13 +1,30 @@
 import Link from "next/link";
 import { requirePagePermission } from "../../../lib/auth/session";
+import { getOpenCaseForMember } from "../../../modules/onboarding/store";
 import { getTeamMetrics, getTeamRows } from "../../../modules/team/service";
 import ExportCsvButton from "../_components/ExportCsvButton";
 import MetricGrid from "../_components/MetricGrid";
+import OffboardButton from "../_components/OffboardButton";
 import PersonBadge from "../_components/PersonBadge";
 import TeamRoleSelect from "../_components/TeamRoleSelect";
 import TeamStatusButton from "../_components/TeamStatusButton";
 
 export const dynamic = "force-dynamic";
+
+const STATUS_LABEL: Record<string, string> = {
+  onboarding: "Onboarding",
+  active: "Active",
+  offboarding: "Offboarding",
+  terminated: "Terminated",
+  suspended: "Suspended",
+};
+const STATUS_TONE: Record<string, string> = {
+  onboarding: "neutral",
+  active: "positive",
+  offboarding: "warning",
+  terminated: "negative",
+  suspended: "warning",
+};
 
 export default async function TeamPage() {
   const session = await requirePagePermission("team.view", "team.sales.view");
@@ -67,7 +84,7 @@ export default async function TeamPage() {
                   )}
                 </td>
                 <td>{row.department}</td>
-                <td><span className={`status-pill ${row.status === "active" ? "positive" : "warning"}`}>{row.status === "active" ? "Active" : "Suspended"}</span></td>
+                <td><span className={`status-pill ${STATUS_TONE[row.status]}`}>{STATUS_LABEL[row.status]}</span></td>
                 <td>
                   {row.permissionCount} granted
                   {row.hasOverrides && <small style={{ color: "#a06d35" }}>Custom overrides</small>}
@@ -75,7 +92,16 @@ export default async function TeamPage() {
                 {(canManage || canAssignTasks) && (
                   <td>
                     <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-start" }}>
+                      {(row.status === "onboarding" || row.status === "offboarding") && (() => {
+                        const openCase = getOpenCaseForMember(row.id, row.status);
+                        return openCase ? (
+                          <Link href={`/onboarding/${openCase.id}`} className="erp-button secondary" style={{ height: 28, padding: "0 10px", fontSize: 10 }}>
+                            Open checklist
+                          </Link>
+                        ) : null;
+                      })()}
                       {canManage && <TeamStatusButton memberId={row.id} currentStatus={row.status} disabled={row.id === session.userId} />}
+                      {canManage && row.status === "active" && row.id !== session.userId && <OffboardButton memberId={row.id} />}
                       {canAssignTasks && row.status === "active" && (
                         <Link href={`/tasks/new?assigneeId=${row.id}`} className="erp-button secondary" style={{ height: 28, padding: "0 10px", fontSize: 10 }}>
                           Assign task
