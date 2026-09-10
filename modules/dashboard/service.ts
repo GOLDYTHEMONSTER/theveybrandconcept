@@ -1,5 +1,5 @@
 import type { SandboxRole } from "../authentication/domain";
-import { listOrders } from "../orders/store";
+import { getAbandonedCheckouts, listOrders } from "../orders/store";
 import { getInventoryMetrics, getInventoryValue } from "../inventory/service";
 import { listRecentAudit, type SandboxAuditEntry } from "../audit/sandbox-log";
 import { computeTrend, splitByRecency, WEEK_MS, type Trend } from "../shared/trend";
@@ -7,6 +7,10 @@ import { getAttendanceMetrics } from "../attendance/service";
 import { listAttendance } from "../attendance/store";
 import { listTeamMembers } from "../team/store";
 import { listTasks } from "../tasks/store";
+import { getCrmMetrics } from "../crm/service";
+import { getReturnMetrics, RETURN_REASON_LABEL } from "../returns/service";
+import { listReturns } from "../returns/store";
+import { getProcurementMetrics, getReorderSuggestions } from "../procurement/service";
 
 export interface DashboardMetric {
   label: string;
@@ -102,6 +106,7 @@ export function getDashboardForRole(role: SandboxRole): DashboardView {
   const revenueTrend = computeTrend(revenueThisWeek, revenueLastWeek, "up");
 
   if (role === "executive") {
+    const pendingReturns = getReturnMetrics()[0];
     return {
       eyebrow: "Executive overview",
       title: "Here's where the business stands.",
@@ -111,6 +116,7 @@ export function getDashboardForRole(role: SandboxRole): DashboardView {
         { label: "Orders", value: String(orders.length), change: `${pending} awaiting confirmation`, tone: pending ? "warning" : "positive" },
         { label: "Inventory value", value: `₦${(getInventoryValue() / 1_000_000).toFixed(1)}M`, change: unitsAvailableLine?.change ?? "", tone: "neutral" },
         { label: "Cancelled orders", value: String(cancelled), change: cancelled ? "Review for patterns" : "None this period", tone: cancelled ? "warning" : "positive" },
+        { label: "Returns awaiting review", value: pendingReturns.value, change: pendingReturns.change, tone: pendingReturns.tone, trend: pendingReturns.trend },
       ],
       activityTitle: "Business pulse",
       activities: activities.length ? activities : FALLBACK_ACTIVITY,
@@ -125,6 +131,8 @@ export function getDashboardForRole(role: SandboxRole): DashboardView {
 
   if (role === "sales_manager") {
     const avgOrderValue = completedOrders.length ? revenue / completedOrders.length : 0;
+    const abandoned = getAbandonedCheckouts();
+    const abandonedValue = abandoned.reduce((sum, order) => sum + order.total, 0);
     return {
       eyebrow: "Sales workspace",
       title: "Orders, at a glance.",
@@ -142,11 +150,18 @@ export function getDashboardForRole(role: SandboxRole): DashboardView {
         { label: "Pending", value: String(pending), note: "Confirm to start fulfilment" },
         { label: "Processing", value: String(processing), note: "With the warehouse" },
         { label: "Shipped", value: String(shipped), note: "In transit to customers" },
+        {
+          label: "Abandoned checkouts",
+          value: String(abandoned.length),
+          note: abandoned.length ? `₦${(abandonedValue / 1000).toFixed(0)}k at risk — see Recovery` : "None right now",
+        },
       ],
     };
   }
 
   if (role === "warehouse_manager") {
+    const openPurchaseOrders = getProcurementMetrics()[0];
+    const reorderSuggestions = getReorderSuggestions();
     return {
       eyebrow: "Warehouse operations",
       title: "Fulfilment queue.",
@@ -155,12 +170,14 @@ export function getDashboardForRole(role: SandboxRole): DashboardView {
         { label: "Ready to pack", value: String(processing), change: `${pending} awaiting confirmation`, tone: processing ? "warning" : "positive", trend: computeTrend(completedThisWeek.length, completedLastWeek.length, "up") },
         { label: "In transit", value: String(shipped), change: "All carriers active", tone: "positive" },
         { label: "Low stock", value: String(lowStockLine?.value ?? "0"), change: "Reorder suggested", tone: Number(lowStockLine?.value ?? 0) ? "warning" : "positive" },
-        { label: "Units available", value: String(unitsAvailableLine?.value ?? "0"), change: unitsAvailableLine?.change ?? "", tone: "neutral" },
+        { label: "Open purchase orders", value: openPurchaseOrders.value, change: openPurchaseOrders.change, tone: openPurchaseOrders.tone },
       ],
       activityTitle: "Fulfilment activity",
       activities: activities.length ? activities : FALLBACK_ACTIVITY,
-      focusTitle: "Stock attention",
-      focusItems: inventoryMetrics.slice(1, 4).map((metric) => ({ label: metric.label, value: metric.value, note: metric.change })),
+      focusTitle: "Reorder suggestions",
+      focusItems: reorderSuggestions.length
+        ? reorderSuggestions.slice(0, 3).map((suggestion) => ({ label: suggestion.productName, value: `${suggestion.onHand} left`, note: `${suggestion.warehouse} · suggest ${suggestion.suggestedQuantity} from ${suggestion.supplier}` }))
+        : [{ label: "Nothing to reorder", value: "—", note: "Every line is above its reorder point" }],
     };
   }
 
@@ -192,32 +209,47 @@ export function getDashboardForRole(role: SandboxRole): DashboardView {
       activityTitle: "People activity",
       activities: activities.length ? activities : FALLBACK_ACTIVITY,
       focusTitle: "Open tasks",
-      focusItems: openTasks.slice(0, 3).map((task) => ({ label: task.title, value: task.assigneeName, note: task.dueDate ? `Due ${new Date(task.dueDate).toLocaleDateString("en-NG", { dateStyle: "medium" })}` : "No due date" })),
+      focusItems: openTasks.length
+        ? openTasks.slice(0, 3).map((task) => ({ label: task.title, value: task.assigneeName, note: task.dueDate ? `Due ${new Date(task.dueDate).toLocaleDateString("en-NG", { dateStyle: "medium" })}` : "No due date" }))
+        : [{ label: "Nothing open", value: "—", note: "No tasks currently in progress" }],
     };
   }
 
-  // customer_support — no ticketing backend exists yet; kept illustrative.
+  // customer_support — there's no ticketing backend yet, so this pulls from
+  // the real data support staff actually have access to (returns, orders,
+  // customers) instead of the illustrative ticket/CSAT numbers it used to
+  // hardcode, which never matched anything a click could take you to.
+  const pendingReturns = getReturnMetrics()[0];
+  const crmMetrics = getCrmMetrics();
+  const activeCustomers = crmMetrics[0];
+  const vipAccounts = crmMetrics[1];
+  const openOrders = orders.filter((order) => order.status === "pending" || order.status === "processing").length;
+  const returnsNeedingReview = listReturns()
+    .filter((request) => request.status === "requested")
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+
   return {
     eyebrow: "Customer care",
-    title: "Every conversation, in one place.",
-    summary: "Four customers are waiting for a response. No urgent service issues are currently open.",
+    title: "Every customer, in view.",
+    summary: `${pendingReturns.value} return${pendingReturns.value === "1" ? "" : "s"} need a decision and ${openOrders} order${openOrders === 1 ? "" : "s"} are still moving through fulfilment.`,
     metrics: [
-      { label: "Open tickets", value: "9", change: "4 awaiting reply", tone: "warning" },
-      { label: "Resolved today", value: "14", change: "+6 vs daily average", tone: "positive" },
-      { label: "First response", value: "18m", change: "Within 30m target", tone: "positive" },
-      { label: "Satisfaction", value: "4.8", change: "From 126 responses", tone: "neutral" },
+      { label: "Returns awaiting review", value: pendingReturns.value, change: pendingReturns.change, tone: pendingReturns.tone, trend: pendingReturns.trend },
+      { label: "Orders in progress", value: String(openOrders), change: "Pending or processing", tone: openOrders ? "warning" : "positive" },
+      { label: "Active customers", value: activeCustomers.value, change: activeCustomers.change, tone: activeCustomers.tone },
+      { label: "VIP accounts", value: vipAccounts.value, change: vipAccounts.change, tone: vipAccounts.tone },
     ],
-    activityTitle: "Latest conversations",
-    activities: [
-      { title: "Sizing question received", detail: "Naha Veil Dress", time: "4 min", tag: "New" },
-      { title: "Delivery update sent", detail: orders[0] ? `Order #${orders[0].orderNumber}` : "Recent order", time: "17 min", tag: "Replied" },
-      { title: "Return request resolved", detail: "Exchange approved", time: "46 min", tag: "Resolved" },
-    ],
-    focusTitle: "Support health",
-    focusItems: [
-      { label: "Waiting on us", value: "4", note: "Oldest: 42 minutes" },
-      { label: "Waiting on customer", value: "5", note: "Follow up tomorrow" },
-      { label: "Resolved this week", value: "68", note: "91% within target" },
-    ],
+    activityTitle: "Recent activity",
+    activities: activities.length ? activities : FALLBACK_ACTIVITY,
+    focusTitle: "Returns needing a decision",
+    focusItems: returnsNeedingReview.length
+      ? returnsNeedingReview.slice(0, 3).map((request) => {
+          const age = relativeTime(request.createdAt);
+          return {
+            label: `${request.returnNumber} · ${request.customer}`,
+            value: RETURN_REASON_LABEL[request.reason],
+            note: age === "just now" ? "Requested just now" : `Requested ${age} ago`,
+          };
+        })
+      : [{ label: "Nothing needs review", value: "—", note: "All return requests are up to date" }],
   };
 }
