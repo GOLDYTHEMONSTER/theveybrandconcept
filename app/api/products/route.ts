@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       type: "product.created",
       title: "New product added",
       message: `${product.name} (${variant.sku}) was added by ${session.name}`,
-      href: "/inventory",
+      href: `/inventory/product/${product.id}`,
     });
 
     return NextResponse.json({ product }, { status: 201 });

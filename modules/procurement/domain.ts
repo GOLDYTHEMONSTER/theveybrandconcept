@@ -6,6 +6,7 @@ export interface PurchaseOrder {
   id: string;
   poNumber: number;
   variantId: string;
+  productId: string;
   productName: string;
   variantLabel: string;
   sku: string;

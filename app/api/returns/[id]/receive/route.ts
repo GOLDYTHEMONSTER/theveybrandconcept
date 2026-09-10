@@ -21,7 +21,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     createNotification({
       audienceRoles: ["executive", "sales_manager"],
-      type: "return.requested",
+      type: "return.received",
       title: "Return received",
       message: `${returnRequest.returnNumber} was received and restocked — ready to refund`,
       href: `/returns/${returnRequest.id}`,

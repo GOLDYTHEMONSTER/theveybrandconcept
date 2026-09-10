@@ -46,7 +46,10 @@ export default async function DashboardPage() {
         </article>
 
         <article className="erp-panel focus-panel">
-          <div className="panel-heading"><div><p className="erp-eyebrow">At a glance</p><h2>{view.focusTitle}</h2></div></div>
+          <div className="panel-heading">
+            <div><p className="erp-eyebrow">At a glance</p><h2>{view.focusTitle}</h2></div>
+            {view.focusHref && <Link href={view.focusHref}>See all</Link>}
+          </div>
           <div className="focus-list">
             {view.focusItems.map((item, index) => (
               <div className="focus-row" key={item.label}>

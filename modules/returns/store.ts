@@ -1,9 +1,10 @@
 import { randomUUID } from "crypto";
+import { recordAudit } from "../audit/sandbox-log";
 import { adjustStock } from "../inventory/store";
-import { getOrder, requireOrder } from "../orders/store";
+import { getOrder, listOrders, requireOrder } from "../orders/store";
 import { ConflictError, NotFoundError, ValidationError } from "../shared/errors";
 import type { Warehouse } from "../shared/warehouses";
-import type { CreateReturnInput, ReturnEvent, ReturnRequest, ReturnStatus } from "./domain";
+import { RETURN_REASONS, type CreateReturnInput, type ReturnEvent, type ReturnReason, type ReturnRequest, type ReturnStatus } from "./domain";
 
 interface ReturnsState {
   returns: ReturnRequest[];
@@ -23,12 +24,101 @@ function actorName(actorId: string): string {
   return known[actorId] ?? actorId;
 }
 
-function buildEvent(fromStatus: ReturnStatus | null, toStatus: ReturnStatus, actorId: string, note: string | null): ReturnEvent {
-  return { id: randomUUID(), fromStatus, toStatus, actorId, actorName: actorName(actorId), note, occurredAt: new Date().toISOString() };
+function buildEvent(fromStatus: ReturnStatus | null, toStatus: ReturnStatus, actorId: string, note: string | null, occurredAt = new Date().toISOString()): ReturnEvent {
+  return { id: randomUUID(), fromStatus, toStatus, actorId, actorName: actorName(actorId), note, occurredAt };
+}
+
+const DAY_MS = 24 * 3600_000;
+function randomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+function pick<T>(items: readonly T[]): T {
+  return items[Math.floor(Math.random() * items.length)];
+}
+
+/**
+ * Seeds a realistic spread of return requests against real delivered
+ * orders -- roughly a fifth of delivered orders get one, across every
+ * status, so the Returns page (and every dashboard/analytics number
+ * derived from it) has real history instead of starting empty until a
+ * live action creates the first one.
+ */
+function seedReturns(counter: { value: number }): ReturnRequest[] {
+  const deliveredOrders = listOrders().filter((order) => order.status === "delivered" && order.paymentStatus === "paid");
+  if (!deliveredOrders.length) return [];
+
+  const targetCount = Math.min(16, Math.max(4, Math.round(deliveredOrders.length * 0.22)));
+  const chosen = [...deliveredOrders].sort(() => Math.random() - 0.5).slice(0, targetCount);
+  const STATUS_WEIGHTS: ReturnStatus[] = ["requested", "requested", "requested", "approved", "approved", "received", "refunded", "refunded", "refunded", "rejected"];
+  const seeded: ReturnRequest[] = [];
+
+  for (const order of chosen) {
+    const orderPlacedAt = new Date(order.createdAt).getTime();
+    const ageMs = Date.now() - orderPlacedAt;
+    if (ageMs < 2 * DAY_MS) continue; // too recent to plausibly already have a return in motion
+
+    const item = pick(order.items);
+    const reason = pick(RETURN_REASONS) as ReturnReason;
+    const status = pick(STATUS_WEIGHTS);
+    const requestedAt = Math.min(orderPlacedAt + randomInt(1, 2) * DAY_MS, Date.now() - DAY_MS);
+
+    counter.value += 1;
+    const returnNumber = `RTN-${counter.value}`;
+    const refundAmount = item.unitPrice * 1;
+
+    const events: ReturnEvent[] = [buildEvent(null, "requested", "sandbox-support", null, new Date(requestedAt).toISOString())];
+    let cursor = requestedAt;
+
+    if (status === "rejected") {
+      cursor = Math.min(cursor + randomInt(4, 20) * 3600_000, Date.now());
+      events.push(buildEvent("requested", "rejected", "sandbox-support", "Outside the return window", new Date(cursor).toISOString()));
+    } else {
+      const path: ReturnStatus[] = ["requested", "approved", "received", "refunded"];
+      const targetIndex = path.indexOf(status);
+      const actorByStage: Record<string, string> = { approved: "sandbox-support", received: "sandbox-warehouse", refunded: "sandbox-executive" };
+      for (let i = 1; i <= targetIndex; i += 1) {
+        const to = path[i];
+        cursor = Math.min(cursor + randomInt(12, 48) * 3600_000, Date.now());
+        events.push(buildEvent(path[i - 1], to, actorByStage[to], null, new Date(cursor).toISOString()));
+        if (to === "received") {
+          adjustStock({ variantId: item.variantId, warehouse: item.warehouse as Warehouse, quantityDelta: 1, reason: `Customer return ${returnNumber}`, actorId: "sandbox-warehouse" });
+        }
+      }
+    }
+
+    const request: ReturnRequest = {
+      id: randomUUID(),
+      returnNumber,
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      customer: order.customer,
+      reason,
+      reasonNote: null,
+      items: [{ ...item, quantity: 1 }],
+      refundAmount,
+      status,
+      createdBy: "sandbox-support",
+      createdAt: new Date(requestedAt).toISOString(),
+      events,
+      refundId: status === "refunded" ? `re_seed_${returnNumber}` : null,
+    };
+
+    recordAudit({ action: "returns.create", entityType: "return", entityId: request.id, actorId: "sandbox-support", actorName: "Ife Bello", afterValue: { returnNumber, refundAmount, reason }, occurredAt: new Date(requestedAt).toISOString() });
+    for (const event of events.slice(1)) {
+      const action = event.toStatus === "approved" ? "returns.approve" : event.toStatus === "rejected" ? "returns.reject" : event.toStatus === "received" ? "returns.receive" : "returns.refund";
+      recordAudit({ action, entityType: "return", entityId: request.id, actorId: event.actorId, actorName: event.actorName, occurredAt: event.occurredAt });
+    }
+
+    seeded.push(request);
+  }
+
+  return seeded;
 }
 
 if (!globalReturns.__veyReturns) {
-  globalReturns.__veyReturns = { returns: [], counter: 1000 };
+  const counter = { value: 1000 };
+  const returns = seedReturns(counter);
+  globalReturns.__veyReturns = { returns, counter: counter.value };
 }
 
 function state(): ReturnsState {

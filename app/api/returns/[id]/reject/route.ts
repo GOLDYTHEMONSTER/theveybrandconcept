@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { recordAudit } from "../../../../../modules/audit/sandbox-log";
+import { createNotification } from "../../../../../modules/notifications/store";
 import { rejectReturn } from "../../../../../modules/returns/store";
 import { guardMutation, handleApiError } from "../../../../../modules/security/api-guard";
 
@@ -18,6 +19,14 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       actorId: session.userId,
       actorName: session.name,
       afterValue: { status: returnRequest.status, note },
+    });
+
+    createNotification({
+      audienceRoles: ["executive", "sales_manager"],
+      type: "return.rejected",
+      title: "Return rejected",
+      message: `${returnRequest.returnNumber} was rejected${note ? ` — ${note}` : ""}`,
+      href: `/returns/${returnRequest.id}`,
     });
 
     return NextResponse.json({ return: returnRequest });

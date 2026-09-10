@@ -26,7 +26,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       type: "procurement.received",
       title: "Purchase order received",
       message: `${order.quantity} × ${order.productName} received into ${order.warehouse} (PO-${order.poNumber})`,
-      href: "/inventory",
+      href: `/inventory/product/${order.productId}`,
     });
 
     return NextResponse.json({ order });

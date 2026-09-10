@@ -49,6 +49,21 @@ export default function NotificationBell() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Unread only clears once the tray has actually been opened -- not just
+  // fetched in the background -- and only after a beat, so the unread
+  // styling is visible for a moment rather than vanishing the instant you
+  // open it.
+  useEffect(() => {
+    if (!open || unreadCount === 0) return;
+    const timer = setTimeout(() => {
+      setItems((prev) => prev.map((entry) => ({ ...entry, read: true })));
+      setUnreadCount(0);
+      fetch("/api/notifications/read-all", { method: "POST" }).catch(() => {});
+    }, 1200);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
   async function handleItemClick(item: NotificationItem) {
     setOpen(false);
     if (!item.read) {

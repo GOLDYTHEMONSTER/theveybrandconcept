@@ -18,6 +18,7 @@ export interface DashboardMetric {
   change: string;
   tone?: "positive" | "warning" | "neutral";
   trend?: Trend;
+  href?: string;
 }
 
 export interface DashboardView {
@@ -29,6 +30,7 @@ export interface DashboardView {
   activities: Array<{ title: string; detail: string; time: string; tag: string }>;
   focusTitle: string;
   focusItems: Array<{ label: string; value: string; note: string }>;
+  focusHref?: string;
 }
 
 function relativeTime(iso: string): string {
@@ -73,6 +75,16 @@ function describeAuditEntry(entry: SandboxAuditEntry): { title: string; detail: 
       return { title: "Purchase order placed", detail: entry.actorName, tag: "Procurement" };
     case "procurement.receive":
       return { title: "Purchase order received", detail: `${after.quantity ?? ""} units into ${after.warehouse ?? ""}`, tag: "Procurement" };
+    case "returns.create":
+      return { title: `Return requested: ${after.returnNumber ?? "—"}`, detail: `₦${Number(after.refundAmount ?? 0).toLocaleString("en-NG")} · ${String(after.reason ?? "").replace(/_/g, " ")}`, tag: "Return" };
+    case "returns.approve":
+      return { title: "Return approved", detail: entry.actorName, tag: "Return" };
+    case "returns.reject":
+      return { title: "Return rejected", detail: entry.reason ?? entry.actorName, tag: "Return" };
+    case "returns.receive":
+      return { title: "Return received back into stock", detail: entry.actorName, tag: "Return" };
+    case "returns.refund":
+      return { title: "Return refunded", detail: entry.actorName, tag: "Return" };
     default:
       return { title: entry.action, detail: entry.actorName, tag: "Activity" };
   }
@@ -112,11 +124,11 @@ export function getDashboardForRole(role: SandboxRole): DashboardView {
       title: "Here's where the business stands.",
       summary: `${orders.length} orders on record, ₦${(revenue / 1_000_000).toFixed(1)}M in booked revenue, and ${lowStockLine?.value ?? 0} lines running low.`,
       metrics: [
-        { label: "Net revenue", value: `₦${(revenue / 1_000_000).toFixed(1)}M`, change: `${completedOrders.length} completed orders`, tone: "positive", trend: revenueTrend },
-        { label: "Orders", value: String(orders.length), change: `${pending} awaiting confirmation`, tone: pending ? "warning" : "positive" },
-        { label: "Inventory value", value: `₦${(getInventoryValue() / 1_000_000).toFixed(1)}M`, change: unitsAvailableLine?.change ?? "", tone: "neutral" },
-        { label: "Cancelled orders", value: String(cancelled), change: cancelled ? "Review for patterns" : "None this period", tone: cancelled ? "warning" : "positive" },
-        { label: "Returns awaiting review", value: pendingReturns.value, change: pendingReturns.change, tone: pendingReturns.tone, trend: pendingReturns.trend },
+        { label: "Net revenue", value: `₦${(revenue / 1_000_000).toFixed(1)}M`, change: `${completedOrders.length} completed orders`, tone: "positive", trend: revenueTrend, href: "/orders" },
+        { label: "Orders", value: String(orders.length), change: `${pending} awaiting confirmation`, tone: pending ? "warning" : "positive", href: "/orders?status=pending" },
+        { label: "Inventory value", value: `₦${(getInventoryValue() / 1_000_000).toFixed(1)}M`, change: unitsAvailableLine?.change ?? "", tone: "neutral", href: "/inventory" },
+        { label: "Cancelled orders", value: String(cancelled), change: cancelled ? "Review for patterns" : "None this period", tone: cancelled ? "warning" : "positive", href: "/orders?status=cancelled" },
+        { label: "Returns awaiting review", value: pendingReturns.value, change: pendingReturns.change, tone: pendingReturns.tone, trend: pendingReturns.trend, href: "/returns?status=requested" },
       ],
       activityTitle: "Business pulse",
       activities: activities.length ? activities : FALLBACK_ACTIVITY,
@@ -126,6 +138,7 @@ export function getDashboardForRole(role: SandboxRole): DashboardView {
         { label: "Low stock lines", value: String(lowStockLine?.value ?? "0"), note: "Reorder suggested" },
         { label: "Units in stock", value: String(unitsAvailableLine?.value ?? "0"), note: unitsAvailableLine?.change ?? "" },
       ],
+      focusHref: "/inventory",
     };
   }
 
@@ -138,10 +151,10 @@ export function getDashboardForRole(role: SandboxRole): DashboardView {
       title: "Orders, at a glance.",
       summary: `${pending} order${pending === 1 ? "" : "s"} need confirmation and ${processing} are moving through fulfilment.`,
       metrics: [
-        { label: "Revenue booked", value: `₦${(revenue / 1_000_000).toFixed(1)}M`, change: `${completedOrders.length} orders`, tone: "positive", trend: revenueTrend },
-        { label: "Awaiting confirmation", value: String(pending), change: pending ? "Needs action" : "All caught up", tone: pending ? "warning" : "positive" },
-        { label: "In fulfilment", value: String(processing), change: `${shipped} already shipped`, tone: "neutral" },
-        { label: "Avg. order value", value: `₦${Math.round(avgOrderValue).toLocaleString("en-NG")}`, change: "Across completed orders", tone: "neutral" },
+        { label: "Revenue booked", value: `₦${(revenue / 1_000_000).toFixed(1)}M`, change: `${completedOrders.length} orders`, tone: "positive", trend: revenueTrend, href: "/orders" },
+        { label: "Awaiting confirmation", value: String(pending), change: pending ? "Needs action" : "All caught up", tone: pending ? "warning" : "positive", href: "/orders?status=pending" },
+        { label: "In fulfilment", value: String(processing), change: `${shipped} already shipped`, tone: "neutral", href: "/orders?status=processing" },
+        { label: "Avg. order value", value: `₦${Math.round(avgOrderValue).toLocaleString("en-NG")}`, change: "Across completed orders", tone: "neutral", href: "/orders" },
       ],
       activityTitle: "Sales activity",
       activities: activities.length ? activities : FALLBACK_ACTIVITY,
@@ -156,6 +169,7 @@ export function getDashboardForRole(role: SandboxRole): DashboardView {
           note: abandoned.length ? `₦${(abandonedValue / 1000).toFixed(0)}k at risk — see Recovery` : "None right now",
         },
       ],
+      focusHref: "/recovery",
     };
   }
 
@@ -167,10 +181,10 @@ export function getDashboardForRole(role: SandboxRole): DashboardView {
       title: "Fulfilment queue.",
       summary: `${processing} order${processing === 1 ? "" : "s"} ready to pack, ${lowStockLine?.value ?? 0} line${lowStockLine?.value === "1" ? "" : "s"} running low.`,
       metrics: [
-        { label: "Ready to pack", value: String(processing), change: `${pending} awaiting confirmation`, tone: processing ? "warning" : "positive", trend: computeTrend(completedThisWeek.length, completedLastWeek.length, "up") },
-        { label: "In transit", value: String(shipped), change: "All carriers active", tone: "positive" },
-        { label: "Low stock", value: String(lowStockLine?.value ?? "0"), change: "Reorder suggested", tone: Number(lowStockLine?.value ?? 0) ? "warning" : "positive" },
-        { label: "Open purchase orders", value: openPurchaseOrders.value, change: openPurchaseOrders.change, tone: openPurchaseOrders.tone },
+        { label: "Ready to pack", value: String(processing), change: `${pending} awaiting confirmation`, tone: processing ? "warning" : "positive", trend: computeTrend(completedThisWeek.length, completedLastWeek.length, "up"), href: "/orders?status=processing" },
+        { label: "In transit", value: String(shipped), change: "All carriers active", tone: "positive", href: "/orders?status=shipped" },
+        { label: "Low stock", value: String(lowStockLine?.value ?? "0"), change: "Reorder suggested", tone: Number(lowStockLine?.value ?? 0) ? "warning" : "positive", href: "/inventory" },
+        { label: "Open purchase orders", value: openPurchaseOrders.value, change: openPurchaseOrders.change, tone: openPurchaseOrders.tone, href: "/procurement" },
       ],
       activityTitle: "Fulfilment activity",
       activities: activities.length ? activities : FALLBACK_ACTIVITY,
@@ -178,6 +192,7 @@ export function getDashboardForRole(role: SandboxRole): DashboardView {
       focusItems: reorderSuggestions.length
         ? reorderSuggestions.slice(0, 3).map((suggestion) => ({ label: suggestion.productName, value: `${suggestion.onHand} left`, note: `${suggestion.warehouse} · suggest ${suggestion.suggestedQuantity} from ${suggestion.supplier}` }))
         : [{ label: "Nothing to reorder", value: "—", note: "Every line is above its reorder point" }],
+      focusHref: "/procurement",
     };
   }
 
@@ -201,10 +216,10 @@ export function getDashboardForRole(role: SandboxRole): DashboardView {
       title: "Your team, at a glance.",
       summary: `${team.length} teammate${team.length === 1 ? "" : "s"} on the roster, ${clockedInNow?.value ?? 0} clocked in right now, and ${openTasks.length} task${openTasks.length === 1 ? "" : "s"} in progress.`,
       metrics: [
-        { label: "Team members", value: String(team.length), change: suspended ? `${suspended} suspended` : "All active", tone: suspended ? "warning" : "positive" },
-        { label: "Clocked in now", value: String(clockedInNow?.value ?? "0"), change: clockedInNow?.change ?? "", tone: clockedInNow?.tone },
-        { label: "Late arrivals", value: String(lateArrivals?.value ?? "0"), change: "This week vs last", tone: lateArrivals?.tone, trend: computeTrend(attendanceThisWeek.length, attendanceLastWeek.length, "up") },
-        { label: "Overdue tasks", value: String(overdueTasks.length), change: overdueTasks.length ? "Needs follow-up" : "Nothing overdue", tone: overdueTasks.length ? "warning" : "positive" },
+        { label: "Team members", value: String(team.length), change: suspended ? `${suspended} suspended` : "All active", tone: suspended ? "warning" : "positive", href: "/team" },
+        { label: "Clocked in now", value: String(clockedInNow?.value ?? "0"), change: clockedInNow?.change ?? "", tone: clockedInNow?.tone, href: "/attendance" },
+        { label: "Late arrivals", value: String(lateArrivals?.value ?? "0"), change: "This week vs last", tone: lateArrivals?.tone, trend: computeTrend(attendanceThisWeek.length, attendanceLastWeek.length, "up"), href: "/attendance" },
+        { label: "Overdue tasks", value: String(overdueTasks.length), change: overdueTasks.length ? "Needs follow-up" : "Nothing overdue", tone: overdueTasks.length ? "warning" : "positive", href: "/tasks" },
       ],
       activityTitle: "People activity",
       activities: activities.length ? activities : FALLBACK_ACTIVITY,
@@ -212,6 +227,7 @@ export function getDashboardForRole(role: SandboxRole): DashboardView {
       focusItems: openTasks.length
         ? openTasks.slice(0, 3).map((task) => ({ label: task.title, value: task.assigneeName, note: task.dueDate ? `Due ${new Date(task.dueDate).toLocaleDateString("en-NG", { dateStyle: "medium" })}` : "No due date" }))
         : [{ label: "Nothing open", value: "—", note: "No tasks currently in progress" }],
+      focusHref: "/tasks",
     };
   }
 
@@ -233,10 +249,10 @@ export function getDashboardForRole(role: SandboxRole): DashboardView {
     title: "Every customer, in view.",
     summary: `${pendingReturns.value} return${pendingReturns.value === "1" ? "" : "s"} need a decision and ${openOrders} order${openOrders === 1 ? "" : "s"} are still moving through fulfilment.`,
     metrics: [
-      { label: "Returns awaiting review", value: pendingReturns.value, change: pendingReturns.change, tone: pendingReturns.tone, trend: pendingReturns.trend },
-      { label: "Orders in progress", value: String(openOrders), change: "Pending or processing", tone: openOrders ? "warning" : "positive" },
-      { label: "Active customers", value: activeCustomers.value, change: activeCustomers.change, tone: activeCustomers.tone },
-      { label: "VIP accounts", value: vipAccounts.value, change: vipAccounts.change, tone: vipAccounts.tone },
+      { label: "Returns awaiting review", value: pendingReturns.value, change: pendingReturns.change, tone: pendingReturns.tone, trend: pendingReturns.trend, href: "/returns?status=requested" },
+      { label: "Orders in progress", value: String(openOrders), change: "Pending or processing", tone: openOrders ? "warning" : "positive", href: "/orders" },
+      { label: "Active customers", value: activeCustomers.value, change: activeCustomers.change, tone: activeCustomers.tone, href: "/customers" },
+      { label: "VIP accounts", value: vipAccounts.value, change: vipAccounts.change, tone: vipAccounts.tone, href: "/customers" },
     ],
     activityTitle: "Recent activity",
     activities: activities.length ? activities : FALLBACK_ACTIVITY,
@@ -251,5 +267,6 @@ export function getDashboardForRole(role: SandboxRole): DashboardView {
           };
         })
       : [{ label: "Nothing needs review", value: "—", note: "All return requests are up to date" }],
+    focusHref: "/returns?status=requested",
   };
 }

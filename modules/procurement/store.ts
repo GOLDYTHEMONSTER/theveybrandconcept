@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto";
+import { recordAudit } from "../audit/sandbox-log";
 import { listVariants } from "../catalog/store";
 import { restockInventory } from "../inventory/store";
 import { NotFoundError, ValidationError } from "../shared/errors";
@@ -27,59 +28,90 @@ function nextPoNumber(): number {
   return globalProcurement.__veyPoSeq;
 }
 
+function randomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+function pick<T>(items: readonly T[]): T {
+  return items[Math.floor(Math.random() * items.length)];
+}
+
 /**
- * Seeds one purchase order already in transit and one already received so
- * the Procurement page (and its week-over-week "received" trend) has real
- * history on first load, instead of looking unused because nobody has
- * created a PO yet in this sandbox session.
+ * Seeds a realistic spread of purchase orders across every status and
+ * several weeks so the Procurement page (and its week-over-week "received"
+ * trend) has real history on first load, instead of looking unused because
+ * nobody has created a PO yet in this sandbox session.
  */
 function seed(): PurchaseOrder[] {
   globalProcurement.__veyPoSeq = 0;
   const variants = listVariants();
   const rows: PurchaseOrder[] = [];
+  const warehouses: Warehouse[] = ["Lagos showroom", "Guangzhou hub"];
 
-  const first = variants[0];
-  if (first) {
-    rows.push({
+  const PLAN: Array<{ status: PurchaseOrderStatus; createdDaysAgo: number }> = [
+    { status: "received", createdDaysAgo: 28 },
+    { status: "received", createdDaysAgo: 24 },
+    { status: "received", createdDaysAgo: 19 },
+    { status: "received", createdDaysAgo: 14 },
+    { status: "ordered", createdDaysAgo: 9 },
+    { status: "ordered", createdDaysAgo: 6 },
+    { status: "ordered", createdDaysAgo: 3 },
+    { status: "cancelled", createdDaysAgo: 17 },
+    { status: "draft", createdDaysAgo: 1 },
+    { status: "draft", createdDaysAgo: 0 },
+  ];
+
+  for (const plan of PLAN) {
+    const variant = pick(variants);
+    const warehouse = pick(warehouses);
+    const quantity = randomInt(8, 30);
+    const createdAt = ago(plan.createdDaysAgo);
+    const leadDays = randomInt(7, 14);
+
+    const order: PurchaseOrder = {
       id: randomUUID(),
       poNumber: nextPoNumber(),
-      variantId: first.id,
-      productName: first.productName,
-      variantLabel: [first.size, first.color].filter(Boolean).join(" · ") || "Standard",
-      sku: first.sku,
-      warehouse: "Guangzhou hub",
-      supplier: SUPPLIER_BY_WAREHOUSE["Guangzhou hub"],
-      quantity: 24,
-      status: "ordered",
-      createdAt: ago(4),
-      updatedAt: ago(4),
-      expectedDate: inDays(6),
+      variantId: variant.id,
+      productId: variant.productId,
+      productName: variant.productName,
+      variantLabel: [variant.size, variant.color].filter(Boolean).join(" · ") || "Standard",
+      sku: variant.sku,
+      warehouse,
+      supplier: SUPPLIER_BY_WAREHOUSE[warehouse],
+      quantity,
+      status: "draft",
+      createdAt,
+      updatedAt: createdAt,
+      expectedDate: null,
       receivedAt: null,
       createdById: "sandbox-warehouse",
       createdByName: "David Chen",
-    });
-  }
+    };
 
-  const second = variants[1];
-  if (second) {
-    rows.push({
-      id: randomUUID(),
-      poNumber: nextPoNumber(),
-      variantId: second.id,
-      productName: second.productName,
-      variantLabel: [second.size, second.color].filter(Boolean).join(" · ") || "Standard",
-      sku: second.sku,
-      warehouse: "Lagos showroom",
-      supplier: SUPPLIER_BY_WAREHOUSE["Lagos showroom"],
-      quantity: 15,
-      status: "received",
-      createdAt: ago(11),
-      updatedAt: ago(9),
-      expectedDate: ago(9),
-      receivedAt: ago(9),
-      createdById: "sandbox-warehouse",
-      createdByName: "David Chen",
-    });
+    recordAudit({ action: "procurement.create", entityType: "purchase_order", entityId: order.id, actorId: order.createdById, actorName: order.createdByName, afterValue: { poNumber: order.poNumber, sku: order.sku, quantity: order.quantity, warehouse: order.warehouse }, occurredAt: createdAt });
+
+    if (plan.status !== "draft") {
+      const orderedAt = Math.min(new Date(createdAt).getTime() + randomInt(4, 20) * 3600_000, Date.now());
+      order.status = "ordered";
+      order.expectedDate = new Date(orderedAt + leadDays * DAY_MS).toISOString();
+      order.updatedAt = new Date(orderedAt).toISOString();
+      recordAudit({ action: "procurement.order", entityType: "purchase_order", entityId: order.id, actorId: order.createdById, actorName: order.createdByName, afterValue: { status: "ordered", expectedDate: order.expectedDate }, occurredAt: order.updatedAt });
+
+      if (plan.status === "received") {
+        const receivedAt = Math.min(orderedAt + randomInt(2, plan.createdDaysAgo) * DAY_MS, Date.now());
+        restockInventory({ variantId: variant.id, warehouse, quantity, reference: `PO-${order.poNumber}`, actorId: "sandbox-warehouse" });
+        order.status = "received";
+        order.receivedAt = new Date(receivedAt).toISOString();
+        order.updatedAt = order.receivedAt;
+        recordAudit({ action: "procurement.receive", entityType: "purchase_order", entityId: order.id, actorId: "sandbox-warehouse", actorName: "David Chen", afterValue: { status: "received", quantity, warehouse }, occurredAt: order.updatedAt });
+      } else if (plan.status === "cancelled") {
+        const cancelledAt = Math.min(orderedAt + randomInt(4, 20) * 3600_000, Date.now());
+        order.status = "cancelled";
+        order.updatedAt = new Date(cancelledAt).toISOString();
+        recordAudit({ action: "procurement.cancel", entityType: "purchase_order", entityId: order.id, actorId: order.createdById, actorName: order.createdByName, afterValue: { status: "cancelled" }, occurredAt: order.updatedAt });
+      }
+    }
+
+    rows.push(order);
   }
 
   return rows;
@@ -119,6 +151,7 @@ export function createPurchaseOrder(input: {
     id: randomUUID(),
     poNumber: nextPoNumber(),
     variantId: variant.id,
+    productId: variant.productId,
     productName: variant.productName,
     variantLabel: [variant.size, variant.color].filter(Boolean).join(" · ") || "Standard",
     sku: variant.sku,

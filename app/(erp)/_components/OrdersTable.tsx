@@ -8,6 +8,7 @@ interface OrdersTableProps {
   rows: Order[];
   statusLabel: Record<Order["status"], string>;
   statusTone: Record<Order["status"], string>;
+  initialStatus?: string;
 }
 
 const currency = new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 });
@@ -27,9 +28,11 @@ const PAYMENT_TONE: Record<Order["paymentStatus"], string> = {
   refunded: "negative",
 };
 
-export default function OrdersTable({ rows, statusLabel, statusTone }: OrdersTableProps) {
+const VALID_STATUSES = ["all", "pending", "processing", "shipped", "delivered", "cancelled"];
+
+export default function OrdersTable({ rows, statusLabel, statusTone, initialStatus }: OrdersTableProps) {
   const [query, setQuery] = useState("");
-  const [status, setStatus] = useState("all");
+  const [status, setStatus] = useState(initialStatus && VALID_STATUSES.includes(initialStatus) ? initialStatus : "all");
 
   const filtered = rows.filter((row) => {
     const q = query.trim().toLowerCase();

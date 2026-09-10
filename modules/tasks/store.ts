@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
+import { recordAudit } from "../audit/sandbox-log";
 import { NotFoundError, ValidationError } from "../shared/errors";
-import { getTeamMember } from "../team/store";
+import { getTeamMember, listTeamMembers } from "../team/store";
 import type { Task, TaskPriority, TaskStatus } from "./domain";
 
 export type { Task, TaskPriority, TaskStatus } from "./domain";
@@ -110,7 +111,83 @@ function seed(): Task[] {
     },
   ];
 
-  return rows.map((row) => ({ ...row, id: randomUUID(), taskNumber: nextTaskNumber() }));
+  // A wider spread of routine tasks across every teammate, so the Tasks
+  // page (and each dashboard's task-derived metrics) reflect a team that's
+  // actually busy, not the same six hand-written examples every load.
+  const GENERIC_TASKS: Array<{ title: string; description: string; priority: TaskPriority }> = [
+    { title: "Reconcile weekend sales against till receipts", description: "Cross-check the Lagos showroom's weekend till against system totals.", priority: "medium" },
+    { title: "Photograph new arrivals for the storefront", description: "Shoot and upload images before the listing goes live.", priority: "medium" },
+    { title: "Respond to size-exchange request", description: "Customer asked to swap M for L before shipping.", priority: "high" },
+    { title: "Audit low-stock lines for the week", description: "Cross-check against the reorder list before it goes stale.", priority: "medium" },
+    { title: "Update product descriptions for SEO", description: "Five listings are still using placeholder copy.", priority: "low" },
+    { title: "Confirm courier pickup window", description: "Coordinate with GIG Logistics for tomorrow's batch.", priority: "medium" },
+    { title: "Review permission overrides before quarter close", description: "Confirm nobody still has a stale grant from a role change.", priority: "low" },
+    { title: "Prep showroom for weekend trunk show", description: "Merchandising, signage and float cash need sorting.", priority: "high" },
+    { title: "Chase supplier on delayed fabric shipment", description: "Guangzhou hub restock is running a few days behind.", priority: "high" },
+    { title: "Draft this month's newsletter", description: "Feature the new arrivals and the trunk show.", priority: "low" },
+    { title: "Spot-check packaging quality", description: "A customer flagged a damaged box on delivery.", priority: "medium" },
+    { title: "Update team roster for new hire", description: "Add department, role and starter permissions.", priority: "medium" },
+    { title: "Investigate delayed shipment complaint", description: "Order stuck in transit for 5 days — check with the carrier.", priority: "high" },
+    { title: "Prepare monthly finance summary", description: "Revenue, refunds and overdue invoices for leadership review.", priority: "medium" },
+  ];
+
+  const members = listTeamMembers();
+  const STATUS_WEIGHTS: TaskStatus[] = ["done", "done", "done", "in_progress", "in_progress", "todo", "todo"];
+
+  GENERIC_TASKS.forEach((template, index) => {
+    const assignee = members[(index + 2) % members.length];
+    const assigner = members.find((m) => m.role === "executive") ?? members[0];
+    const status = STATUS_WEIGHTS[index % STATUS_WEIGHTS.length];
+    const createdDaysAgo = randomInt(2, 24);
+    const createdAt = ago(createdDaysAgo);
+    const updatedAt = status === "todo" ? createdAt : ago(randomInt(0, createdDaysAgo - 1));
+    const dueDate = status === "done" ? null : Math.random() < 0.6 ? (Math.random() < 0.25 ? ago(randomInt(1, 3)) : inDays(randomInt(1, 10))) : null;
+
+    rows.push({
+      title: template.title,
+      description: template.description,
+      assigneeId: assignee.id,
+      assigneeName: assignee.name,
+      assignedById: assigner.id,
+      assignedByName: assigner.name,
+      priority: template.priority,
+      status,
+      dueDate,
+      createdAt,
+      updatedAt,
+    });
+  });
+
+  const tasks = rows.map((row) => ({ ...row, id: randomUUID(), taskNumber: nextTaskNumber() }));
+
+  for (const task of tasks) {
+    recordAudit({
+      action: "tasks.create",
+      entityType: "task",
+      entityId: task.id,
+      actorId: task.assignedById,
+      actorName: task.assignedByName,
+      afterValue: { title: task.title, assigneeId: task.assigneeId, priority: task.priority },
+      occurredAt: task.createdAt,
+    });
+    if (task.status !== "todo") {
+      recordAudit({
+        action: "tasks.status_change",
+        entityType: "task",
+        entityId: task.id,
+        actorId: task.assigneeId,
+        actorName: task.assigneeName,
+        afterValue: { status: task.status },
+        occurredAt: task.updatedAt,
+      });
+    }
+  }
+
+  return tasks;
+}
+
+function randomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 if (!globalTasks.__veyTasks) {

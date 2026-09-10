@@ -9,13 +9,15 @@ interface ReturnsTableProps {
   statusLabel: Record<ReturnStatus, string>;
   statusTone: Record<ReturnStatus, string>;
   reasonLabel: Record<ReturnReason, string>;
+  initialStatus?: string;
 }
 
 const currency = new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 });
+const VALID_STATUSES = ["all", "requested", "approved", "received", "refunded", "rejected"];
 
-export default function ReturnsTable({ rows, statusLabel, statusTone, reasonLabel }: ReturnsTableProps) {
+export default function ReturnsTable({ rows, statusLabel, statusTone, reasonLabel, initialStatus }: ReturnsTableProps) {
   const [query, setQuery] = useState("");
-  const [status, setStatus] = useState("all");
+  const [status, setStatus] = useState(initialStatus && VALID_STATUSES.includes(initialStatus) ? initialStatus : "all");
 
   const filtered = rows.filter((row) => {
     const q = query.trim().toLowerCase();

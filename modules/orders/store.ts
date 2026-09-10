@@ -1,17 +1,19 @@
 import { randomUUID } from "crypto";
+import { recordAudit } from "../audit/sandbox-log";
 import { ConflictError, NotFoundError, ValidationError } from "../shared/errors";
 import type { Warehouse } from "../shared/warehouses";
 import { listVariants } from "../catalog/store";
-import { fulfillReservation, releaseReservation, reserveStock } from "../inventory/store";
-import type {
-  Carrier,
-  Channel,
-  CreateOrderInput,
-  Order,
-  OrderEvent,
-  OrderStatus,
-  Shipment,
-  ShipmentEvent,
+import { fulfillReservation, getStockTotals, releaseReservation, reserveStock } from "../inventory/store";
+import {
+  CARRIERS,
+  type Carrier,
+  type Channel,
+  type CreateOrderInput,
+  type Order,
+  type OrderEvent,
+  type OrderStatus,
+  type Shipment,
+  type ShipmentEvent,
 } from "./domain";
 
 const ORGANIZATION_ID = "theveybrand-sandbox";
@@ -52,54 +54,94 @@ function buildEvent(fromStatus: OrderStatus | null, toStatus: OrderStatus, actor
   };
 }
 
+const DAY_MS = 24 * 3600_000;
+
+// A wide customer pool with deliberate repeats -- some names appear many
+// times (so CRM has real VIP/returning segments to show), most appear once
+// or twice (so "new customer" trends are genuine, not a handful of the same
+// six people re-ordering forever).
+const CUSTOMER_POOL = [
+  "Chioma Eze", "Chioma Eze", "Chioma Eze", "Ngozi Umeh", "Ngozi Umeh", "Ngozi Umeh", "Ngozi Umeh",
+  "Blessing Okoro", "Blessing Okoro", "Amaka Nwosu", "Amaka Nwosu", "Amaka Nwosu",
+  "Funmi Adisa", "Ijeoma Chukwu", "Ijeoma Chukwu", "Tolu Bankole",
+  "Ifeoma Nnaji", "Grace Okafor", "Halima Yusuf", "Adaeze Obi", "Kemi Balogun",
+  "Chinwe Okeke", "Yetunde Adebayo", "Uche Anyanwu", "Zainab Bello", "Temitope Ajayi",
+  "Nkechi Uba", "Folake Adeyemi", "Chidinma Eze", "Bimpe Solanke", "Onyekachi Obiora",
+  "Ruth Adeleke", "Maryam Suleiman", "Ebele Chukwuemeka", "Titilayo Fashola", "Precious Etim",
+];
+
+const CUSTOMER_EMAIL: Record<string, string> = {};
+function emailFor(name: string): string {
+  if (!CUSTOMER_EMAIL[name]) {
+    CUSTOMER_EMAIL[name] = `${name.toLowerCase().replace(/[^a-z]+/g, ".")}@example.com`;
+  }
+  return CUSTOMER_EMAIL[name];
+}
+
+function randomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+function pick<T>(items: readonly T[]): T {
+  return items[Math.floor(Math.random() * items.length)];
+}
+
 function seedState(): OrdersState {
   const variants = listVariants();
   const findVariant = (sku: string) => variants.find((v) => v.sku === sku)!;
 
-  const state: OrdersState = { orders: [], shipments: [], counter: 2049 };
+  const state: OrdersState = { orders: [], shipments: [], counter: 1999 };
+
+  /** Any variant with enough available stock right now for a seed order of this size -- checked live since earlier seed orders in this same pass draw stock down. */
+  function pickAvailableVariant(quantity: number) {
+    const candidates = variants.filter((v) => getStockTotals(v.id).available >= quantity);
+    return candidates.length ? pick(candidates) : undefined;
+  }
 
   const seedOrder = (params: {
-    orderNumber: string;
     customer: string;
     channel: Channel;
     status: OrderStatus;
-    sku: string;
-    quantity: number;
-    placedHoursAgo: number;
+    daysAgo: number;
+    withEmail: boolean;
   }) => {
-    const variant = findVariant(params.sku);
-    const now = Date.now();
-    const placedAt = new Date(now - params.placedHoursAgo * 3600_000).toISOString();
+    const quantity = Math.random() < 0.8 ? 1 : 2;
+    const variant = pickAvailableVariant(quantity);
+    if (!variant) return; // stock exhausted across the board -- skip rather than fail the whole seed
+
     const warehouse = reserveStock({
       variantId: variant.id,
-      quantity: params.quantity,
-      reference: params.orderNumber,
+      quantity,
+      reference: `seed-${state.orders.length}`,
       actorId: "sandbox-executive",
     });
+
+    state.counter += 1;
+    const orderNumber = `VY-${state.counter}`;
+    const placedAt = new Date(Date.now() - params.daysAgo * DAY_MS - randomInt(0, 23) * 3600_000).toISOString();
 
     const item = {
       variantId: variant.id,
       productName: variant.productName,
       variantLabel: [variant.size, variant.color].filter(Boolean).join(" · "),
       sku: variant.sku,
-      quantity: params.quantity,
+      quantity,
       unitPrice: variant.price,
       warehouse,
     };
 
     const order: Order = {
       id: randomUUID(),
-      orderNumber: params.orderNumber,
+      orderNumber,
       organizationId: ORGANIZATION_ID,
       customer: params.customer,
-      customerEmail: null,
+      customerEmail: params.withEmail ? emailFor(params.customer) : null,
       channel: params.channel,
       status: "pending",
       items: [item],
       total: item.unitPrice * item.quantity,
-      createdBy: "sandbox-sales",
+      createdBy: params.channel === "Online store" ? "storefront-customer" : "sandbox-sales",
       createdAt: placedAt,
-      events: [buildEvent(null, "pending", "sandbox-sales", null)],
+      events: [buildEvent(null, "pending", params.channel === "Online store" ? "storefront-customer" : "sandbox-sales", null)],
       shipmentId: null,
       paymentStatus: params.status === "pending" ? "unpaid" : params.status === "cancelled" ? "refunded" : "paid",
       paymentIntentId: null,
@@ -107,62 +149,108 @@ function seedState(): OrdersState {
       paymentClientSecret: null,
     };
 
+    recordAudit({
+      action: params.channel === "Online store" ? "storefront.checkout" : "orders.create",
+      entityType: "order",
+      entityId: order.id,
+      actorId: order.createdBy,
+      actorName: params.channel === "Online store" ? params.customer : "Amara Okafor",
+      afterValue: { orderNumber: order.orderNumber, customer: order.customer, total: order.total },
+      occurredAt: placedAt,
+    });
+
     // Fast-forward through the lifecycle for seed data so history looks real.
     const path: OrderStatus[] = ["pending", "processing", "shipped", "delivered", "cancelled"];
     const targetIndex = path.indexOf(params.status);
+    let stageAt = new Date(placedAt).getTime();
     for (let i = 1; i <= targetIndex; i += 1) {
       const from = path[i - 1];
       const to = path[i];
+      stageAt = Math.min(stageAt + randomInt(4, 30) * 3600_000, Date.now());
+      const stageIso = new Date(stageAt).toISOString();
+
       if (to === "cancelled") {
         releaseReservation({ variantId: variant.id, warehouse, quantity: item.quantity, reference: order.orderNumber, actorId: "sandbox-sales" });
       } else if (to === "shipped") {
         fulfillReservation({ variantId: variant.id, warehouse, quantity: item.quantity, reference: order.orderNumber, actorId: "sandbox-warehouse" });
+        const carrier = pick(CARRIERS);
         const shipment: Shipment = {
           id: randomUUID(),
           orderId: order.id,
-          carrier: "GIG Logistics",
-          trackingNumber: `GIG${Math.floor(100000 + Math.random() * 899999)}`,
+          carrier,
+          trackingNumber: `${carrier.slice(0, 3).toUpperCase()}${Math.floor(100000 + Math.random() * 899999)}`,
           publicToken: randomUUID().replace(/-/g, "").slice(0, 16),
-          createdAt: new Date().toISOString(),
+          createdAt: stageIso,
           events: [
-            { id: randomUUID(), status: "Label created", location: "Lagos showroom", message: "Shipping label generated", occurredAt: new Date().toISOString() },
-            { id: randomUUID(), status: "In transit", location: "Lagos", message: "Package picked up by carrier", occurredAt: new Date().toISOString() },
+            { id: randomUUID(), status: "Label created", location: warehouse, message: "Shipping label generated", occurredAt: stageIso },
+            { id: randomUUID(), status: "In transit", location: warehouse === "Lagos showroom" ? "Lagos" : "Guangzhou", message: "Package picked up by carrier", occurredAt: stageIso },
           ],
         };
         state.shipments.push(shipment);
         order.shipmentId = shipment.id;
       } else if (to === "delivered") {
         const shipment = state.shipments.find((s) => s.id === order.shipmentId);
-        shipment?.events.push({ id: randomUUID(), status: "Delivered", location: params.customer, message: "Delivered to customer", occurredAt: new Date().toISOString() });
+        shipment?.events.push({ id: randomUUID(), status: "Delivered", location: params.customer, message: "Delivered to customer", occurredAt: stageIso });
       }
       order.status = to;
       order.events.push(buildEvent(from, to, to === "shipped" ? "sandbox-warehouse" : "sandbox-sales", null));
+
+      if (to === "shipped" || to === "delivered" || to === "cancelled") {
+        recordAudit({
+          action: to === "shipped" ? "orders.ship" : to === "delivered" ? "orders.deliver" : "orders.cancel",
+          entityType: "order",
+          entityId: order.id,
+          actorId: to === "shipped" ? "sandbox-warehouse" : "sandbox-sales",
+          actorName: to === "shipped" ? "David Chen" : "Amara Okafor",
+          afterValue: { orderNumber: order.orderNumber, status: order.status, carrier: order.shipmentId ? state.shipments.find((s) => s.id === order.shipmentId)?.carrier : undefined },
+          occurredAt: stageIso,
+        });
+      }
     }
 
     state.orders.push(order);
   };
 
-  seedOrder({ orderNumber: "VY-2049", customer: "Chioma Eze", channel: "Online store", status: "pending", sku: "VY-SIENNA-GOWN", quantity: 1, placedHoursAgo: 0.1 });
-  seedOrder({ orderNumber: "VY-2048", customer: "Ngozi Umeh", channel: "Lagos showroom", status: "processing", sku: "VY-ATELIER-SET", quantity: 1, placedHoursAgo: 0.4 });
-  seedOrder({ orderNumber: "VY-2047", customer: "Blessing Okoro", channel: "Online store", status: "shipped", sku: "VY-VELVET-SHIFT", quantity: 1, placedHoursAgo: 1 });
-  seedOrder({ orderNumber: "VY-2046", customer: "Amaka Nwosu", channel: "Online store", status: "delivered", sku: "CSV-9771141", quantity: 2, placedHoursAgo: 26 });
-  seedOrder({ orderNumber: "VY-2045", customer: "Funmi Adisa", channel: "Lagos showroom", status: "cancelled", sku: "CSV-9967993", quantity: 1, placedHoursAgo: 27 });
-  seedOrder({ orderNumber: "VY-2044", customer: "Ijeoma Chukwu", channel: "Online store", status: "delivered", sku: "CSV-9779896", quantity: 1, placedHoursAgo: 48 });
+  // ~35 days of order history, weighted toward the last two weeks so
+  // week-over-week trends have real signal and the business looks like
+  // it's growing rather than flatlined.
+  for (let daysAgo = 34; daysAgo >= 0; daysAgo -= 1) {
+    const ordersToday = daysAgo > 14 ? randomInt(0, 2) : daysAgo > 3 ? randomInt(1, 4) : randomInt(2, 5);
+    for (let i = 0; i < ordersToday; i += 1) {
+      const channel: Channel = Math.random() < 0.68 ? "Online store" : "Lagos showroom";
+      let status: OrderStatus;
+      if (daysAgo === 0) status = pick(["pending", "pending", "processing"] as const);
+      else if (daysAgo <= 2) status = pick(["pending", "processing", "processing", "shipped"] as const);
+      else if (daysAgo <= 5) status = pick(["processing", "shipped", "shipped", "delivered", "cancelled"] as const);
+      else status = pick(["delivered", "delivered", "delivered", "delivered", "shipped", "cancelled"] as const);
 
-  // One abandoned checkout for the Recovery tool to have something to show:
-  // reached Stripe's payment step (paymentStatus "processing") an hour ago
-  // and never completed it, order still "pending".
-  {
-    const variant = findVariant("VY-SIENNA-GOWN");
-    const warehouse = reserveStock({ variantId: variant.id, quantity: 1, reference: "pending-order", actorId: "sandbox-sales" });
+      seedOrder({
+        customer: pick(CUSTOMER_POOL),
+        channel,
+        status,
+        daysAgo,
+        withEmail: channel === "Online store" || Math.random() < 0.4,
+      });
+    }
+  }
+
+  // A handful of abandoned checkouts for the Recovery tool -- reached
+  // Stripe's payment step and never completed it, at various ages so the
+  // "oldest" metric has something real to say.
+  const abandonedAges = [0.3, 2, 9, 26];
+  for (const hoursAgo of abandonedAges) {
+    const variant = pickAvailableVariant(1);
+    if (!variant) continue;
+    const warehouse = reserveStock({ variantId: variant.id, quantity: 1, reference: "abandoned-checkout", actorId: "sandbox-sales" });
     state.counter += 1;
-    const placedAt = new Date(Date.now() - 3600_000).toISOString();
+    const customer = pick(CUSTOMER_POOL);
+    const placedAt = new Date(Date.now() - hoursAgo * 3600_000).toISOString();
     state.orders.push({
       id: randomUUID(),
       orderNumber: `VY-${state.counter}`,
       organizationId: ORGANIZATION_ID,
-      customer: "Tolu Bankole",
-      customerEmail: "tolu.bankole@example.com",
+      customer,
+      customerEmail: emailFor(customer),
       channel: "Online store",
       status: "pending",
       items: [{
@@ -180,7 +268,7 @@ function seedState(): OrdersState {
       events: [buildEvent(null, "pending", "storefront-customer", null)],
       shipmentId: null,
       paymentStatus: "processing",
-      paymentIntentId: "pi_seed_abandoned_example",
+      paymentIntentId: `pi_seed_abandoned_${state.counter}`,
       recoveryToken: randomUUID().replace(/-/g, ""),
       paymentClientSecret: null,
     });

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requirePagePermission } from "../../../lib/auth/session";
 import { getAnalyticsMetrics, getChannelBreakdown, getOrderStatusBreakdown, getRevenueTrend, getTopProducts } from "../../../modules/analytics/service";
 import ExportCsvButton from "../_components/ExportCsvButton";
@@ -9,10 +10,18 @@ import OrderStatusBreakdownChart from "../_components/charts/OrderStatusBreakdow
 
 export const dynamic = "force-dynamic";
 
+const METRIC_HREF: Record<string, string> = {
+  Revenue: "/orders",
+  "Orders fulfilled": "/orders?status=delivered",
+  "Order success rate": "/orders?status=cancelled",
+  "Repeat customers": "/customers",
+  "Return rate": "/returns",
+};
+
 export default async function AnalyticsPage() {
   await requirePagePermission("analytics.view");
 
-  const metrics = getAnalyticsMetrics();
+  const metrics = getAnalyticsMetrics().map((metric) => ({ ...metric, href: METRIC_HREF[metric.label] }));
   const revenueTrend = getRevenueTrend(7);
   const topProducts = getTopProducts(5);
   const channels = getChannelBreakdown();
@@ -34,24 +43,24 @@ export default async function AnalyticsPage() {
       <MetricGrid metrics={metrics} label="Analytics metrics" />
 
       <article className="erp-panel" style={{ marginBottom: 18 }}>
-        <div className="panel-heading"><div><p className="erp-eyebrow">Last 7 days</p><h2>Revenue trend</h2></div></div>
+        <div className="panel-heading"><div><p className="erp-eyebrow">Last 7 days</p><h2>Revenue trend</h2></div><Link href="/orders">View orders</Link></div>
         <RevenueTrendChart points={revenueTrend} />
       </article>
 
       <section className="dashboard-grid">
         <article className="erp-panel activity-panel">
-          <div className="panel-heading"><div><p className="erp-eyebrow">Best sellers</p><h2>Revenue by product</h2></div></div>
+          <div className="panel-heading"><div><p className="erp-eyebrow">Best sellers</p><h2>Revenue by product</h2></div><Link href="/inventory">See all products</Link></div>
           <TopProductsBarChart rows={topProducts} />
         </article>
 
         <article className="erp-panel focus-panel">
-          <div className="panel-heading"><div><p className="erp-eyebrow">Channels</p><h2>Revenue split</h2></div></div>
+          <div className="panel-heading"><div><p className="erp-eyebrow">Channels</p><h2>Revenue split</h2></div><Link href="/orders">View orders</Link></div>
           <ChannelSplitChart rows={channels} />
         </article>
       </section>
 
       <article className="erp-panel" style={{ marginTop: 18 }}>
-        <div className="panel-heading"><div><p className="erp-eyebrow">Fulfilment funnel</p><h2>Orders by status</h2></div></div>
+        <div className="panel-heading"><div><p className="erp-eyebrow">Fulfilment funnel</p><h2>Orders by status</h2></div><Link href="/orders">View orders</Link></div>
         <OrderStatusBreakdownChart rows={statusBreakdown} />
       </article>
     </>

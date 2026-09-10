@@ -18,14 +18,19 @@ const globalAudit = globalThis as typeof globalThis & { __veyAuditLog?: SandboxA
  * sensitive mutation (product create, stock adjustment, order lifecycle)
  * writes here — never silently, and never best-effort.
  */
-export function recordAudit(entry: Omit<SandboxAuditEntry, "occurredAt">): void {
+/**
+ * `occurredAt` may be passed explicitly when backfilling seed data with a
+ * realistic historical spread -- omit it for a live mutation and it's
+ * simply now, as before.
+ */
+export function recordAudit(entry: Omit<SandboxAuditEntry, "occurredAt"> & { occurredAt?: string }): void {
   const log = globalAudit.__veyAuditLog ?? [];
-  log.push({ ...entry, occurredAt: new Date().toISOString() });
+  log.push({ ...entry, occurredAt: entry.occurredAt ?? new Date().toISOString() });
   if (log.length > 500) log.splice(0, log.length - 500);
   globalAudit.__veyAuditLog = log;
 }
 
 export function listRecentAudit(limit = 20): SandboxAuditEntry[] {
   const log = globalAudit.__veyAuditLog ?? [];
-  return [...log].reverse().slice(0, limit);
+  return [...log].sort((a, b) => b.occurredAt.localeCompare(a.occurredAt)).slice(0, limit);
 }

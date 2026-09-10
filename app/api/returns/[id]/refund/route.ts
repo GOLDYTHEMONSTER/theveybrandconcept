@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { recordAudit } from "../../../../../modules/audit/sandbox-log";
+import { createNotification } from "../../../../../modules/notifications/store";
 import { getOrder, markPaymentRefunded } from "../../../../../modules/orders/store";
 import { getStripeClient, nairaToStripeAmount } from "../../../../../modules/payments/stripe";
 import { listReturnsForOrder, markReturnRefunded, requireReturn } from "../../../../../modules/returns/store";
@@ -45,6 +46,14 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       actorId: session.userId,
       actorName: session.name,
       afterValue: { refundId: refund.id, amount: returnRequest.refundAmount, orderFullyRefunded: refundedSoFar >= order.total },
+    });
+
+    createNotification({
+      audienceRoles: ["executive", "sales_manager"],
+      type: "return.refunded",
+      title: "Return refunded",
+      message: `${updated.returnNumber} refunded ₦${returnRequest.refundAmount.toLocaleString("en-NG")}`,
+      href: `/returns/${updated.id}`,
     });
 
     return NextResponse.json({ return: updated, refundId: refund.id });

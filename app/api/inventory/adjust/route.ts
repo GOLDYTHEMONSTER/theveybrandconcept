@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
         type: "inventory.out_of_stock",
         title: "Out of stock",
         message: `${product.name} is now out of stock at ${body.warehouse}`,
-        href: "/inventory",
+        href: `/inventory/product/${product.id}`,
       });
     } else if (afterOnHand > 0 && afterOnHand <= reorderPoint && beforeOnHand > reorderPoint) {
       createNotification({
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
         type: "inventory.low_stock",
         title: "Low stock",
         message: `${product.name} at ${body.warehouse} dropped to ${afterOnHand} units (reorder point: ${reorderPoint})`,
-        href: "/inventory",
+        href: `/inventory/product/${product.id}`,
       });
     }
 

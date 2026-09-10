@@ -7,10 +7,13 @@ import ReturnsTable from "../_components/ReturnsTable";
 
 export const dynamic = "force-dynamic";
 
-export default async function ReturnsPage() {
+export default async function ReturnsPage({ searchParams }: { searchParams: { status?: string } }) {
   await requirePagePermission("orders.view");
 
-  const metrics = getReturnMetrics();
+  const metrics = getReturnMetrics().map((metric) => ({
+    ...metric,
+    href: metric.label === "Awaiting review" ? "/returns?status=requested" : metric.label === "Refunded" ? "/returns?status=refunded" : "/returns",
+  }));
   const rows = listReturns();
 
   return (
@@ -39,7 +42,7 @@ export default async function ReturnsPage() {
 
       <MetricGrid metrics={metrics} label="Return metrics" />
 
-      <ReturnsTable rows={rows} statusLabel={RETURN_STATUS_LABEL} statusTone={RETURN_STATUS_TONE} reasonLabel={RETURN_REASON_LABEL} />
+      <ReturnsTable rows={rows} statusLabel={RETURN_STATUS_LABEL} statusTone={RETURN_STATUS_TONE} reasonLabel={RETURN_REASON_LABEL} initialStatus={searchParams.status} />
     </>
   );
 }
