@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import { recordAudit } from "../audit/sandbox-log";
 import { adjustStock } from "../inventory/store";
-import { getOrder, listOrders, requireOrder } from "../orders/store";
+import { getOrder, listOrders } from "../orders/store";
 import { ConflictError, NotFoundError, ValidationError } from "../shared/errors";
 import { createSeededRandom, stableId } from "../shared/seeded-random";
 import type { Warehouse } from "../shared/warehouses";
@@ -278,8 +278,4 @@ export function markReturnRefunded(id: string, actorId: string, refundId: string
   request.refundId = refundId;
   request.events.push(buildEvent("received", "refunded", actorId, `Stripe refund ${refundId}`));
   return request;
-}
-
-export function getOrderForReturn(orderId: string) {
-  return requireOrder(orderId);
 }

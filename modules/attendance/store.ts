@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { ConflictError, NotFoundError, ValidationError } from "../shared/errors";
+import { ConflictError, ValidationError } from "../shared/errors";
 import { stableId } from "../shared/seeded-random";
 import { getTeamMember, listTeamMembers } from "../team/store";
 import type { AttendanceRecord } from "./domain";
@@ -124,11 +124,5 @@ export function clockOut(memberId: string, note?: string | null): AttendanceReco
   record.clockOut = new Date().toISOString();
   record.durationMinutes = Math.round((new Date(record.clockOut).getTime() - new Date(record.clockIn).getTime()) / 60000);
   if (note) record.note = note.trim().slice(0, 240);
-  return record;
-}
-
-export function getAttendanceRecord(id: string): AttendanceRecord {
-  const record = store().find((item) => item.id === id);
-  if (!record) throw new NotFoundError("Attendance record not found");
   return record;
 }

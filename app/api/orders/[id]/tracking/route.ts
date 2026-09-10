@@ -18,7 +18,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     }
 
     const order = requireOrder(params.id);
-    const shipment = addShipmentEvent(params.id, { status, location, message }, session.userId);
+    const shipment = addShipmentEvent(params.id, { status, location, message });
 
     recordAudit({
       action: "orders.tracking_update",

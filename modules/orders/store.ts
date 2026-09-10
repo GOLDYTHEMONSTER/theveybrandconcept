@@ -14,7 +14,6 @@ import {
   type OrderEvent,
   type OrderStatus,
   type Shipment,
-  type ShipmentEvent,
 } from "./domain";
 
 const ORGANIZATION_ID = "theveybrand-sandbox";
@@ -536,7 +535,7 @@ export function markDelivered(orderId: string, actorId: string): Order {
   return order;
 }
 
-export function addShipmentEvent(orderId: string, params: { status: string; location: string | null; message: string }, actorId: string): Shipment {
+export function addShipmentEvent(orderId: string, params: { status: string; location: string | null; message: string }): Shipment {
   const order = requireOrder(orderId);
   const shipment = order.shipmentId ? getShipment(order.shipmentId) : undefined;
   if (!shipment) throw new NotFoundError("This order does not have a shipment yet");

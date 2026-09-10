@@ -1,5 +1,3 @@
-import { NotFoundError } from "../shared/errors";
-
 export interface CustomerRecord {
   key: string;
   note: string | null;
@@ -48,8 +46,4 @@ export function updateCustomerRecord(
   };
   store().set(key, updated);
   return updated;
-}
-
-export function requireCustomerHasOrders(key: string, knownKeys: Set<string>): void {
-  if (!knownKeys.has(key)) throw new NotFoundError("Customer not found");
 }

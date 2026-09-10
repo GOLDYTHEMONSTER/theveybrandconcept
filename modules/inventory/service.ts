@@ -32,18 +32,6 @@ function statusFor(onHand: number, reorderPoint: number): InventoryRow["status"]
   return "in_stock";
 }
 
-const STATUS_LABEL: Record<InventoryRow["status"], string> = {
-  in_stock: "In stock",
-  low_stock: "Low stock",
-  out_of_stock: "Out of stock",
-};
-
-const STATUS_TONE: Record<InventoryRow["status"], string> = {
-  in_stock: "positive",
-  low_stock: "warning",
-  out_of_stock: "negative",
-};
-
 export function getInventoryRows(): InventoryRow[] {
   const rows: InventoryRow[] = [];
   for (const variant of listVariants()) {
@@ -70,14 +58,6 @@ export function getInventoryRows(): InventoryRow[] {
     }
   }
   return rows.sort((a, b) => a.product.localeCompare(b.product));
-}
-
-export function getInventoryStatusLabel(status: InventoryRow["status"]): string {
-  return STATUS_LABEL[status];
-}
-
-export function getInventoryStatusTone(status: InventoryRow["status"]): string {
-  return STATUS_TONE[status];
 }
 
 export function getInventoryValue(): number {

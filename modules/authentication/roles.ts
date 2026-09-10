@@ -1,4 +1,4 @@
-import type { AuthenticatedUser, SandboxRole } from "./domain";
+import type { SandboxRole } from "./domain";
 
 export interface RoleDefinition {
   label: string;
@@ -89,13 +89,6 @@ export const ROLE_DEFINITIONS: Record<SandboxRole, RoleDefinition> = {
     ],
   },
 };
-
-export function hasPermission(
-  user: Pick<AuthenticatedUser, "permissions">,
-  permission: string
-): boolean {
-  return user.permissions.includes(permission);
-}
 
 export interface PermissionDefinition {
   key: string;
